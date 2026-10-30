@@ -1,5 +1,5 @@
 import React from 'react';
-import { Layers, BookMarked, BarChart3, Check, ArrowRight } from 'lucide-react';
+import { Layers, BookMarked, BarChart3 } from 'lucide-react';
 import './PlatformOverview.css';
 
 export const PlatformOverview: React.FC = () => {

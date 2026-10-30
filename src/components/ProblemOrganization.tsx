@@ -1,18 +1,8 @@
-import React, { useState } from 'react';
-import { 
-  Sparkles, 
-  Layers, 
-  Binary, 
-  GitBranch, 
-  Network, 
-  Code2, 
-  CheckCircle,
-  HelpCircle
-} from 'lucide-react';
+import React from 'react';
+import { Layers, HelpCircle } from 'lucide-react';
 import './ProblemOrganization.css';
 
 export const ProblemOrganization: React.FC = () => {
-  const [activeFilter, setActiveFilter] = useState<string>('all');
 
   const topics = [
     { name: 'Arrays', count: '48 problems', icon: '▦' },

@@ -1,14 +1,11 @@
 import React from 'react';
 import { 
-  TrendingUp, 
   Calendar, 
   CheckCircle2, 
   Clock, 
   AlertCircle, 
   Flame, 
-  Sparkles,
-  BarChart2,
-  PieChart
+  Sparkles
 } from 'lucide-react';
 import './PersonalProgress.css';
 
