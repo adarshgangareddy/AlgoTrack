@@ -6,7 +6,6 @@ import {
   User, 
   Mail, 
   ShieldCheck, 
-  CheckCircle2, 
   Sparkles, 
   ArrowLeft,
   Calendar,
