@@ -1,0 +1,221 @@
+import React, { useState, useEffect } from 'react';
+import { Menu, X, ArrowRight, Code2 } from 'lucide-react';
+import './Navbar.css';
+
+interface NavbarProps {
+  onAuthPlaceholderClick: (action: string) => void;
+}
+
+export const Navbar: React.FC<NavbarProps> = ({ onAuthPlaceholderClick }) => {
+  const [isScrolled, setIsScrolled] = useState(false);
+  const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
+  const [activeSection, setActiveSection] = useState<string>('');
+
+  useEffect(() => {
+    const handleScroll = () => {
+      setIsScrolled(window.scrollY > 16);
+
+      // Simple scroll spy
+      const sections = ['features', 'how-it-works', 'problem-library', 'progress-tracking', 'faq'];
+      const scrollPosition = window.scrollY + 120;
+
+      for (const sectionId of sections) {
+        const el = document.getElementById(sectionId);
+        if (el) {
+          const top = el.offsetTop;
+          const height = el.offsetHeight;
+          if (scrollPosition >= top && scrollPosition < top + height) {
+            setActiveSection(sectionId);
+            break;
+          }
+        }
+      }
+    };
+
+    window.addEventListener('scroll', handleScroll, { passive: true });
+    return () => window.removeEventListener('scroll', handleScroll);
+  }, []);
+
+  const handleNavClick = (e: React.MouseEvent<HTMLAnchorElement>, targetId: string) => {
+    e.preventDefault();
+    setMobileMenuOpen(false);
+    const element = document.getElementById(targetId);
+    if (element) {
+      element.scrollIntoView({ behavior: 'smooth' });
+    }
+  };
+
+  return (
+    <header className={`navbar-wrapper ${isScrolled ? 'is-scrolled' : ''}`}>
+      <div className="container navbar-container">
+        {/* Brand Logo */}
+        <a 
+          href="/" 
+          className="brand-logo"
+          onClick={(e) => {
+            e.preventDefault();
+            window.scrollTo({ top: 0, behavior: 'smooth' });
+          }}
+          aria-label="AlgoTrack Home"
+        >
+          <div className="brand-icon-wrapper">
+            <svg width="22" height="22" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+              <rect width="24" height="24" rx="6" fill="#18181B" />
+              <path d="M7 12L11 8L15 12L11 16L7 12Z" fill="#EA580C" fillOpacity="0.25" stroke="#F97316" strokeWidth="1.75" strokeLinejoin="round" />
+              <circle cx="11" cy="8" r="1.5" fill="#F97316" />
+              <circle cx="15" cy="12" r="1.5" fill="#FB923C" />
+              <circle cx="11" cy="16" r="1.5" fill="#F97316" />
+              <circle cx="7" cy="12" r="1.5" fill="#F97316" />
+              <path d="M15 12H18" stroke="#818CF8" strokeWidth="1.75" strokeLinecap="round" />
+              <circle cx="18" cy="12" r="1.75" fill="#818CF8" />
+            </svg>
+          </div>
+          <span className="brand-name">AlgoTrack</span>
+        </a>
+
+        {/* Desktop Navigation Links */}
+        <nav className="desktop-nav" aria-label="Main Navigation">
+          <ul className="nav-links">
+            <li>
+              <a 
+                href="#features" 
+                className={`nav-link ${activeSection === 'features' ? 'active' : ''}`}
+                onClick={(e) => handleNavClick(e, 'features')}
+              >
+                Features
+              </a>
+            </li>
+            <li>
+              <a 
+                href="#how-it-works" 
+                className={`nav-link ${activeSection === 'how-it-works' ? 'active' : ''}`}
+                onClick={(e) => handleNavClick(e, 'how-it-works')}
+              >
+                How It Works
+              </a>
+            </li>
+            <li>
+              <a 
+                href="#problem-library" 
+                className={`nav-link ${activeSection === 'problem-library' ? 'active' : ''}`}
+                onClick={(e) => handleNavClick(e, 'problem-library')}
+              >
+                Problem Library
+              </a>
+            </li>
+            <li>
+              <a 
+                href="#progress-tracking" 
+                className={`nav-link ${activeSection === 'progress-tracking' ? 'active' : ''}`}
+                onClick={(e) => handleNavClick(e, 'progress-tracking')}
+              >
+                Progress Tracking
+              </a>
+            </li>
+            <li>
+              <a 
+                href="#faq" 
+                className={`nav-link ${activeSection === 'faq' ? 'active' : ''}`}
+                onClick={(e) => handleNavClick(e, 'faq')}
+              >
+                FAQ
+              </a>
+            </li>
+          </ul>
+        </nav>
+
+        {/* Right CTA / Auth Entrypoints */}
+        <div className="navbar-actions">
+          <button 
+            type="button"
+            className="btn btn-ghost nav-signin-btn"
+            onClick={() => onAuthPlaceholderClick('Sign In')}
+            title="Phase 2 Entrypoint"
+          >
+            Sign In
+          </button>
+          <button 
+            type="button"
+            className="btn btn-primary nav-getstarted-btn"
+            onClick={() => onAuthPlaceholderClick('Get Started')}
+          >
+            <span>Get Started</span>
+            <ArrowRight size={15} />
+          </button>
+
+          {/* Mobile Menu Toggle Button */}
+          <button
+            type="button"
+            className="mobile-menu-toggle"
+            onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
+            aria-expanded={mobileMenuOpen}
+            aria-label={mobileMenuOpen ? 'Close Navigation Menu' : 'Open Navigation Menu'}
+          >
+            {mobileMenuOpen ? <X size={22} /> : <Menu size={22} />}
+          </button>
+        </div>
+      </div>
+
+      {/* Mobile Menu Dropdown */}
+      {mobileMenuOpen && (
+        <div className="mobile-menu-overlay" onClick={() => setMobileMenuOpen(false)}>
+          <div className="mobile-menu-content" onClick={(e) => e.stopPropagation()}>
+            <nav className="mobile-nav" aria-label="Mobile Navigation">
+              <ul className="mobile-nav-links">
+                <li>
+                  <a href="#features" onClick={(e) => handleNavClick(e, 'features')}>
+                    Features
+                  </a>
+                </li>
+                <li>
+                  <a href="#how-it-works" onClick={(e) => handleNavClick(e, 'how-it-works')}>
+                    How It Works
+                  </a>
+                </li>
+                <li>
+                  <a href="#problem-library" onClick={(e) => handleNavClick(e, 'problem-library')}>
+                    Problem Library
+                  </a>
+                </li>
+                <li>
+                  <a href="#progress-tracking" onClick={(e) => handleNavClick(e, 'progress-tracking')}>
+                    Progress Tracking
+                  </a>
+                </li>
+                <li>
+                  <a href="#faq" onClick={(e) => handleNavClick(e, 'faq')}>
+                    FAQ
+                  </a>
+                </li>
+              </ul>
+
+              <div className="mobile-menu-actions">
+                <button 
+                  type="button"
+                  className="btn btn-secondary w-full"
+                  onClick={() => {
+                    setMobileMenuOpen(false);
+                    onAuthPlaceholderClick('Sign In');
+                  }}
+                >
+                  Sign In
+                </button>
+                <button 
+                  type="button"
+                  className="btn btn-primary w-full"
+                  onClick={() => {
+                    setMobileMenuOpen(false);
+                    onAuthPlaceholderClick('Get Started');
+                  }}
+                >
+                  <span>Get Started</span>
+                  <ArrowRight size={16} />
+                </button>
+              </div>
+            </nav>
+          </div>
+        </div>
+      )}
+    </header>
+  );
+};

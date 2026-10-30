@@ -1,0 +1,231 @@
+/* ==========================================================================
+   Platform Overview Component Styles
+   ========================================================================== */
+
+.overview-section {
+  padding-top: clamp(60px, 7vw, 100px);
+  padding-bottom: clamp(60px, 7vw, 100px);
+  background-color: var(--bg-surface);
+  border-top: 1px solid var(--border-subtle);
+  border-bottom: 1px solid var(--border-subtle);
+}
+
+.overview-grid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 24px;
+}
+
+.overview-card {
+  padding: 32px 28px;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  gap: 24px;
+}
+
+.card-top {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.overview-icon-box {
+  width: 48px;
+  height: 48px;
+  border-radius: var(--radius-lg);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.overview-icon-box.orange {
+  background-color: var(--bg-accent-soft);
+  color: var(--brand-orange);
+  border: 1px solid var(--brand-orange-border);
+}
+
+.overview-icon-box.purple {
+  background-color: var(--brand-purple-soft);
+  color: var(--brand-purple);
+  border: 1px solid var(--brand-purple-border);
+}
+
+.card-pill {
+  font-size: 11.5px;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+  padding: 3px 10px;
+  border-radius: var(--radius-pill);
+  background-color: var(--bg-subtle);
+  color: var(--text-secondary);
+}
+
+.card-pill.purple {
+  background-color: var(--brand-purple-soft);
+  color: var(--brand-purple);
+}
+
+.card-content {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.card-heading {
+  font-size: 1.35rem;
+  font-weight: 700;
+  letter-spacing: -0.02em;
+  color: var(--text-primary);
+}
+
+.card-text {
+  font-size: 0.975rem;
+  color: var(--text-secondary);
+  line-height: 1.6;
+}
+
+/* Overview Visual Box */
+.overview-visual-box {
+  background-color: #FAFAFA;
+  border: 1px solid var(--border-subtle);
+  border-radius: var(--radius-md);
+  padding: 16px;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.micro-pills-row {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+}
+
+.micro-tag {
+  font-size: 11px;
+  padding: 3px 8px;
+  border-radius: 4px;
+  font-weight: 600;
+}
+
+.micro-tag.diff {
+  background-color: #FFFFFF;
+  border: 1px solid var(--border-default);
+  color: var(--text-secondary);
+}
+
+.micro-tag.pattern {
+  background-color: var(--brand-purple-soft);
+  color: var(--brand-purple);
+  border: 1px solid var(--brand-purple-border);
+}
+
+.micro-tag.topic {
+  background-color: var(--bg-accent-soft);
+  color: var(--brand-orange);
+  border: 1px solid var(--brand-orange-border);
+}
+
+.micro-tree-item {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 12px;
+  color: var(--text-muted);
+}
+
+.micro-tree-bullet {
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+  background-color: var(--brand-orange);
+}
+
+/* Micro Note */
+.micro-note-preview {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  font-family: var(--font-sans);
+}
+
+.note-line {
+  font-size: 11.5px;
+}
+
+.note-line.header {
+  font-weight: 600;
+  color: var(--text-primary);
+}
+
+.note-line.detail {
+  font-size: 11px;
+  color: #DC2626;
+  background-color: #FEF2F2;
+  padding: 2px 6px;
+  border-radius: 4px;
+  width: fit-content;
+}
+
+.note-meta-badges {
+  display: flex;
+  gap: 6px;
+}
+
+.note-badge {
+  font-family: var(--font-mono);
+  font-size: 10.5px;
+  background-color: #FFFFFF;
+  border: 1px solid var(--border-default);
+  padding: 1px 6px;
+  border-radius: 4px;
+  color: var(--text-secondary);
+}
+
+/* Micro Metric */
+.micro-metric-row {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.metric-col {
+  display: flex;
+  flex-direction: column;
+}
+
+.metric-val {
+  font-size: 1.15rem;
+  font-weight: 800;
+  color: var(--text-primary);
+  line-height: 1.2;
+}
+
+.metric-sub {
+  font-size: 10.5px;
+  color: var(--text-muted);
+  text-transform: uppercase;
+}
+
+.micro-progress-strip {
+  height: 5px;
+  background-color: #E4E4E7;
+  border-radius: 3px;
+  overflow: hidden;
+}
+
+.micro-fill {
+  height: 100%;
+  background: linear-gradient(90deg, #EA580C, #F97316);
+  border-radius: 3px;
+}
+
+/* Responsiveness */
+@media (max-width: 960px) {
+  .overview-grid {
+    grid-template-columns: 1fr;
+    gap: 20px;
+  }
+}
