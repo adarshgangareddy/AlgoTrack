@@ -1,5 +1,5 @@
 import React from 'react';
-import { History, CheckCircle2, Clock, BookOpen, Sparkles } from 'lucide-react';
+import { History, CheckCircle2, Clock, BookOpen } from 'lucide-react';
 import type { RecentActivityItem } from '../../services/dashboardService';
 
 interface RecentActivityProps {

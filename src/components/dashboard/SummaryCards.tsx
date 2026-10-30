@@ -4,8 +4,7 @@ import {
   CheckCircle2, 
   Clock, 
   Percent, 
-  Info,
-  Sparkles
+  Info
 } from 'lucide-react';
 import type { DashboardSummary } from '../../services/dashboardService';
 

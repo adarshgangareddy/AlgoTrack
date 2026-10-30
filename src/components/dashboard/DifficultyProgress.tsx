@@ -1,5 +1,5 @@
 import React from 'react';
-import { Layers, Info } from 'lucide-react';
+import { Info } from 'lucide-react';
 import type { DifficultyProgressData } from '../../services/dashboardService';
 
 interface DifficultyProgressProps {
