@@ -1,0 +1,333 @@
+/* ==========================================================================
+   Dashboard Page — Authenticated Placeholder Styles
+   ========================================================================== */
+
+.dashboard-placeholder-page {
+  min-height: 100vh;
+  background-color: #F8FAFC;
+  display: flex;
+  flex-direction: column;
+}
+
+.dashboard-nav {
+  background-color: #FFFFFF;
+  border-bottom: 1px solid #E2E8F0;
+  height: 72px;
+  display: flex;
+  align-items: center;
+  position: sticky;
+  top: 0;
+  z-index: 100;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.04);
+}
+
+.dashboard-nav-container {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.dash-logo-link {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  text-decoration: none;
+}
+
+.dash-logo-icon {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.dash-logo-text {
+  font-size: 1.25rem;
+  font-weight: 800;
+  color: #0F172A;
+  letter-spacing: -0.03em;
+}
+
+.dash-nav-actions {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.dash-home-btn {
+  font-size: 13.5px;
+  padding: 8px 16px;
+  border-radius: var(--radius-pill);
+}
+
+.dash-logout-btn {
+  font-size: 13.5px;
+  padding: 8px 18px;
+  border-radius: var(--radius-pill);
+}
+
+/* Main Container */
+.dash-main-container {
+  padding-top: 40px;
+  padding-bottom: 80px;
+  display: flex;
+  flex-direction: column;
+  gap: 24px;
+  max-width: 880px;
+}
+
+/* Status Banner */
+.dash-status-banner {
+  background: linear-gradient(135deg, #ECFDF5 0%, #D1FAE5 100%);
+  border: 1px solid #A7F3D0;
+  border-radius: 18px;
+  padding: 18px 24px;
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  box-shadow: 0 4px 12px rgba(16, 185, 129, 0.08);
+}
+
+.status-icon-wrap {
+  width: 40px;
+  height: 40px;
+  border-radius: 50%;
+  background-color: #FFFFFF;
+  border: 1px solid #A7F3D0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+}
+
+.text-green { color: #059669; }
+
+.status-text-wrap {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.status-title {
+  font-size: 14.5px;
+  font-weight: 700;
+  color: #065F46;
+}
+
+.status-desc {
+  font-size: 13px;
+  color: #047857;
+  line-height: 1.5;
+}
+
+.status-pill-badge {
+  font-size: 11px;
+  font-weight: 700;
+  text-transform: uppercase;
+  background-color: #FFFFFF;
+  color: #059669;
+  border: 1px solid #A7F3D0;
+  padding: 4px 12px;
+  border-radius: var(--radius-pill);
+  letter-spacing: 0.04em;
+  white-space: nowrap;
+}
+
+/* User Profile Card */
+.dash-profile-card {
+  background: #FFFFFF;
+  border: 1px solid #E2E8F0;
+  border-radius: 24px;
+  padding: 32px;
+  box-shadow: 0 10px 30px -5px rgba(15, 23, 42, 0.05);
+  display: flex;
+  flex-direction: column;
+  gap: 24px;
+}
+
+.profile-card-header {
+  display: flex;
+  align-items: center;
+  gap: 20px;
+  padding-bottom: 24px;
+  border-bottom: 1px solid #F1F5F9;
+}
+
+.profile-avatar-large {
+  width: 64px;
+  height: 64px;
+  border-radius: 50%;
+  background: linear-gradient(135deg, #0284C7 0%, #38BDF8 100%);
+  color: #FFFFFF;
+  font-size: 1.8rem;
+  font-weight: 800;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  box-shadow: 0 8px 18px rgba(2, 132, 199, 0.25);
+  flex-shrink: 0;
+}
+
+.profile-header-info {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.profile-name-row {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  flex-wrap: wrap;
+}
+
+.profile-user-name {
+  font-size: 1.65rem;
+  font-weight: 800;
+  color: #0F172A;
+  letter-spacing: -0.02em;
+}
+
+.auth-tier-pill {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 11.5px;
+  font-weight: 700;
+  color: #0284C7;
+  background-color: #E0F2FE;
+  border: 1px solid #BAE6FD;
+  padding: 3px 10px;
+  border-radius: var(--radius-pill);
+}
+
+.profile-user-email {
+  font-size: 14.5px;
+  color: #64748B;
+}
+
+/* Profile Details Grid */
+.profile-details-grid {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 16px;
+}
+
+.profile-field-item {
+  background-color: #F8FAFC;
+  border: 1px solid #E2E8F0;
+  border-radius: 16px;
+  padding: 16px 20px;
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.field-title {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 12px;
+  font-weight: 600;
+  color: #64748B;
+  text-transform: uppercase;
+  letter-spacing: 0.03em;
+}
+
+.field-value {
+  font-size: 14.5px;
+  font-weight: 700;
+  color: #0F172A;
+}
+
+.font-mono {
+  font-family: var(--font-mono);
+}
+
+.text-xs {
+  font-size: 12px;
+}
+
+.profile-card-footer {
+  padding-top: 16px;
+  border-top: 1px solid #F1F5F9;
+}
+
+.supabase-status-indicator {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 12.5px;
+  color: #64748B;
+  font-weight: 500;
+}
+
+.status-indicator-dot {
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+}
+
+.status-indicator-dot.live {
+  background-color: #10B981;
+  box-shadow: 0 0 8px #10B981;
+}
+
+.status-indicator-dot.demo {
+  background-color: #F59E0B;
+  box-shadow: 0 0 8px #F59E0B;
+}
+
+/* Phase 3 Notice Card */
+.dash-phase3-notice {
+  background: #FFFFFF;
+  border: 1px solid #E2E8F0;
+  border-radius: 20px;
+  padding: 24px;
+  display: flex;
+  align-items: flex-start;
+  gap: 18px;
+}
+
+.notice-icon-box {
+  width: 44px;
+  height: 44px;
+  border-radius: 12px;
+  background-color: #E0F2FE;
+  border: 1px solid #BAE6FD;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+}
+
+.notice-content {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.notice-title {
+  font-size: 1.15rem;
+  font-weight: 700;
+  color: #0F172A;
+}
+
+.notice-desc {
+  font-size: 0.925rem;
+  color: #64748B;
+  line-height: 1.6;
+}
+
+@media (max-width: 768px) {
+  .dash-status-banner {
+    flex-direction: column;
+    align-items: flex-start;
+  }
+  .profile-details-grid {
+    grid-template-columns: 1fr;
+  }
+  .dash-profile-card {
+    padding: 20px;
+  }
+}
