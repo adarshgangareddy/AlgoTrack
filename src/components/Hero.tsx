@@ -29,6 +29,7 @@ interface HeroProps {
 export const Hero: React.FC<HeroProps> = ({ onStartJourneyClick }) => {
   const [selectedTab, setSelectedTab] = useState<'all' | 'solved' | 'in-progress'>('all');
   const [isNightMode, setIsNightMode] = useState(true);
+  const [showStarPillPopover, setShowStarPillPopover] = useState(false);
 
   const scrollToFeatures = (e: React.MouseEvent) => {
     e.preventDefault();
