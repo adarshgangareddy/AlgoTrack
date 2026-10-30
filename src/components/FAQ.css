@@ -1,11 +1,11 @@
 /* ==========================================================================
-   FAQ Component Styles
+   FAQ — Things Cosmic Theme
    ========================================================================== */
 
 .faq-section {
   padding-top: clamp(60px, 7vw, 100px);
   padding-bottom: clamp(60px, 7vw, 100px);
-  background-color: var(--bg-page);
+  position: relative;
 }
 
 .faq-accordion-list {
@@ -17,15 +17,14 @@
 }
 
 .faq-item {
-  background-color: #FFFFFF;
   border-radius: var(--radius-lg);
   overflow: hidden;
   transition: all 0.2s ease;
 }
 
 .faq-item.is-open {
-  border-color: rgba(234, 88, 12, 0.3);
-  box-shadow: var(--shadow-md);
+  border-color: rgba(255, 78, 116, 0.45);
+  box-shadow: 0 12px 32px rgba(0, 0, 0, 0.5), 0 0 20px rgba(255, 78, 116, 0.15);
 }
 
 .faq-question-btn {
@@ -43,33 +42,35 @@
 }
 
 .faq-question-btn:hover {
-  background-color: #FAFAFA;
+  background-color: rgba(255, 255, 255, 0.04);
 }
 
 .faq-question-text {
   font-size: 1.05rem;
   font-weight: 700;
-  color: var(--text-primary);
+  color: #FFFFFF;
   line-height: 1.4;
 }
 
 .faq-chevron-box {
-  width: 32px;
-  height: 32px;
+  width: 34px;
+  height: 34px;
   border-radius: 50%;
-  background-color: var(--bg-subtle);
+  background-color: rgba(30, 26, 72, 0.8);
+  border: 1px solid rgba(165, 180, 252, 0.25);
   display: flex;
   align-items: center;
   justify-content: center;
-  color: var(--text-secondary);
+  color: #C7D2FE;
   transition: transform 0.25s cubic-bezier(0.16, 1, 0.3, 1), background-color 0.15s ease;
   flex-shrink: 0;
 }
 
 .faq-chevron-box.rotated {
   transform: rotate(180deg);
-  background-color: var(--bg-accent-soft);
-  color: var(--brand-orange);
+  background-color: rgba(255, 78, 116, 0.25);
+  color: #FF6B8B;
+  border-color: rgba(255, 78, 116, 0.45);
 }
 
 .faq-answer-collapse {
@@ -87,22 +88,14 @@
 .faq-answer-inner {
   padding: 0 24px 22px 24px;
   font-size: 0.95rem;
-  color: var(--text-secondary);
+  color: #CBD5E1;
   line-height: 1.65;
-  border-top: 1px solid var(--border-subtle);
+  border-top: 1px solid rgba(165, 180, 252, 0.15);
   padding-top: 16px;
 }
 
-/* Responsiveness */
 @media (max-width: 640px) {
-  .faq-question-btn {
-    padding: 16px 18px;
-  }
-  .faq-question-text {
-    font-size: 0.975rem;
-  }
-  .faq-answer-inner {
-    padding: 14px 18px 18px 18px;
-    font-size: 0.9rem;
-  }
+  .faq-question-btn { padding: 16px 18px; }
+  .faq-question-text { font-size: 0.975rem; }
+  .faq-answer-inner { padding: 14px 18px 18px 18px; font-size: 0.9rem; }
 }

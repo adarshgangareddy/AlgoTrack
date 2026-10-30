@@ -1,21 +1,22 @@
 /* ==========================================================================
-   Call To Action Component Styles
+   Call To Action — Things Cosmic Theme
    ========================================================================== */
 
 .cta-section {
   padding-top: clamp(60px, 7vw, 100px);
   padding-bottom: clamp(60px, 7vw, 100px);
-  background-color: var(--bg-surface);
-  border-top: 1px solid var(--border-subtle);
+  position: relative;
 }
 
 .cta-card {
-  padding: clamp(48px, 6vw, 72px) clamp(24px, 5vw, 64px);
+  padding: clamp(48px, 6vw, 76px) clamp(24px, 5vw, 64px);
   text-align: center;
-  background: radial-gradient(circle at 50% 0%, #FFF7ED 0%, #FFFFFF 65%);
-  border: 1px solid rgba(234, 88, 12, 0.18);
-  border-radius: var(--radius-2xl);
-  box-shadow: 0 16px 48px -12px rgba(234, 88, 12, 0.08), 0 1px 3px rgba(24, 24, 27, 0.04);
+  background: 
+    radial-gradient(circle at 50% 20%, rgba(255, 78, 116, 0.15) 0%, transparent 60%),
+    linear-gradient(180deg, rgba(38, 33, 90, 0.95) 0%, rgba(24, 20, 60, 0.95) 100%);
+  border: 2px solid rgba(255, 78, 116, 0.35);
+  border-radius: var(--radius-stadium);
+  box-shadow: 0 25px 70px -10px rgba(0, 0, 0, 0.7), 0 0 35px rgba(255, 78, 116, 0.2);
   max-width: 960px;
   margin: 0 auto;
   display: flex;
@@ -27,36 +28,38 @@
   display: inline-flex;
   align-items: center;
   gap: 8px;
-  padding: 5px 14px;
-  background-color: #FFFFFF;
-  border: 1px solid var(--brand-orange-border);
+  padding: 5px 16px;
+  background-color: rgba(255, 78, 116, 0.15);
+  border: 1px solid rgba(255, 78, 116, 0.4);
   border-radius: var(--radius-pill);
   font-size: 13px;
-  font-weight: 600;
-  color: var(--brand-orange);
+  font-weight: 700;
+  color: #FF6B8B;
   margin-bottom: 20px;
-  box-shadow: var(--shadow-xs);
+  box-shadow: 0 0 15px rgba(255, 78, 116, 0.2);
 }
 
 .cta-badge-dot {
   width: 7px;
   height: 7px;
   border-radius: 50%;
-  background-color: var(--brand-orange);
+  background-color: #FF4E74;
+  box-shadow: 0 0 8px #FF4E74;
 }
 
 .cta-heading {
-  font-size: clamp(2.2rem, 3.8vw + 0.5rem, 3.25rem);
+  font-size: clamp(2.3rem, 4vw + 0.5rem, 3.5rem);
   font-weight: 800;
   letter-spacing: -0.03em;
-  color: var(--text-primary);
+  color: #FFFFFF;
   line-height: 1.15;
   margin-bottom: 16px;
+  text-shadow: 0 4px 12px rgba(0, 0, 0, 0.4);
 }
 
 .cta-description {
-  font-size: clamp(1.05rem, 1.2vw + 0.4rem, 1.2rem);
-  color: var(--text-secondary);
+  font-size: clamp(1.05rem, 1.2vw + 0.4rem, 1.25rem);
+  color: #CBD5E1;
   line-height: 1.6;
   max-width: 620px;
   margin-bottom: 36px;
@@ -71,14 +74,14 @@
 }
 
 .cta-btn {
-  padding: 14px 32px;
-  font-size: 16px;
+  padding: 14px 36px;
+  font-size: 16.5px;
 }
 
 .cta-secondary-text {
   font-size: 13.5px;
-  color: var(--text-muted);
-  font-weight: 500;
+  color: #C7D2FE;
+  font-weight: 600;
 }
 
 .cta-benefits-row {
@@ -88,7 +91,7 @@
   gap: 28px;
   flex-wrap: wrap;
   padding-top: 24px;
-  border-top: 1px solid var(--border-subtle);
+  border-top: 1px solid rgba(165, 180, 252, 0.15);
   width: 100%;
 }
 
@@ -96,12 +99,11 @@
   display: flex;
   align-items: center;
   gap: 8px;
-  font-size: 13px;
-  font-weight: 600;
-  color: var(--text-secondary);
+  font-size: 13.5px;
+  font-weight: 700;
+  color: #E2E8F0;
 }
 
-/* Responsiveness */
 @media (max-width: 640px) {
   .cta-benefits-row {
     flex-direction: column;
