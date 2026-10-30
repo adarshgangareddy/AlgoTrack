@@ -1,12 +1,12 @@
 import React, { useState } from 'react';
-import { 
-  ArrowRight, 
-  Sparkles, 
-  Search, 
-  CheckCircle2, 
-  Clock, 
-  Flame, 
-  FileEdit, 
+import {
+  ArrowRight,
+  Sparkles,
+  Search,
+  CheckCircle2,
+  Clock,
+  Flame,
+  FileEdit,
   Layers
 } from 'lucide-react';
 import { AlgoTrackBalloon } from './voxel/AlgoTrackBalloon';
@@ -78,21 +78,21 @@ export const Hero: React.FC<HeroProps> = ({ onStartJourneyClick, isNightMode = t
     },
   ];
 
-  const filteredProblems = selectedTab === 'all' 
-    ? previewProblems 
+  const filteredProblems = selectedTab === 'all'
+    ? previewProblems
     : selectedTab === 'solved'
-    ? previewProblems.filter(p => p.status === 'Solved')
-    : previewProblems.filter(p => p.status === 'In Progress');
+      ? previewProblems.filter(p => p.status === 'Solved')
+      : previewProblems.filter(p => p.status === 'In Progress');
 
   return (
     <section className="hero-section" id="hero">
       <div className="container hero-container">
-        
+
         {/* ====================================================================
             THE "THINGS" MASTER STADIUM CARD WITH FLOATING 3D VOXEL ROOMS
             ==================================================================== */}
         <div className="things-stadium-wrapper">
-          
+
           {/* Floating Voxel Element 1: Top-Left Red Voxel Crab */}
           <div className="floating-voxel crab-pos" title="Algo mascot crab">
             <VoxelCrab />
@@ -125,7 +125,7 @@ export const Hero: React.FC<HeroProps> = ({ onStartJourneyClick, isNightMode = t
 
           {/* THE MAIN SKY / NIGHT SLANTED STADIUM CARD */}
           <div className={`things-main-card ${isNightMode ? 'night-active' : 'day-active'}`}>
-            
+
 
 
             {/* Clouds floating inside / across the card */}
@@ -145,15 +145,13 @@ export const Hero: React.FC<HeroProps> = ({ onStartJourneyClick, isNightMode = t
 
               {/* Subtitle Statement */}
               <p className="stadium-statement">
-                Your Coding Journey, Organized. Master coding interviews one problem at a time. 
-                Practice popular coding challenges, understand algorithmic patterns, 
-                and keep track of every step of your progress.
+                Practice coding challenges, master algorithmic patterns, save your solutions, and track your progress — all in one place.
               </p>
 
               {/* Call to Actions inside Card */}
               <div className="stadium-cta-row">
-                <button 
-                  type="button" 
+                <button
+                  type="button"
                   className="btn btn-primary btn-lg"
                   onClick={onStartJourneyClick}
                 >
@@ -161,8 +159,8 @@ export const Hero: React.FC<HeroProps> = ({ onStartJourneyClick, isNightMode = t
                   <ArrowRight size={17} />
                 </button>
 
-                <a 
-                  href="#features" 
+                <a
+                  href="#features"
                   className="btn btn-secondary btn-lg"
                   onClick={scrollToFeatures}
                 >
@@ -295,22 +293,22 @@ export const Hero: React.FC<HeroProps> = ({ onStartJourneyClick, isNightMode = t
               <div className="mockup-table-section">
                 <div className="table-filter-bar">
                   <div className="table-tabs">
-                    <button 
-                      type="button" 
+                    <button
+                      type="button"
                       className={`table-tab ${selectedTab === 'all' ? 'active' : ''}`}
                       onClick={() => setSelectedTab('all')}
                     >
                       All Problems (4)
                     </button>
-                    <button 
-                      type="button" 
+                    <button
+                      type="button"
                       className={`table-tab ${selectedTab === 'solved' ? 'active' : ''}`}
                       onClick={() => setSelectedTab('solved')}
                     >
                       Solved (2)
                     </button>
-                    <button 
-                      type="button" 
+                    <button
+                      type="button"
                       className={`table-tab ${selectedTab === 'in-progress' ? 'active' : ''}`}
                       onClick={() => setSelectedTab('in-progress')}
                     >
