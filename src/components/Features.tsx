@@ -7,8 +7,7 @@ import {
   NotebookPen, 
   History, 
   PieChart, 
-  RotateCcw,
-  CheckCircle2
+  RotateCcw
 } from 'lucide-react';
 import './Features.css';
 

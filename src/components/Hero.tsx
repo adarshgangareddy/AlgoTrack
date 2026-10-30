@@ -7,11 +7,7 @@ import {
   Clock, 
   Flame, 
   FileEdit, 
-  Filter, 
-  ChevronRight,
-  TrendingUp,
-  Layers,
-  BookOpen
+  Layers
 } from 'lucide-react';
 import './Hero.css';
 

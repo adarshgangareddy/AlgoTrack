@@ -3,13 +3,11 @@ import {
   BookOpen, 
   Code2, 
   Clock, 
-  Database, 
   AlertTriangle, 
   RotateCcw, 
   Check, 
-  Sparkles,
-  FileCode2,
-  Bookmark
+  Sparkles, 
+  FileCode2
 } from 'lucide-react';
 import './PersonalLearning.css';
 

@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { Menu, X, ArrowRight, Code2 } from 'lucide-react';
+import { Menu, X, ArrowRight } from 'lucide-react';
 import './Navbar.css';
 
 interface NavbarProps {

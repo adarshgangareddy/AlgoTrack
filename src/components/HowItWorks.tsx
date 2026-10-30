@@ -1,5 +1,5 @@
 import React from 'react';
-import { UserPlus, Compass, ExternalLink, CheckCircle, ArrowRight } from 'lucide-react';
+import { UserPlus, Compass, ExternalLink, CheckCircle } from 'lucide-react';
 import './HowItWorks.css';
 
 export const HowItWorks: React.FC = () => {
@@ -50,7 +50,7 @@ export const HowItWorks: React.FC = () => {
           <div className="steps-connector-line" aria-hidden="true"></div>
 
           <div className="steps-grid">
-            {steps.map((step, idx) => (
+            {steps.map((step) => (
               <div key={step.number} className="step-card card-saas">
                 <div className="step-header">
                   <div className="step-badge">
