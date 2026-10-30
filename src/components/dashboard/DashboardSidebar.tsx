@@ -8,7 +8,6 @@ import {
   Settings, 
   LogOut, 
   ChevronLeft, 
-  ChevronRight,
   Sparkles,
   ExternalLink
 } from 'lucide-react';
