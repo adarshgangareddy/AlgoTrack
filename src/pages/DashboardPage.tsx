@@ -1,12 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { useAuth } from '../context/AuthContext';
-import { 
-  Sparkles, 
-  Code2, 
-  Terminal,
-  Zap,
-  ArrowRight
-} from 'lucide-react';
+import { Sparkles, Loader2 } from 'lucide-react';
 import { DashboardSidebar } from '../components/dashboard/DashboardSidebar';
 import { DashboardHeader } from '../components/dashboard/DashboardHeader';
 import { SummaryCards } from '../components/dashboard/SummaryCards';
@@ -104,8 +98,17 @@ export const DashboardPage: React.FC = () => {
           <div className="dashboard-welcome-banner">
             <div className="welcome-banner-text">
               <div className="welcome-badge-pill">
-                <Sparkles size={13} color="#0284C7" />
-                <span>AlgoTrack Practice Engine</span>
+                {loading ? (
+                  <>
+                    <Loader2 size={13} className="animate-spin" color="#0284C7" />
+                    <span>Syncing Practice Metrics...</span>
+                  </>
+                ) : (
+                  <>
+                    <Sparkles size={13} color="#0284C7" />
+                    <span>AlgoTrack Practice Engine</span>
+                  </>
+                )}
               </div>
               <h1 className="welcome-heading">
                 Hello, {displayName}!
