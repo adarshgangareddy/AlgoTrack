@@ -130,6 +130,23 @@ export const Navbar: React.FC<NavbarProps> = ({ isNightMode = true, onToggleThem
 
         {/* Right CTA / Auth Entrypoints */}
         <div className="navbar-actions">
+          {/* Celestial Theme Toggle */}
+          {onToggleTheme && (
+            <button 
+              type="button" 
+              className="navbar-theme-toggle"
+              onClick={onToggleTheme}
+              aria-label="Toggle celestial sky background"
+              title={isNightMode ? 'Switch to Day Sky' : 'Switch to Night Sky'}
+            >
+              <div className="toggle-capsule">
+                <span className={`toggle-orb ${isNightMode ? 'night' : 'day'}`}>
+                  {isNightMode ? <Moon size={13} /> : <Sun size={13} />}
+                </span>
+              </div>
+            </button>
+          )}
+
           {user ? (
             <Link 
               to="/dashboard" 
@@ -204,6 +221,24 @@ export const Navbar: React.FC<NavbarProps> = ({ isNightMode = true, onToggleThem
               </ul>
 
               <div className="mobile-menu-actions">
+                {onToggleTheme && (
+                  <button 
+                    type="button" 
+                    className="navbar-theme-toggle w-full"
+                    onClick={onToggleTheme}
+                    style={{ marginBottom: '14px', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '8px' }}
+                  >
+                    <div className="toggle-capsule">
+                      <span className={`toggle-orb ${isNightMode ? 'night' : 'day'}`}>
+                        {isNightMode ? <Moon size={13} /> : <Sun size={13} />}
+                      </span>
+                    </div>
+                    <span style={{ fontSize: '13px', color: '#E2E8F0', fontWeight: 600 }}>
+                      {isNightMode ? 'Celestial Night' : 'Day Sky Mode'}
+                    </span>
+                  </button>
+                )}
+
                 {user ? (
                   <Link 
                     to="/dashboard"

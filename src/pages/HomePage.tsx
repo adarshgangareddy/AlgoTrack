@@ -1,3 +1,4 @@
+import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { Navbar } from '../components/Navbar';
 import { Hero } from '../components/Hero';
@@ -13,15 +14,22 @@ import { Footer } from '../components/Footer';
 
 export function HomePage() {
   const navigate = useNavigate();
+  const [isNightMode, setIsNightMode] = useState(true);
 
   return (
     <div className="algotrack-app">
-      {/* 1. Floating / Sticky Navigation Bar */}
-      <Navbar />
+      {/* 1. Floating / Sticky Navigation Bar with Theme Toggle */}
+      <Navbar 
+        isNightMode={isNightMode} 
+        onToggleTheme={() => setIsNightMode(!isNightMode)} 
+      />
 
       <main>
         {/* 2. Hero Section with Equa-inspired 3D Voxel Elements & Product Preview */}
-        <Hero onStartJourneyClick={() => navigate('/register')} />
+        <Hero 
+          onStartJourneyClick={() => navigate('/register')} 
+          isNightMode={isNightMode} 
+        />
 
         {/* 3. Platform Overview Section */}
         <PlatformOverview />
