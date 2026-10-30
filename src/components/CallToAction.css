@@ -1,0 +1,111 @@
+/* ==========================================================================
+   Call To Action Component Styles
+   ========================================================================== */
+
+.cta-section {
+  padding-top: clamp(60px, 7vw, 100px);
+  padding-bottom: clamp(60px, 7vw, 100px);
+  background-color: var(--bg-surface);
+  border-top: 1px solid var(--border-subtle);
+}
+
+.cta-card {
+  padding: clamp(48px, 6vw, 72px) clamp(24px, 5vw, 64px);
+  text-align: center;
+  background: radial-gradient(circle at 50% 0%, #FFF7ED 0%, #FFFFFF 65%);
+  border: 1px solid rgba(234, 88, 12, 0.18);
+  border-radius: var(--radius-2xl);
+  box-shadow: 0 16px 48px -12px rgba(234, 88, 12, 0.08), 0 1px 3px rgba(24, 24, 27, 0.04);
+  max-width: 960px;
+  margin: 0 auto;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+
+.cta-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  padding: 5px 14px;
+  background-color: #FFFFFF;
+  border: 1px solid var(--brand-orange-border);
+  border-radius: var(--radius-pill);
+  font-size: 13px;
+  font-weight: 600;
+  color: var(--brand-orange);
+  margin-bottom: 20px;
+  box-shadow: var(--shadow-xs);
+}
+
+.cta-badge-dot {
+  width: 7px;
+  height: 7px;
+  border-radius: 50%;
+  background-color: var(--brand-orange);
+}
+
+.cta-heading {
+  font-size: clamp(2.2rem, 3.8vw + 0.5rem, 3.25rem);
+  font-weight: 800;
+  letter-spacing: -0.03em;
+  color: var(--text-primary);
+  line-height: 1.15;
+  margin-bottom: 16px;
+}
+
+.cta-description {
+  font-size: clamp(1.05rem, 1.2vw + 0.4rem, 1.2rem);
+  color: var(--text-secondary);
+  line-height: 1.6;
+  max-width: 620px;
+  margin-bottom: 36px;
+}
+
+.cta-action-wrap {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 14px;
+  margin-bottom: 36px;
+}
+
+.cta-btn {
+  padding: 14px 32px;
+  font-size: 16px;
+}
+
+.cta-secondary-text {
+  font-size: 13.5px;
+  color: var(--text-muted);
+  font-weight: 500;
+}
+
+.cta-benefits-row {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 28px;
+  flex-wrap: wrap;
+  padding-top: 24px;
+  border-top: 1px solid var(--border-subtle);
+  width: 100%;
+}
+
+.benefit-item {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 13px;
+  font-weight: 600;
+  color: var(--text-secondary);
+}
+
+/* Responsiveness */
+@media (max-width: 640px) {
+  .cta-benefits-row {
+    flex-direction: column;
+    gap: 12px;
+    align-items: flex-start;
+  }
+}
