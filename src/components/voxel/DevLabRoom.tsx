@@ -73,8 +73,8 @@ export const DevLabRoom: React.FC<{ className?: string }> = ({ className = '' })
         <circle cx="75" cy="120" r="6" fill="#38BDF8" />
         <path d="M72,116 Q75,120 72,124" stroke="#F43F5E" strokeWidth="2" fill="none" />
         {/* Trash bin */}
-        <cylinder cx="52" cy="98" />
-        <rect x="48" y="92" width="7" height="9" fill="#94A3B8" rx="1" />
+        <ellipse cx="52" cy="92" rx="4" ry="2" fill="#64748B" />
+        <rect x="48" y="92" width="8" height="9" fill="#94A3B8" rx="1" />
       </svg>
     </div>
   );
