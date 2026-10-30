@@ -1,6 +1,6 @@
 import React from 'react';
 import { Link } from 'react-router-dom';
-import { ArrowLeft, Sparkles, CheckCircle2, ShieldCheck, Code2 } from 'lucide-react';
+import { ArrowLeft, Sparkles, CheckCircle2, ShieldCheck } from 'lucide-react';
 import './AuthLayout.css';
 
 interface AuthLayoutProps {

@@ -73,7 +73,7 @@ export const Navbar: React.FC<NavbarProps> = () => {
             </svg>
           </div>
           <span className="brand-name">AlgoTrack</span>
-        </a>
+        </Link>
 
         {/* Desktop Navigation Links */}
         <nav className="desktop-nav" aria-label="Main Navigation">
