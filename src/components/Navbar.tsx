@@ -1,12 +1,15 @@
 import React, { useState, useEffect } from 'react';
+import { Link } from 'react-router-dom';
 import { Menu, X, ArrowRight } from 'lucide-react';
+import { useAuth } from '../context/AuthContext';
 import './Navbar.css';
 
 interface NavbarProps {
-  onAuthPlaceholderClick: (action: string) => void;
+  onAuthPlaceholderClick?: (action: string) => void;
 }
 
-export const Navbar: React.FC<NavbarProps> = ({ onAuthPlaceholderClick }) => {
+export const Navbar: React.FC<NavbarProps> = () => {
+  const { user } = useAuth();
   const [isScrolled, setIsScrolled] = useState(false);
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
   const [activeSection, setActiveSection] = useState<string>('');
