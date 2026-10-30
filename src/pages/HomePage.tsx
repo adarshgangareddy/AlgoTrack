@@ -17,7 +17,7 @@ export function HomePage() {
   const [isNightMode, setIsNightMode] = useState(true);
 
   return (
-    <div className="algotrack-app">
+    <div className={`algotrack-app ${isNightMode ? 'night-theme' : 'day-theme'}`}>
       {/* 1. Floating / Sticky Navigation Bar with Theme Toggle */}
       <Navbar 
         isNightMode={isNightMode} 
