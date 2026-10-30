@@ -52,11 +52,10 @@ export const Navbar: React.FC<NavbarProps> = () => {
     <header className={`navbar-wrapper ${isScrolled ? 'is-scrolled' : ''}`}>
       <div className="container navbar-container">
         {/* Brand Logo */}
-        <a 
-          href="/" 
+        <Link 
+          to="/" 
           className="brand-logo"
-          onClick={(e) => {
-            e.preventDefault();
+          onClick={() => {
             window.scrollTo({ top: 0, behavior: 'smooth' });
           }}
           aria-label="AlgoTrack Home"
@@ -129,22 +128,32 @@ export const Navbar: React.FC<NavbarProps> = () => {
 
         {/* Right CTA / Auth Entrypoints */}
         <div className="navbar-actions">
-          <button 
-            type="button"
-            className="btn btn-ghost nav-signin-btn"
-            onClick={() => onAuthPlaceholderClick('Sign In')}
-            title="Phase 2 Entrypoint"
-          >
-            Sign In
-          </button>
-          <button 
-            type="button"
-            className="btn btn-primary nav-getstarted-btn"
-            onClick={() => onAuthPlaceholderClick('Get Started')}
-          >
-            <span>Get Started</span>
-            <ArrowRight size={15} />
-          </button>
+          {user ? (
+            <Link 
+              to="/dashboard" 
+              className="btn btn-primary nav-getstarted-btn"
+              title="Open Dashboard"
+            >
+              <span>Dashboard</span>
+              <ArrowRight size={15} />
+            </Link>
+          ) : (
+            <>
+              <Link 
+                to="/login" 
+                className="btn btn-ghost nav-signin-btn"
+              >
+                Sign In
+              </Link>
+              <Link 
+                to="/register" 
+                className="btn btn-primary nav-getstarted-btn"
+              >
+                <span>Get Started</span>
+                <ArrowRight size={15} />
+              </Link>
+            </>
+          )}
 
           {/* Mobile Menu Toggle Button */}
           <button
@@ -193,27 +202,34 @@ export const Navbar: React.FC<NavbarProps> = () => {
               </ul>
 
               <div className="mobile-menu-actions">
-                <button 
-                  type="button"
-                  className="btn btn-secondary w-full"
-                  onClick={() => {
-                    setMobileMenuOpen(false);
-                    onAuthPlaceholderClick('Sign In');
-                  }}
-                >
-                  Sign In
-                </button>
-                <button 
-                  type="button"
-                  className="btn btn-primary w-full"
-                  onClick={() => {
-                    setMobileMenuOpen(false);
-                    onAuthPlaceholderClick('Get Started');
-                  }}
-                >
-                  <span>Get Started</span>
-                  <ArrowRight size={16} />
-                </button>
+                {user ? (
+                  <Link 
+                    to="/dashboard"
+                    className="btn btn-primary w-full"
+                    onClick={() => setMobileMenuOpen(false)}
+                  >
+                    <span>Go to Dashboard</span>
+                    <ArrowRight size={16} />
+                  </Link>
+                ) : (
+                  <>
+                    <Link 
+                      to="/login"
+                      className="btn btn-secondary w-full"
+                      onClick={() => setMobileMenuOpen(false)}
+                    >
+                      Sign In
+                    </Link>
+                    <Link 
+                      to="/register"
+                      className="btn btn-primary w-full"
+                      onClick={() => setMobileMenuOpen(false)}
+                    >
+                      <span>Get Started</span>
+                      <ArrowRight size={16} />
+                    </Link>
+                  </>
+                )}
               </div>
             </nav>
           </div>
