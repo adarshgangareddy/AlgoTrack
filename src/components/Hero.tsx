@@ -125,13 +125,17 @@ export const Hero: React.FC<HeroProps> = ({ onStartJourneyClick, isNightMode = t
 
           {/* THE MAIN SKY / NIGHT SLANTED STADIUM CARD */}
           <div className={`things-main-card ${isNightMode ? 'night-active' : 'day-active'}`}>
-
-
+            
+            {/* Dynamic Animated Celestial Canvas & Shimmer Atmosphere */}
+            <div className="stadium-sky-canvas" aria-hidden="true">
+              <div className="celestial-aurora-glow" />
+              <div className="celestial-stars-grid" />
+            </div>
 
             {/* Clouds floating inside / across the card */}
-            <PuffyCloud className="cloud-pos-mid-left" tint="white" />
-            <PuffyCloud className="cloud-pos-bottom-left" tint="white" />
-            <PuffyCloud className="cloud-pos-bottom-right" tint="sunset" />
+            <PuffyCloud className="cloud-pos-mid-left" tint={isNightMode ? "white" : "white"} />
+            <PuffyCloud className="cloud-pos-bottom-left" tint={isNightMode ? "white" : "white"} />
+            <PuffyCloud className="cloud-pos-bottom-right" tint={isNightMode ? "sunset" : "sunset"} />
 
             {/* Stadium Card Central Typography Content */}
             <div className="stadium-inner-content">
