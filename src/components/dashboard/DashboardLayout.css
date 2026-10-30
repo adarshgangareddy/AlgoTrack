@@ -201,6 +201,15 @@
   cursor: not-allowed;
 }
 
+.dashboard-sidebar.is-collapsed .sidebar-nav-container {
+  padding: 20px 10px;
+}
+
+.dashboard-sidebar.is-collapsed .nav-item-btn {
+  justify-content: center;
+  padding: 11px 0;
+}
+
 .nav-badge {
   font-size: 10px;
   font-weight: 700;
