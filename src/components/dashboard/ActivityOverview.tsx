@@ -2,7 +2,6 @@ import React, { useState } from 'react';
 import { 
   Calendar, 
   BarChart2, 
-  Flame, 
   Compass,
   Sparkles
 } from 'lucide-react';

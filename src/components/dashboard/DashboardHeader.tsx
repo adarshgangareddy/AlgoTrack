@@ -7,8 +7,7 @@ import {
   LogOut, 
   ChevronDown, 
   ExternalLink,
-  ShieldCheck,
-  Sparkles
+  ShieldCheck
 } from 'lucide-react';
 import { useAuth } from '../../context/AuthContext';
 
