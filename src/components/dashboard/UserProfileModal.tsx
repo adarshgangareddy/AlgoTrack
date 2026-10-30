@@ -2,14 +2,11 @@ import React from 'react';
 import { useNavigate } from 'react-router-dom';
 import { 
   X, 
-  User, 
-  Mail, 
   Calendar, 
   ShieldCheck, 
   KeyRound, 
   LogOut, 
-  Sparkles,
-  Layers
+  Sparkles
 } from 'lucide-react';
 import { useAuth } from '../../context/AuthContext';
 

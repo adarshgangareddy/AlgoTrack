@@ -1,5 +1,5 @@
 import React from 'react';
-import { Tag, Sparkles } from 'lucide-react';
+import { Sparkles } from 'lucide-react';
 import type { TopicProgressData } from '../../services/dashboardService';
 
 interface TopicProgressProps {
