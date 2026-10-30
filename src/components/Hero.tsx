@@ -7,8 +7,19 @@ import {
   Clock, 
   Flame, 
   FileEdit, 
-  Layers
+  Layers,
+  Moon,
+  Sun,
+  ChevronDown
 } from 'lucide-react';
+import { AlgoTrackBalloon } from './voxel/AlgoTrackBalloon';
+import { DevLabRoom } from './voxel/DevLabRoom';
+import { ArcadeRoom } from './voxel/ArcadeRoom';
+import { DiscoRoom } from './voxel/DiscoRoom';
+import { VoxelCrab } from './voxel/VoxelCrab';
+import { VoxelChick } from './voxel/VoxelChick';
+import { VoxelCoin } from './voxel/VoxelCoin';
+import { PuffyCloud } from './voxel/PuffyCloud';
 import './Hero.css';
 
 interface HeroProps {
@@ -17,6 +28,7 @@ interface HeroProps {
 
 export const Hero: React.FC<HeroProps> = ({ onStartJourneyClick }) => {
   const [selectedTab, setSelectedTab] = useState<'all' | 'solved' | 'in-progress'>('all');
+  const [isNightMode, setIsNightMode] = useState(true);
 
   const scrollToFeatures = (e: React.MouseEvent) => {
     e.preventDefault();
@@ -35,7 +47,6 @@ export const Hero: React.FC<HeroProps> = ({ onStartJourneyClick }) => {
       topic: 'Arrays & Hashing',
       pattern: 'Two Pointers',
       status: 'Solved',
-      statusClass: 'status-solved',
       notesCount: 2,
     },
     {
@@ -46,7 +57,6 @@ export const Hero: React.FC<HeroProps> = ({ onStartJourneyClick }) => {
       topic: 'Strings',
       pattern: 'Sliding Window',
       status: 'Solved',
-      statusClass: 'status-solved',
       notesCount: 1,
     },
     {
@@ -57,7 +67,6 @@ export const Hero: React.FC<HeroProps> = ({ onStartJourneyClick }) => {
       topic: 'Linked Lists',
       pattern: 'Hash Table + DLL',
       status: 'In Progress',
-      statusClass: 'status-progress',
       notesCount: 3,
     },
     {
@@ -68,7 +77,6 @@ export const Hero: React.FC<HeroProps> = ({ onStartJourneyClick }) => {
       topic: 'Arrays & Two Pointers',
       pattern: 'Two Pointers / Stack',
       status: 'In Progress',
-      statusClass: 'status-progress',
       notesCount: 1,
     },
   ];
@@ -82,69 +90,125 @@ export const Hero: React.FC<HeroProps> = ({ onStartJourneyClick }) => {
   return (
     <section className="hero-section" id="hero">
       <div className="container hero-container">
-        {/* Hero Top Copy */}
-        <div className="hero-content">
-          <div className="hero-badge">
-            <span className="hero-badge-dot"></span>
-            <span className="hero-badge-text">Personal Coding Interview & Pattern Tracker</span>
+        
+        {/* ====================================================================
+            THE "THINGS" MASTER STADIUM CARD WITH FLOATING 3D VOXEL ROOMS
+            ==================================================================== */}
+        <div className="things-stadium-wrapper">
+          
+          {/* Floating Voxel Element 1: Top-Left Red Voxel Crab */}
+          <div className="floating-voxel crab-pos" title="Algo mascot crab">
+            <VoxelCrab />
           </div>
 
-          <h1 className="hero-headline">
-            Your Coding Journey, <span className="highlight-text">Organized.</span>
-          </h1>
-
-          <p className="hero-description">
-            Master coding interviews one problem at a time. Practice popular coding challenges, 
-            understand algorithmic patterns and keep track of every step of your progress.
-          </p>
-
-          <div className="hero-cta-group">
-            <button 
-              type="button" 
-              className="btn btn-primary btn-lg"
-              onClick={onStartJourneyClick}
-            >
-              <span>Start Your Journey</span>
-              <ArrowRight size={18} />
-            </button>
-
-            <a 
-              href="#features" 
-              className="btn btn-secondary btn-lg"
-              onClick={scrollToFeatures}
-            >
-              <span>Explore Features</span>
-            </a>
+          {/* Floating Voxel Element 2: Top-Right Dev Lab Room */}
+          <div className="floating-voxel dev-lab-pos" title="Dev Lab / Problem Studio">
+            <DevLabRoom />
           </div>
 
-          <div className="hero-trust-indicators">
-            <div className="trust-item">
-              <span className="trust-number">400+</span>
-              <span className="trust-label">Curated Problems</span>
+          {/* Floating Voxel Element 3: Left Arcade Coding Court Room */}
+          <div className="floating-voxel arcade-pos" title="Code Court / Practice Arena">
+            <ArcadeRoom />
+          </div>
+
+          {/* Floating Voxel Element 4: Right Yellow Voxel Chick */}
+          <div className="floating-voxel chick-pos" title="Learning companion chick">
+            <VoxelChick />
+          </div>
+
+          {/* Floating Voxel Element 5: Bottom-Left Rotating Golden Coin */}
+          <div className="floating-voxel coin-pos" title="Golden Algo Token">
+            <VoxelCoin />
+          </div>
+
+          {/* Floating Voxel Element 6: Bottom-Right Matrix Disco Room */}
+          <div className="floating-voxel disco-pos" title="Mastery Club / Server Matrix">
+            <DiscoRoom />
+          </div>
+
+          {/* THE MAIN SKY / NIGHT SLANTED STADIUM CARD */}
+          <div className={`things-main-card ${isNightMode ? 'night-active' : 'day-active'}`}>
+            
+            {/* Top Controls inside Card (Moon toggle & Star pill) */}
+            <div className="stadium-top-controls">
+              <button 
+                type="button" 
+                className="stadium-theme-toggle"
+                onClick={() => setIsNightMode(!isNightMode)}
+                aria-label="Toggle celestial sky ambiance"
+                title="Toggle celestial mode"
+              >
+                <div className="toggle-capsule">
+                  <span className={`toggle-orb ${isNightMode ? 'night' : 'day'}`}>
+                    {isNightMode ? <Moon size={13} /> : <Sun size={13} />}
+                  </span>
+                </div>
+              </button>
+
+              <div className="stadium-star-pill">
+                <Sparkles size={13} className="text-gold" />
+                <span className="pill-text">1 / 5</span>
+                <ChevronDown size={13} />
+              </div>
             </div>
-            <div className="trust-divider"></div>
-            <div className="trust-item">
-              <span className="trust-number">16+</span>
-              <span className="trust-label">Algorithmic Patterns</span>
-            </div>
-            <div className="trust-divider"></div>
-            <div className="trust-item">
-              <span className="trust-number">100%</span>
-              <span className="trust-label">Personal Control</span>
+
+            {/* Clouds floating inside / across the card */}
+            <PuffyCloud className="cloud-pos-mid-left" tint="white" />
+            <PuffyCloud className="cloud-pos-bottom-left" tint="white" />
+            <PuffyCloud className="cloud-pos-bottom-right" tint="sunset" />
+
+            {/* Stadium Card Central Typography Content */}
+            <div className="stadium-inner-content">
+              <div className="stadium-greetings">
+                <div className="greeting-hello">Hello!</div>
+                <div className="greeting-weare">Welcome to</div>
+              </div>
+
+              {/* Massive 3D Puffy Balloon Typography: AlgoTrack */}
+              <AlgoTrackBalloon />
+
+              {/* Subtitle Statement */}
+              <p className="stadium-statement">
+                Your Coding Journey, Organized. Master coding interviews one problem at a time. 
+                Practice popular coding challenges, understand algorithmic patterns, 
+                and keep track of every step of your progress.
+              </p>
+
+              {/* Call to Actions inside Card */}
+              <div className="stadium-cta-row">
+                <button 
+                  type="button" 
+                  className="btn btn-primary btn-lg"
+                  onClick={onStartJourneyClick}
+                >
+                  <span>Start Your Journey</span>
+                  <ArrowRight size={17} />
+                </button>
+
+                <a 
+                  href="#features" 
+                  className="btn btn-secondary btn-lg"
+                  onClick={scrollToFeatures}
+                >
+                  <span>Explore Features</span>
+                </a>
+              </div>
             </div>
           </div>
         </div>
 
-        {/* Visual Product Preview Mockup (Equa Inspired) */}
+        {/* ====================================================================
+            BELOW STADIUM: PRODUCT PREVIEW DASHBOARD MOCKUP
+            ==================================================================== */}
         <div className="hero-preview-wrapper" aria-label="AlgoTrack Platform Preview">
           <div className="preview-top-flag">
             <span className="preview-flag-pill">
-              <Sparkles size={13} className="text-orange" />
-              <span>Illustrative Product Preview</span>
+              <Sparkles size={13} className="text-gold" />
+              <span>Interactive Practice Workspace Preview</span>
             </span>
           </div>
 
-          <div className="hero-mockup-frame">
+          <div className="hero-mockup-frame card-saas">
             {/* Mockup App Bar */}
             <div className="mockup-header">
               <div className="mockup-header-left">
@@ -155,7 +219,7 @@ export const Hero: React.FC<HeroProps> = ({ onStartJourneyClick }) => {
                 </div>
                 <div className="mockup-workspace-pill">
                   <span className="workspace-status"></span>
-                  <span className="workspace-title">AlgoTrack / Blind 75 & Grind 169</span>
+                  <span className="workspace-title">AlgoTrack / 400 Curated Patterns</span>
                 </div>
               </div>
 
@@ -247,7 +311,7 @@ export const Hero: React.FC<HeroProps> = ({ onStartJourneyClick }) => {
                     <div className="streak-dot active" title="Saturday">S</div>
                     <div className="streak-dot current" title="Sunday">S</div>
                   </div>
-                  <div className="stat-card-caption">Current week target: 92% met</div>
+                  <div className="stat-card-caption">Weekly goal: 92% completed</div>
                 </div>
               </div>
 
@@ -278,7 +342,7 @@ export const Hero: React.FC<HeroProps> = ({ onStartJourneyClick }) => {
                     </button>
                   </div>
                   <div className="table-actions">
-                    <span className="topic-pill-hint">Filter: Arrays, Sliding Window</span>
+                    <span className="topic-pill-hint">Active Filter: Arrays, Sliding Window</span>
                   </div>
                 </div>
 
@@ -319,12 +383,13 @@ export const Hero: React.FC<HeroProps> = ({ onStartJourneyClick }) => {
 
                 <div className="mockup-footer-note">
                   <span>Showing 4 of 400 curated practice problems</span>
-                  <span className="footer-link-hint">Official LeetCode links & personal notes attached</span>
+                  <span className="footer-link-hint">Structured with LeetCode links & personal notes</span>
                 </div>
               </div>
             </div>
           </div>
         </div>
+
       </div>
     </section>
   );
