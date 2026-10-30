@@ -75,10 +75,12 @@ export const DashboardHeader: React.FC<DashboardHeaderProps> = ({
           onClick={onOpenSearch} 
           role="button" 
           tabIndex={0}
-          title="Search dashboard sections (Ctrl+K)"
+          aria-label="Open search command palette"
         >
-          <Search size={16} />
-          <span>Search dashboard, topics & activity...</span>
+          <div className="search-icon-wrapper">
+            <Search size={16} />
+          </div>
+          <span className="search-placeholder-text">Search dashboard, topics & activity...</span>
           <span className="kbd-shortcut">Ctrl+K</span>
         </div>
       </div>

@@ -64,33 +64,58 @@ export const DashboardSidebar: React.FC<DashboardSidebarProps> = ({
 
       <aside className={`dashboard-sidebar ${isCollapsed ? 'is-collapsed' : ''} ${mobileOpen ? 'mobile-open' : ''}`}>
         {/* Brand Header */}
-        <div className="sidebar-header">
-          <Link to="/dashboard" className="sidebar-brand" onClick={onCloseMobile}>
-            <div className="brand-icon-box">
-              <svg width="20" height="20" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
-                <rect width="24" height="24" rx="6" fill="#18181B" />
-                <path d="M7 12L11 8L15 12L11 16L7 12Z" fill="#0284C7" fillOpacity="0.3" stroke="#38BDF8" strokeWidth="1.75" strokeLinejoin="round" />
-                <circle cx="11" cy="8" r="1.5" fill="#38BDF8" />
-                <circle cx="15" cy="12" r="1.5" fill="#0284C7" />
-                <circle cx="11" cy="16" r="1.5" fill="#38BDF8" />
-                <circle cx="7" cy="12" r="1.5" fill="#38BDF8" />
-                <path d="M15 12H18" stroke="#F97316" strokeWidth="1.75" strokeLinecap="round" />
-                <circle cx="18" cy="12" r="1.75" fill="#F97316" />
-              </svg>
-            </div>
-            {!isCollapsed && <span className="brand-title">AlgoTrack</span>}
-          </Link>
+        <div className={`sidebar-header ${isCollapsed ? 'is-collapsed' : ''}`}>
+          {isCollapsed ? (
+            <button
+              type="button"
+              className="sidebar-collapsed-brand-btn"
+              onClick={onToggleCollapse}
+              aria-label="Expand sidebar"
+              title="Expand sidebar"
+            >
+              <div className="brand-icon-box">
+                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                  <rect width="24" height="24" rx="6" fill="#18181B" />
+                  <path d="M7 12L11 8L15 12L11 16L7 12Z" fill="#0284C7" fillOpacity="0.3" stroke="#38BDF8" strokeWidth="1.75" strokeLinejoin="round" />
+                  <circle cx="11" cy="8" r="1.5" fill="#38BDF8" />
+                  <circle cx="15" cy="12" r="1.5" fill="#0284C7" />
+                  <circle cx="11" cy="16" r="1.5" fill="#38BDF8" />
+                  <circle cx="7" cy="12" r="1.5" fill="#38BDF8" />
+                  <path d="M15 12H18" stroke="#F97316" strokeWidth="1.75" strokeLinecap="round" />
+                  <circle cx="18" cy="12" r="1.75" fill="#F97316" />
+                </svg>
+              </div>
+            </button>
+          ) : (
+            <>
+              <Link to="/dashboard" className="sidebar-brand" onClick={onCloseMobile}>
+                <div className="brand-icon-box">
+                  <svg width="20" height="20" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                    <rect width="24" height="24" rx="6" fill="#18181B" />
+                    <path d="M7 12L11 8L15 12L11 16L7 12Z" fill="#0284C7" fillOpacity="0.3" stroke="#38BDF8" strokeWidth="1.75" strokeLinejoin="round" />
+                    <circle cx="11" cy="8" r="1.5" fill="#38BDF8" />
+                    <circle cx="15" cy="12" r="1.5" fill="#0284C7" />
+                    <circle cx="11" cy="16" r="1.5" fill="#38BDF8" />
+                    <circle cx="7" cy="12" r="1.5" fill="#38BDF8" />
+                    <path d="M15 12H18" stroke="#F97316" strokeWidth="1.75" strokeLinecap="round" />
+                    <circle cx="18" cy="12" r="1.75" fill="#F97316" />
+                  </svg>
+                </div>
+                <span className="brand-title">AlgoTrack</span>
+              </Link>
 
-          {/* Desktop Collapse Toggle */}
-          <button 
-            type="button" 
-            className="sidebar-toggle-btn"
-            onClick={onToggleCollapse}
-            aria-label={isCollapsed ? 'Expand sidebar' : 'Collapse sidebar'}
-            title={isCollapsed ? 'Expand sidebar' : 'Collapse sidebar'}
-          >
-            {isCollapsed ? <ChevronRight size={18} /> : <ChevronLeft size={18} />}
-          </button>
+              {/* Desktop Collapse Toggle */}
+              <button 
+                type="button" 
+                className="sidebar-toggle-btn"
+                onClick={onToggleCollapse}
+                aria-label="Collapse sidebar"
+                title="Collapse sidebar"
+              >
+                <ChevronLeft size={18} />
+              </button>
+            </>
+          )}
         </div>
 
         {/* Navigation Sections */}
