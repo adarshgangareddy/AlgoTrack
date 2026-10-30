@@ -7,10 +7,7 @@ import {
   Clock, 
   Flame, 
   FileEdit, 
-  Layers,
-  Moon,
-  Sun,
-  ChevronDown
+  Layers
 } from 'lucide-react';
 import { AlgoTrackBalloon } from './voxel/AlgoTrackBalloon';
 import { DevLabRoom } from './voxel/DevLabRoom';
@@ -24,12 +21,11 @@ import './Hero.css';
 
 interface HeroProps {
   onStartJourneyClick: () => void;
+  isNightMode?: boolean;
 }
 
-export const Hero: React.FC<HeroProps> = ({ onStartJourneyClick }) => {
+export const Hero: React.FC<HeroProps> = ({ onStartJourneyClick, isNightMode = true }) => {
   const [selectedTab, setSelectedTab] = useState<'all' | 'solved' | 'in-progress'>('all');
-  const [isNightMode, setIsNightMode] = useState(true);
-  const [showStarPillPopover, setShowStarPillPopover] = useState(false);
 
   const scrollToFeatures = (e: React.MouseEvent) => {
     e.preventDefault();
@@ -130,54 +126,7 @@ export const Hero: React.FC<HeroProps> = ({ onStartJourneyClick }) => {
           {/* THE MAIN SKY / NIGHT SLANTED STADIUM CARD */}
           <div className={`things-main-card ${isNightMode ? 'night-active' : 'day-active'}`}>
             
-            {/* Top Controls inside Card (Moon toggle & Star pill) */}
-            <div className="stadium-top-controls">
-              <button 
-                type="button" 
-                className="stadium-theme-toggle"
-                onClick={() => setIsNightMode(!isNightMode)}
-                aria-label="Toggle celestial sky ambiance"
-                title="Toggle celestial mode"
-              >
-                <div className="toggle-capsule">
-                  <span className={`toggle-orb ${isNightMode ? 'night' : 'day'}`}>
-                    {isNightMode ? <Moon size={13} /> : <Sun size={13} />}
-                  </span>
-                </div>
-              </button>
 
-              <div 
-                className="stadium-star-pill"
-                onClick={() => setShowStarPillPopover(!showStarPillPopover)}
-                role="button"
-                tabIndex={0}
-                aria-expanded={showStarPillPopover}
-                aria-label="Toggle landmarks overview"
-              >
-                <Sparkles size={13} className="text-gold" />
-                <span className="pill-text">1 / 5</span>
-                <ChevronDown size={13} />
-
-                {showStarPillPopover && (
-                  <div className="star-pill-popover" onClick={(e) => e.stopPropagation()}>
-                    <div className="popover-title">
-                      <Sparkles size={12} />
-                      <span>Landmarks (1 / 5)</span>
-                    </div>
-                    <p className="popover-desc">
-                      Explore the interactive AlgoTrack world. 1 of 5 interactive voxel landmarks discovered.
-                    </p>
-                    <div className="popover-landmarks-grid">
-                      <div className="landmark-slot unlocked" title="Dev Lab Studio (Found)">🏠</div>
-                      <div className="landmark-slot" title="Code Arena (Explore)">?</div>
-                      <div className="landmark-slot" title="Golden Token (Explore)">?</div>
-                      <div className="landmark-slot" title="Matrix Disco (Explore)">?</div>
-                      <div className="landmark-slot" title="Mascot Chick (Explore)">?</div>
-                    </div>
-                  </div>
-                )}
-              </div>
-            </div>
 
             {/* Clouds floating inside / across the card */}
             <PuffyCloud className="cloud-pos-mid-left" tint="white" />

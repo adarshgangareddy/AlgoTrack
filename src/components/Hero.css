@@ -140,10 +140,12 @@
 .stadium-statement {
   font-size: clamp(0.95rem, 1.1vw + 0.3rem, 1.15rem);
   color: #E2E8F0;
-  max-width: 620px;
-  margin: 12px auto 28px auto;
-  line-height: 1.6;
-  text-shadow: 0 2px 4px rgba(0, 0, 0, 0.6);
+  max-width: 640px;
+  margin: 32px auto 30px auto;
+  line-height: 1.65;
+  text-shadow: 0 2px 6px rgba(0, 0, 0, 0.7);
+  position: relative;
+  z-index: 20;
 }
 
 .stadium-cta-row {
