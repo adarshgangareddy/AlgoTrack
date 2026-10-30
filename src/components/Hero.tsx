@@ -146,10 +146,36 @@ export const Hero: React.FC<HeroProps> = ({ onStartJourneyClick }) => {
                 </div>
               </button>
 
-              <div className="stadium-star-pill">
+              <div 
+                className="stadium-star-pill"
+                onClick={() => setShowStarPillPopover(!showStarPillPopover)}
+                role="button"
+                tabIndex={0}
+                aria-expanded={showStarPillPopover}
+                aria-label="Toggle landmarks overview"
+              >
                 <Sparkles size={13} className="text-gold" />
                 <span className="pill-text">1 / 5</span>
                 <ChevronDown size={13} />
+
+                {showStarPillPopover && (
+                  <div className="star-pill-popover" onClick={(e) => e.stopPropagation()}>
+                    <div className="popover-title">
+                      <Sparkles size={12} />
+                      <span>Landmarks (1 / 5)</span>
+                    </div>
+                    <p className="popover-desc">
+                      Explore the interactive AlgoTrack world. 1 of 5 interactive voxel landmarks discovered.
+                    </p>
+                    <div className="popover-landmarks-grid">
+                      <div className="landmark-slot unlocked" title="Dev Lab Studio (Found)">🏠</div>
+                      <div className="landmark-slot" title="Code Arena (Explore)">?</div>
+                      <div className="landmark-slot" title="Golden Token (Explore)">?</div>
+                      <div className="landmark-slot" title="Matrix Disco (Explore)">?</div>
+                      <div className="landmark-slot" title="Mascot Chick (Explore)">?</div>
+                    </div>
+                  </div>
+                )}
               </div>
             </div>
 
