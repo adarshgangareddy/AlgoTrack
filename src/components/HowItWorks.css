@@ -1,13 +1,11 @@
 /* ==========================================================================
-   How It Works Component Styles
+   How It Works — Things Cosmic Theme
    ========================================================================== */
 
 .how-it-works-section {
   padding-top: clamp(60px, 7vw, 100px);
   padding-bottom: clamp(60px, 7vw, 100px);
-  background-color: var(--bg-surface);
-  border-top: 1px solid var(--border-subtle);
-  border-bottom: 1px solid var(--border-subtle);
+  position: relative;
 }
 
 .steps-container {
@@ -21,10 +19,12 @@
   width: 90%;
   height: 2px;
   background: linear-gradient(90deg, 
-    var(--brand-orange) 0%, 
-    rgba(234, 88, 12, 0.4) 50%, 
-    var(--brand-purple) 100%
+    #FF4E74 0%, 
+    #F97316 35%, 
+    #38BDF8 70%, 
+    #A855F7 100%
   );
+  box-shadow: 0 0 10px rgba(255, 78, 116, 0.4);
   z-index: 1;
 }
 
@@ -42,7 +42,6 @@
   flex-direction: column;
   justify-content: space-between;
   gap: 16px;
-  background-color: #FFFFFF;
 }
 
 .step-header {
@@ -55,8 +54,8 @@
   width: 38px;
   height: 38px;
   border-radius: var(--radius-md);
-  background-color: var(--bg-page);
-  border: 1px solid var(--border-default);
+  background-color: rgba(22, 18, 52, 0.9);
+  border: 1px solid rgba(165, 180, 252, 0.25);
   display: flex;
   align-items: center;
   justify-content: center;
@@ -65,34 +64,42 @@
 .step-num {
   font-family: var(--font-mono);
   font-size: 13.5px;
-  font-weight: 700;
-  color: var(--text-primary);
+  font-weight: 800;
+  color: #FFFFFF;
 }
 
 .step-icon-box {
-  width: 36px;
-  height: 36px;
+  width: 38px;
+  height: 38px;
   border-radius: 50%;
-  background-color: var(--bg-accent-soft);
-  color: var(--brand-orange);
+  background-color: rgba(255, 78, 116, 0.2);
+  color: #FF6B8B;
+  border: 1px solid rgba(255, 78, 116, 0.4);
   display: flex;
   align-items: center;
   justify-content: center;
+  box-shadow: 0 0 12px rgba(255, 78, 116, 0.3);
 }
 
 .step-card:nth-child(2) .step-icon-box {
-  background-color: var(--brand-purple-soft);
-  color: var(--brand-purple);
+  background-color: rgba(168, 85, 247, 0.2);
+  color: #C084FC;
+  border-color: rgba(168, 85, 247, 0.4);
+  box-shadow: 0 0 12px rgba(168, 85, 247, 0.3);
 }
 
 .step-card:nth-child(3) .step-icon-box {
-  background-color: var(--bg-subtle);
-  color: var(--text-secondary);
+  background-color: rgba(56, 189, 248, 0.2);
+  color: #38BDF8;
+  border-color: rgba(56, 189, 248, 0.4);
+  box-shadow: 0 0 12px rgba(56, 189, 248, 0.3);
 }
 
 .step-card:nth-child(4) .step-icon-box {
-  background-color: var(--easy-bg);
-  color: var(--easy-color);
+  background-color: rgba(16, 185, 129, 0.2);
+  color: #34D399;
+  border-color: rgba(16, 185, 129, 0.4);
+  box-shadow: 0 0 12px rgba(16, 185, 129, 0.3);
 }
 
 .step-body {
@@ -105,38 +112,30 @@
   font-size: 1.15rem;
   font-weight: 700;
   letter-spacing: -0.02em;
-  color: var(--text-primary);
+  color: #FFFFFF;
 }
 
 .step-description {
   font-size: 0.925rem;
-  color: var(--text-secondary);
+  color: #CBD5E1;
   line-height: 1.5;
 }
 
 .step-footer {
   padding-top: 14px;
-  border-top: 1px solid var(--border-subtle);
+  border-top: 1px solid rgba(165, 180, 252, 0.15);
 }
 
 .step-detail-text {
   font-size: 12px;
-  color: var(--text-muted);
+  color: #94A3B8;
 }
 
-/* Responsiveness */
 @media (max-width: 1024px) {
-  .steps-connector-line {
-    display: none;
-  }
-
-  .steps-grid {
-    grid-template-columns: repeat(2, 1fr);
-  }
+  .steps-connector-line { display: none; }
+  .steps-grid { grid-template-columns: repeat(2, 1fr); }
 }
 
 @media (max-width: 600px) {
-  .steps-grid {
-    grid-template-columns: 1fr;
-  }
+  .steps-grid { grid-template-columns: 1fr; }
 }

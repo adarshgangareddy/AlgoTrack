@@ -1,11 +1,11 @@
 /* ==========================================================================
-   Features Section Component Styles
+   Features Section — Things Cosmic Theme
    ========================================================================== */
 
 .features-section {
   padding-top: clamp(60px, 7vw, 100px);
   padding-bottom: clamp(60px, 7vw, 100px);
-  background-color: var(--bg-page);
+  position: relative;
 }
 
 .features-grid {
@@ -24,7 +24,8 @@
 
 .feature-card-featured {
   grid-column: span 2;
-  background: linear-gradient(180deg, #FFFFFF 0%, #FAFAFB 100%);
+  background: linear-gradient(180deg, rgba(45, 38, 104, 0.9) 0%, rgba(30, 25, 75, 0.95) 100%);
+  border-color: rgba(165, 180, 252, 0.35);
 }
 
 .feature-card-top {
@@ -34,22 +35,22 @@
 }
 
 .feature-icon-wrapper {
-  width: 44px;
-  height: 44px;
+  width: 46px;
+  height: 46px;
   border-radius: var(--radius-md);
   display: flex;
   align-items: center;
   justify-content: center;
-  background-color: #FAFAFA;
-  border: 1px solid var(--border-subtle);
+  background-color: rgba(26, 22, 60, 0.85);
+  border: 1px solid rgba(165, 180, 252, 0.2);
 }
 
 .feat-icon.orange {
-  color: var(--brand-orange);
+  color: #FB923C;
 }
 
 .feat-icon.purple {
-  color: var(--brand-purple);
+  color: #C084FC;
 }
 
 .feature-tag-badge {
@@ -59,8 +60,9 @@
   letter-spacing: 0.04em;
   padding: 3px 8px;
   border-radius: var(--radius-pill);
-  background-color: var(--bg-subtle);
-  color: var(--text-muted);
+  background-color: rgba(45, 39, 104, 0.8);
+  color: #CBD5E1;
+  border: 1px solid rgba(165, 180, 252, 0.2);
 }
 
 .feature-card-body {
@@ -73,12 +75,12 @@
   font-size: 1.15rem;
   font-weight: 700;
   letter-spacing: -0.02em;
-  color: var(--text-primary);
+  color: #FFFFFF;
 }
 
 .feature-card-desc {
   font-size: 0.925rem;
-  color: var(--text-secondary);
+  color: #CBD5E1;
   line-height: 1.55;
 }
 
@@ -87,37 +89,35 @@
   flex-wrap: wrap;
   gap: 8px;
   padding-top: 14px;
-  border-top: 1px solid var(--border-subtle);
+  border-top: 1px solid rgba(165, 180, 252, 0.15);
 }
 
 .mini-meta-chip {
   font-size: 11.5px;
-  font-weight: 600;
+  font-weight: 700;
   padding: 3px 10px;
-  background-color: #FFFFFF;
-  border: 1px solid var(--border-default);
+  background-color: rgba(30, 26, 72, 0.8);
+  border: 1px solid rgba(165, 180, 252, 0.25);
   border-radius: var(--radius-pill);
-  color: var(--text-secondary);
+  color: #E2E8F0;
 }
 
 .mini-meta-chip.accent {
-  background-color: var(--bg-accent-soft);
-  color: var(--brand-orange);
-  border-color: var(--brand-orange-border);
+  background-color: rgba(255, 78, 116, 0.2);
+  color: #FF6B8B;
+  border-color: rgba(255, 78, 116, 0.4);
 }
 
 .mini-meta-chip.purple {
-  background-color: var(--brand-purple-soft);
-  color: var(--brand-purple);
-  border-color: var(--brand-purple-border);
+  background-color: rgba(168, 85, 247, 0.2);
+  color: #E879F9;
+  border-color: rgba(168, 85, 247, 0.4);
 }
 
-/* Responsiveness */
 @media (max-width: 1080px) {
   .features-grid {
     grid-template-columns: repeat(2, 1fr);
   }
-  
   .feature-card-featured {
     grid-column: span 1;
   }
