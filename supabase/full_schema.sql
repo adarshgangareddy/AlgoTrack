@@ -1,0 +1,211 @@
+-- ==========================================================================
+-- ALGOTRACK COMPLETE DATABASE SCHEMA & TRIGGERS
+-- Run this in your Supabase Dashboard: SQL Editor -> New Query -> Run
+-- ==========================================================================
+
+-- 1. Create Public Profiles Table
+CREATE TABLE IF NOT EXISTS public.profiles (
+  id UUID REFERENCES auth.users(id) ON DELETE CASCADE PRIMARY KEY,
+  full_name TEXT NOT NULL,
+  email TEXT NOT NULL,
+  avatar_url TEXT,
+  created_at TIMESTAMPTZ DEFAULT TIMEZONE('utc', NOW()) NOT NULL,
+  updated_at TIMESTAMPTZ DEFAULT TIMEZONE('utc', NOW()) NOT NULL
+);
+
+ALTER TABLE public.profiles ENABLE ROW LEVEL SECURITY;
+
+DROP POLICY IF EXISTS "Users can view their own profile" ON public.profiles;
+CREATE POLICY "Users can view their own profile"
+  ON public.profiles FOR SELECT TO authenticated
+  USING (auth.uid() = id);
+
+DROP POLICY IF EXISTS "Users can update their own profile" ON public.profiles;
+CREATE POLICY "Users can update their own profile"
+  ON public.profiles FOR UPDATE TO authenticated
+  USING (auth.uid() = id)
+  WITH CHECK (auth.uid() = id);
+
+DROP POLICY IF EXISTS "Users can insert their own profile" ON public.profiles;
+CREATE POLICY "Users can insert their own profile"
+  ON public.profiles FOR INSERT TO authenticated
+  WITH CHECK (auth.uid() = id);
+
+-- 2. User Creation Trigger (Auto-creates profile on signup)
+CREATE OR REPLACE FUNCTION public.handle_new_user()
+RETURNS TRIGGER AS $$
+BEGIN
+  INSERT INTO public.profiles (id, full_name, email, avatar_url)
+  VALUES (
+    NEW.id,
+    COALESCE(NEW.raw_user_meta_data->>'full_name', SPLIT_PART(NEW.email, '@', 1)),
+    NEW.email,
+    NEW.raw_user_meta_data->>'avatar_url'
+  )
+  ON CONFLICT (id) DO UPDATE
+  SET
+    full_name = EXCLUDED.full_name,
+    email = EXCLUDED.email,
+    updated_at = NOW();
+  RETURN NEW;
+END;
+$$ LANGUAGE plpgsql SECURITY DEFINER;
+
+DROP TRIGGER IF EXISTS on_auth_user_created ON auth.users;
+CREATE TRIGGER on_auth_user_created
+  AFTER INSERT ON auth.users
+  FOR EACH ROW EXECUTE FUNCTION public.handle_new_user();
+
+-- 3. Topics Table
+CREATE TABLE IF NOT EXISTS public.topics (
+  id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+  name TEXT NOT NULL UNIQUE,
+  slug TEXT NOT NULL UNIQUE,
+  category TEXT DEFAULT 'General',
+  created_at TIMESTAMPTZ DEFAULT TIMEZONE('utc', NOW()) NOT NULL
+);
+
+ALTER TABLE public.topics ENABLE ROW LEVEL SECURITY;
+
+DROP POLICY IF EXISTS "Topics are viewable by authenticated users" ON public.topics;
+CREATE POLICY "Topics are viewable by authenticated users"
+  ON public.topics FOR SELECT TO authenticated USING (true);
+
+-- 4. Problems Table
+CREATE TABLE IF NOT EXISTS public.problems (
+  id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+  problem_number INTEGER,
+  title TEXT NOT NULL,
+  slug TEXT NOT NULL UNIQUE,
+  difficulty TEXT NOT NULL CHECK (difficulty IN ('Easy', 'Medium', 'Hard')),
+  pattern TEXT,
+  topics TEXT[],
+  description TEXT,
+  theory_content TEXT,
+  hints TEXT[],
+  leetcode_url TEXT,
+  created_at TIMESTAMPTZ DEFAULT TIMEZONE('utc', NOW()) NOT NULL
+);
+
+ALTER TABLE public.problems ENABLE ROW LEVEL SECURITY;
+
+DROP POLICY IF EXISTS "Problems are viewable by authenticated users" ON public.problems;
+CREATE POLICY "Problems are viewable by authenticated users"
+  ON public.problems FOR SELECT TO authenticated USING (true);
+
+-- 5. User Problem Progress Table
+CREATE TABLE IF NOT EXISTS public.user_problem_progress (
+  id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+  user_id UUID REFERENCES auth.users(id) ON DELETE CASCADE NOT NULL,
+  problem_id UUID REFERENCES public.problems(id) ON DELETE CASCADE NOT NULL,
+  status TEXT NOT NULL CHECK (status IN ('not_started', 'attempted', 'solved')),
+  notes TEXT,
+  solved_at TIMESTAMPTZ,
+  updated_at TIMESTAMPTZ DEFAULT TIMEZONE('utc', NOW()) NOT NULL,
+  created_at TIMESTAMPTZ DEFAULT TIMEZONE('utc', NOW()) NOT NULL,
+  UNIQUE(user_id, problem_id)
+);
+
+ALTER TABLE public.user_problem_progress ENABLE ROW LEVEL SECURITY;
+
+DROP POLICY IF EXISTS "Users can only read their own problem progress" ON public.user_problem_progress;
+CREATE POLICY "Users can only read their own problem progress"
+  ON public.user_problem_progress FOR SELECT TO authenticated
+  USING (auth.uid() = user_id);
+
+DROP POLICY IF EXISTS "Users can insert their own problem progress" ON public.user_problem_progress;
+CREATE POLICY "Users can insert their own problem progress"
+  ON public.user_problem_progress FOR INSERT TO authenticated
+  WITH CHECK (auth.uid() = user_id);
+
+DROP POLICY IF EXISTS "Users can update their own problem progress" ON public.user_problem_progress;
+CREATE POLICY "Users can update their own problem progress"
+  ON public.user_problem_progress FOR UPDATE TO authenticated
+  USING (auth.uid() = user_id)
+  WITH CHECK (auth.uid() = user_id);
+
+-- 6. User Problem Workspace Table (Notes, Approach, Complexities, Mistakes)
+CREATE TABLE IF NOT EXISTS public.user_problem_workspace (
+  id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+  user_id UUID REFERENCES auth.users(id) ON DELETE CASCADE NOT NULL,
+  problem_id UUID REFERENCES public.problems(id) ON DELETE CASCADE NOT NULL,
+  personal_notes TEXT DEFAULT '',
+  personal_approach TEXT DEFAULT '',
+  time_complexity TEXT DEFAULT '',
+  space_complexity TEXT DEFAULT '',
+  mistakes_and_edge_cases TEXT DEFAULT '',
+  created_at TIMESTAMPTZ DEFAULT TIMEZONE('utc', NOW()) NOT NULL,
+  updated_at TIMESTAMPTZ DEFAULT TIMEZONE('utc', NOW()) NOT NULL,
+  UNIQUE(user_id, problem_id)
+);
+
+ALTER TABLE public.user_problem_workspace ENABLE ROW LEVEL SECURITY;
+
+DROP POLICY IF EXISTS "Users can only read their own workspace" ON public.user_problem_workspace;
+CREATE POLICY "Users can only read their own workspace"
+  ON public.user_problem_workspace FOR SELECT TO authenticated
+  USING (auth.uid() = user_id);
+
+DROP POLICY IF EXISTS "Users can insert their own workspace" ON public.user_problem_workspace;
+CREATE POLICY "Users can insert their own workspace"
+  ON public.user_problem_workspace FOR INSERT TO authenticated
+  WITH CHECK (auth.uid() = user_id);
+
+DROP POLICY IF EXISTS "Users can update their own workspace" ON public.user_problem_workspace;
+CREATE POLICY "Users can update their own workspace"
+  ON public.user_problem_workspace FOR UPDATE TO authenticated
+  USING (auth.uid() = user_id)
+  WITH CHECK (auth.uid() = user_id);
+
+-- 7. User Solutions Table (Multi-Language Code Storage)
+CREATE TABLE IF NOT EXISTS public.user_problem_solutions (
+  id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+  user_id UUID REFERENCES auth.users(id) ON DELETE CASCADE NOT NULL,
+  problem_id UUID REFERENCES public.problems(id) ON DELETE CASCADE NOT NULL,
+  language TEXT NOT NULL,
+  source_code TEXT DEFAULT '',
+  created_at TIMESTAMPTZ DEFAULT TIMEZONE('utc', NOW()) NOT NULL,
+  updated_at TIMESTAMPTZ DEFAULT TIMEZONE('utc', NOW()) NOT NULL,
+  UNIQUE(user_id, problem_id, language)
+);
+
+ALTER TABLE public.user_problem_solutions ENABLE ROW LEVEL SECURITY;
+
+DROP POLICY IF EXISTS "Users can only read their own solutions" ON public.user_problem_solutions;
+CREATE POLICY "Users can only read their own solutions"
+  ON public.user_problem_solutions FOR SELECT TO authenticated
+  USING (auth.uid() = user_id);
+
+DROP POLICY IF EXISTS "Users can insert their own solutions" ON public.user_problem_solutions;
+CREATE POLICY "Users can insert their own solutions"
+  ON public.user_problem_solutions FOR INSERT TO authenticated
+  WITH CHECK (auth.uid() = user_id);
+
+DROP POLICY IF EXISTS "Users can update their own solutions" ON public.user_problem_solutions;
+CREATE POLICY "Users can update their own solutions"
+  ON public.user_problem_solutions FOR UPDATE TO authenticated
+  USING (auth.uid() = user_id)
+  WITH CHECK (auth.uid() = user_id);
+
+-- 8. Activity Logs Table
+CREATE TABLE IF NOT EXISTS public.user_activity_logs (
+  id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+  user_id UUID REFERENCES auth.users(id) ON DELETE CASCADE NOT NULL,
+  problem_id UUID REFERENCES public.problems(id) ON DELETE SET NULL,
+  action_type TEXT NOT NULL CHECK (action_type IN ('attempted', 'solved', 'revisited', 'note_added')),
+  problem_title TEXT,
+  difficulty TEXT,
+  created_at TIMESTAMPTZ DEFAULT TIMEZONE('utc', NOW()) NOT NULL
+);
+
+ALTER TABLE public.user_activity_logs ENABLE ROW LEVEL SECURITY;
+
+DROP POLICY IF EXISTS "Users can read own activity logs" ON public.user_activity_logs;
+CREATE POLICY "Users can read own activity logs"
+  ON public.user_activity_logs FOR SELECT TO authenticated
+  USING (auth.uid() = user_id);
+
+DROP POLICY IF EXISTS "Users can insert own activity logs" ON public.user_activity_logs;
+CREATE POLICY "Users can insert own activity logs"
+  ON public.user_activity_logs FOR INSERT TO authenticated
+  WITH CHECK (auth.uid() = user_id);
