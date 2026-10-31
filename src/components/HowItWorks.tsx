@@ -9,28 +9,28 @@ export const HowItWorks: React.FC = () => {
       title: 'Create Your Account',
       description: 'Start your personal coding preparation journey.',
       icon: <UserPlus size={20} />,
-      detail: 'Set your personal target and target interview timeline.',
+      detail: 'Quick and secure setup with personal workspace.',
     },
     {
       number: '02',
       title: 'Choose a Problem',
-      description: 'Browse problems by difficulty, topic and algorithmic pattern.',
+      description: 'Browse challenges by difficulty, topic and algorithmic pattern.',
       icon: <Compass size={20} />,
       detail: 'Filter by patterns like Two Pointers, Trees, or DP.',
     },
     {
       number: '03',
       title: 'Solve and Learn',
-      description: 'Open the official LeetCode problem, practice and understand the approach.',
+      description: 'Practice on LeetCode and understand the approach.',
       icon: <ExternalLink size={20} />,
-      detail: 'Solve directly on LeetCode with full context in mind.',
+      detail: 'Solve with full pattern and algorithmic context in mind.',
     },
     {
       number: '04',
       title: 'Track Your Progress',
-      description: 'Record your solution, add personal notes and monitor your improvement.',
+      description: 'Record your solutions, add personal notes and monitor improvement.',
       icon: <CheckCircle size={20} />,
-      detail: 'Save your complexity analysis, approach, and code.',
+      detail: 'Save your complexity analysis, approach, and code notes.',
     },
   ];
 
@@ -38,8 +38,8 @@ export const HowItWorks: React.FC = () => {
     <section className="how-it-works-section" id="how-it-works">
       <div className="container">
         <div className="section-header">
-          <span className="section-tag purple">Structured Workflow</span>
-          <h2 className="section-title">A Simple Way to Improve Every Day</h2>
+          <span className="section-tag purple">How It Works</span>
+          <h2 className="section-title">A Simple Way to Improve Every Day.</h2>
           <p className="section-description">
             A deliberate, four-step routine engineered to eliminate guesswork and build consistent mastery.
           </p>

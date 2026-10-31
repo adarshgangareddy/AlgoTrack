@@ -15,7 +15,7 @@ export const FAQ: React.FC = () => {
     {
       id: 1,
       question: 'What is AlgoTrack?',
-      answer: 'AlgoTrack is a dedicated coding interview preparation and personal progress-tracking platform. It helps software engineers organize their practice across ~400 essential coding problems, categorize challenges by difficulty and algorithmic patterns, take structured learning notes, and monitor consistency over time.'
+      answer: 'AlgoTrack is a dedicated coding interview preparation and personal progress-tracking platform. It helps software engineers organize their practice across essential coding problems, categorize challenges by difficulty and algorithmic patterns, take structured learning notes, and monitor consistency over time.'
     },
     {
       id: 2,
@@ -24,8 +24,8 @@ export const FAQ: React.FC = () => {
     },
     {
       id: 3,
-      question: 'How are the coding problems organized?',
-      answer: 'The ~400 problems are methodically arranged across three axes: Difficulty (Easy, Medium, Hard), Core Topic (Arrays, Strings, Linked Lists, Trees, Graphs, Dynamic Programming, etc.), and Algorithmic Pattern (Two Pointers, Sliding Window, Prefix Sum, Binary Search, DFS/BFS, Backtracking, Greedy, DP).'
+      question: 'How are problems organized?',
+      answer: 'Problems are methodically arranged across three axes: Difficulty (Easy, Medium, Hard), Core Topic (Arrays, Strings, Linked Lists, Trees, Graphs, Dynamic Programming, etc.), and Algorithmic Pattern (Two Pointers, Sliding Window, Prefix Sum, Binary Search, DFS/BFS, Backtracking, Greedy, DP).'
     },
     {
       id: 4,
@@ -34,18 +34,18 @@ export const FAQ: React.FC = () => {
     },
     {
       id: 5,
-      question: 'Can I save my own solutions and notes?',
-      answer: 'Yes. In the upcoming platform release, each problem includes a personal workspace where you can document your approach, log time and space complexity, note specific edge cases and traps to watch out for, and store multi-language reference solutions for quick revision.'
+      question: 'Can I save personal notes and solutions?',
+      answer: 'Yes. Each problem includes a personal space where you can document your approach, log time and space complexity, note specific edge cases and traps to watch out for, and store your reference solutions for quick revision.'
     },
     {
       id: 6,
       question: 'Can I track my coding progress?',
-      answer: 'Yes. You will be able to track solved, attempted, and remaining problems across Easy, Medium, and Hard tiers, view topic-wise completion meters, and monitor your consistency with an activity streak heatmap.'
+      answer: 'Yes. You can track your solved and attempted problems, monitor progress across difficulty tiers and core topics, and maintain a consistent coding habit over time.'
     },
     {
       id: 7,
       question: 'Is AlgoTrack suitable for beginners?',
-      answer: 'Yes. If you know the fundamentals of at least one programming language (such as Python, Java, C++, or JavaScript), AlgoTrack’s pattern-first approach is ideal for beginners. By focusing on ~90 foundational Easy problems and core patterns first, you build intuition step-by-step before tackling complex Medium and Hard problems.'
+      answer: 'Yes. If you know the fundamentals of at least one programming language (such as Python, Java, C++, or JavaScript), AlgoTrack’s pattern-first approach is ideal for beginners. By focusing on foundational Easy problems and core patterns first, you build intuition step-by-step before tackling complex Medium and Hard problems.'
     }
   ];
 
@@ -60,7 +60,7 @@ export const FAQ: React.FC = () => {
           <span className="section-tag">Got Questions?</span>
           <h2 className="section-title">Frequently Asked Questions</h2>
           <p className="section-description">
-            Everything you need to know about the AlgoTrack platform, its structure, and what to expect.
+            Everything you need to know about the AlgoTrack platform, its structure, and how it works.
           </p>
         </div>
 

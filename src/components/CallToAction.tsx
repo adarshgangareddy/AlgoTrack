@@ -29,7 +29,7 @@ export const CallToAction: React.FC<CallToActionProps> = ({ onGetStartedClick })
               className="btn btn-primary btn-lg cta-btn"
               onClick={onGetStartedClick}
             >
-              <span>Get Started</span>
+              <span>Start Your Coding Journey</span>
               <ArrowRight size={18} />
             </button>
             <span className="cta-secondary-text">Your coding journey starts here.</span>
@@ -39,15 +39,15 @@ export const CallToAction: React.FC<CallToActionProps> = ({ onGetStartedClick })
           <div className="cta-benefits-row">
             <div className="benefit-item">
               <CheckCircle2 size={16} className="text-orange" />
-              <span>400 Curated Patterns</span>
+              <span>Curated Pattern Library</span>
             </div>
             <div className="benefit-item">
               <CheckCircle2 size={16} className="text-orange" />
-              <span>Personal Notes & Code Storage</span>
+              <span>Personal Notes & Approaches</span>
             </div>
             <div className="benefit-item">
               <CheckCircle2 size={16} className="text-orange" />
-              <span>No Pressure, High Consistency</span>
+              <span>Disciplined Coding Consistency</span>
             </div>
           </div>
         </div>
