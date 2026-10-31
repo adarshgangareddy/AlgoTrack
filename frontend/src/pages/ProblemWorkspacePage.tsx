@@ -1,5 +1,5 @@
-// src/pages/ProblemWorkspacePage.tsx
-// AlgoTrack — Phase 5: Individual Problem Workspace with AI Explainer
+// frontend/src/pages/ProblemWorkspacePage.tsx
+// AlgoTrack — Problem Workspace UI Fix
 
 import React, { useState, useEffect, useRef, useCallback } from 'react';
 import { useParams, Link, useNavigate } from 'react-router-dom';
@@ -176,7 +176,7 @@ export const ProblemWorkspacePage: React.FC = () => {
     if (res.success) {
       setHasUnsavedChanges(false);
       setLastSavedAt(res.updated_at);
-      setSaveSuccessMsg(isAuto ? 'Autosaved' : 'Progress saved successfully!');
+      setSaveSuccessMsg(isAuto ? 'Autosaved' : 'Progress saved!');
       setTimeout(() => setSaveSuccessMsg(null), 3000);
     } else {
       setSaveSuccessMsg(res.error || 'Failed to save');
@@ -278,7 +278,7 @@ export const ProblemWorkspacePage: React.FC = () => {
         <AlertCircle size={44} color="#EF4444" />
         <h2 className="error-title">Workspace Unavailable</h2>
         <p className="error-description">{errorMsg || 'Problem not found.'}</p>
-        <Link to="/problems" className="btn btn-primary">
+        <Link to="/problems" className="ws-btn ws-btn-primary">
           <ArrowLeft size={16} /> Return to Problems Library
         </Link>
       </div>
@@ -294,117 +294,118 @@ export const ProblemWorkspacePage: React.FC = () => {
           ================================================================== */}
       <header className="workspace-header">
         <div className="workspace-header-inner">
-          {/* Left: Back & Sequence Navigation */}
-          <div className="header-left-col">
-            <Link to="/problems" className="back-link-btn" title="Back to Problem Library">
-              <ArrowLeft size={16} />
-              <span className="back-btn-text">Problems</span>
+          {/* Left Side: Back, Breadcrumb, #Number, Title, Difficulty */}
+          <div className="header-left-group">
+            <Link to="/problems" className="ws-back-link" title="Return to Problems Library">
+              <ArrowLeft size={15} />
+              <span>Problems</span>
             </Link>
 
-            <span className="header-separator">/</span>
+            <span className="header-crumb-sep">/</span>
 
-            <div className="problem-ident-badge">
+            <div className="header-problem-info">
               {problem.problem_number && (
-                <span className="prob-num">#{problem.problem_number}</span>
+                <span className="header-problem-number">#{problem.problem_number}</span>
               )}
-              <h1 className="problem-header-title">{problem.title}</h1>
-              <span className={`diff-pill-badge ${problem.difficulty.toLowerCase()}`}>
+              <h1 className="header-problem-title" title={problem.title}>
+                {problem.title}
+              </h1>
+              <span className={`header-diff-badge ${problem.difficulty.toLowerCase()}`}>
                 {problem.difficulty}
               </span>
             </div>
           </div>
 
-          {/* Center: Sequence Previous / Next */}
-          <div className="header-center-col">
-            <button
-              type="button"
-              className="nav-seq-btn"
-              onClick={handleNavPrevious}
-              disabled={!problem.problem_number || problem.problem_number <= 1}
-              title="Previous Problem"
-            >
-              <ChevronLeft size={16} />
-              <span className="seq-btn-txt">Prev</span>
-            </button>
-
-            <button
-              type="button"
-              className="nav-seq-btn"
-              onClick={handleNavNext}
-              disabled={!problem.problem_number}
-              title="Next Problem"
-            >
-              <span className="seq-btn-txt">Next</span>
-              <ChevronRight size={16} />
-            </button>
-          </div>
-
-          {/* Right: Status Selector, Save Button & AI Quick Launcher */}
-          <div className="header-right-col">
+          {/* Right Side: Status, Ask AI, Prev/Next, Save Progress */}
+          <div className="header-right-actions">
             {/* Status Dropdown */}
-            <div className="status-selector-wrap">
-              <label htmlFor="problem-status-select" className="sr-only">Status</label>
+            <div className="ws-status-select-wrap">
+              <label htmlFor="ws-status-select" className="sr-only">Problem Status</label>
               <select
-                id="problem-status-select"
-                className={`status-select-pill ${problemStatus}`}
+                id="ws-status-select"
+                className={`ws-status-dropdown ${problemStatus}`}
                 value={problemStatus}
                 onChange={(e) => handleStatusChange(e.target.value as ProblemStatus)}
+                title="Change your progress status"
               >
-                <option value="not_started">⚪ Not Started</option>
+                <option value="not_started">⚪ Todo</option>
                 <option value="attempted">🟡 Attempted</option>
                 <option value="solved">🟢 Solved</option>
               </select>
             </div>
 
-            {/* AI Toggle Button */}
+            {/* Ask AI / Show Code Toggle */}
             <button
               type="button"
-              className={`header-ai-toggle-btn ${rightPanelTab === 'ai' ? 'active' : ''}`}
+              className={`ws-ai-toggle-btn ${rightPanelTab === 'ai' ? 'active' : ''}`}
               onClick={() => {
                 setRightPanelTab(rightPanelTab === 'ai' ? 'editor' : 'ai');
                 setMobileTab('workspace');
               }}
-              title="Toggle AI Problem Explainer & Tutor"
+              title="Toggle AI Problem Explainer & Interactive Tutor"
             >
-              <Sparkles size={15} color={rightPanelTab === 'ai' ? '#FFFFFF' : '#0284C7'} />
+              <Sparkles size={14} />
               <span>{rightPanelTab === 'ai' ? 'Show Code' : 'Ask AI'}</span>
             </button>
 
-            {/* Save Status & Button */}
-            <div className="save-action-group">
-              <div className="save-status-indicator">
-                {isSaving ? (
-                  <span className="status-text saving">
-                    <Loader2 size={12} className="spin-icon" /> Saving...
-                  </span>
-                ) : hasUnsavedChanges ? (
-                  <span className="status-text unsaved">
-                    <span className="unsaved-dot"></span> Unsaved changes
-                  </span>
-                ) : (
-                  <span className="status-text saved">
-                    <Check size={12} /> Saved {formatSavedTime(lastSavedAt) ? `at ${formatSavedTime(lastSavedAt)}` : ''}
-                  </span>
-                )}
-              </div>
+            {/* Previous and Next Navigation */}
+            <div className="ws-seq-nav-group">
+              <button
+                type="button"
+                className="ws-seq-btn"
+                onClick={handleNavPrevious}
+                disabled={!problem.problem_number || problem.problem_number <= 1}
+                title="Previous problem in sequence"
+              >
+                <ChevronLeft size={15} />
+                <span>Prev</span>
+              </button>
 
               <button
                 type="button"
-                className="btn btn-save-progress"
-                onClick={() => handleSaveProgress(false)}
-                disabled={isSaving}
-                title="Save solution, complexity and learning notes"
+                className="ws-seq-btn"
+                onClick={handleNavNext}
+                disabled={!problem.problem_number}
+                title="Next problem in sequence"
               >
-                <Save size={15} />
-                <span>Save Progress</span>
+                <span>Next</span>
+                <ChevronRight size={15} />
               </button>
             </div>
 
-            {saveSuccessMsg && (
-              <div className="save-toast-bubble">
-                <Check size={13} /> {saveSuccessMsg}
-              </div>
-            )}
+            {/* Save Progress Button & Status Indicator */}
+            <div className="ws-save-btn-group">
+              {isSaving ? (
+                <span className="ws-save-indicator saving">
+                  <Loader2 size={12} className="spin-icon" /> Saving...
+                </span>
+              ) : hasUnsavedChanges ? (
+                <span className="ws-save-indicator unsaved">
+                  <span className="unsaved-dot"></span> Unsaved
+                </span>
+              ) : lastSavedAt ? (
+                <span className="ws-save-indicator saved">
+                  <Check size={12} /> Saved {formatSavedTime(lastSavedAt)}
+                </span>
+              ) : null}
+
+              <button
+                type="button"
+                className="ws-btn ws-btn-save"
+                onClick={() => handleSaveProgress(false)}
+                disabled={isSaving}
+                title="Save solution, complexity, and learning notes"
+              >
+                <Save size={14} />
+                <span>Save Progress</span>
+              </button>
+
+              {saveSuccessMsg && (
+                <div className="ws-save-toast">
+                  <Check size={12} /> {saveSuccessMsg}
+                </div>
+              )}
+            </div>
           </div>
         </div>
 
@@ -412,19 +413,19 @@ export const ProblemWorkspacePage: React.FC = () => {
         <div className="workspace-mobile-tabs">
           <button
             type="button"
-            className={`mobile-tab-btn ${mobileTab === 'learning' ? 'active' : ''}`}
+            className={`ws-mobile-tab-btn ${mobileTab === 'learning' ? 'active' : ''}`}
             onClick={() => setMobileTab('learning')}
           >
-            <BookOpen size={16} />
+            <BookOpen size={15} />
             <span>Problem & Learning</span>
           </button>
           <button
             type="button"
-            className={`mobile-tab-btn ${mobileTab === 'workspace' ? 'active' : ''}`}
+            className={`ws-mobile-tab-btn ${mobileTab === 'workspace' ? 'active' : ''}`}
             onClick={() => setMobileTab('workspace')}
           >
-            <Code2 size={16} />
-            <span>Code & AI Tutor</span>
+            <Code2 size={15} />
+            <span>Code & Workspace</span>
           </button>
         </div>
       </header>
@@ -432,164 +433,167 @@ export const ProblemWorkspacePage: React.FC = () => {
       {/* ==================================================================
           2. MAIN TWO-COLUMN WORKSPACE BODY
           ================================================================== */}
-      <main className="workspace-body-container container-fluid">
-        {/* ==================================================================
-            LEFT COLUMN — Problem Learning Area
-            ================================================================== */}
-        <section
-          className={`workspace-column left-learning-col ${mobileTab === 'learning' ? 'mobile-visible' : 'mobile-hidden'}`}
-          aria-label="Problem Description and Conceptual Learning"
-        >
-          {/* Metadata Card: Title, Tags & LeetCode Redirect */}
-          <div className="learning-card card-saas">
-            <div className="problem-title-row">
-              <div>
-                <span className="problem-card-subtitle">
+      <main className="workspace-main-body">
+        <div className="workspace-grid-layout">
+          {/* ================================================================
+              LEFT COLUMN — Problem Description & Learning Materials
+              ================================================================ */}
+          <section
+            className={`ws-column ws-left-column ${mobileTab === 'learning' ? 'mobile-show' : 'mobile-hide'}`}
+            aria-label="Problem Description and Conceptual Learning"
+          >
+            {/* Card 1: Problem Overview & LeetCode Callout */}
+            <div className="ws-card">
+              <div className="ws-card-header-compact">
+                <span className="ws-pattern-label">
                   {problem.pattern || 'Algorithmic Challenge'}
                 </span>
-                <h2 className="problem-main-title">
-                  {problem.problem_number ? `${problem.problem_number}. ` : ''}{problem.title}
-                </h2>
               </div>
-            </div>
 
-            {/* Tags Row */}
-            <div className="problem-tags-row">
-              <span className={`tag-diff-pill ${problem.difficulty.toLowerCase()}`}>
-                {problem.difficulty}
-              </span>
-              {problem.pattern && (
-                <span className="tag-pattern-pill">
-                  <Sparkles size={11} className="text-purple" />
-                  {problem.pattern}
+              <h2 className="ws-problem-main-title">
+                {problem.problem_number ? `${problem.problem_number}. ` : ''}{problem.title}
+              </h2>
+
+              {/* Tags Row */}
+              <div className="ws-tags-row">
+                <span className={`ws-diff-tag ${problem.difficulty.toLowerCase()}`}>
+                  {problem.difficulty}
                 </span>
+
+                {problem.pattern && (
+                  <span className="ws-pattern-tag">
+                    <Sparkles size={11} color="#0284C7" />
+                    <span>{problem.pattern}</span>
+                  </span>
+                )}
+
+                {problem.topics?.map((topic) => (
+                  <span key={topic} className="ws-topic-tag">
+                    {topic}
+                  </span>
+                ))}
+              </div>
+
+              {/* Problem Description */}
+              {problem.description && (
+                <div className="ws-description-body">
+                  <p className="ws-description-text">{problem.description}</p>
+                </div>
               )}
-              {problem.topics?.map((topic) => (
-                <span key={topic} className="tag-topic-pill">
-                  {topic}
-                </span>
-              ))}
-            </div>
 
-            {/* Problem Statement */}
-            {problem.description && (
-              <div className="problem-statement-box">
-                <p className="statement-text">{problem.description}</p>
-              </div>
-            )}
-
-            {/* LeetCode Integration Callout */}
-            {problem.leetcode_url && (
-              <div className="leetcode-redirect-card">
-                <div className="leetcode-card-content">
-                  <div className="leetcode-card-text">
-                    <span className="leetcode-brand-label">Official Challenge Runner</span>
-                    <p className="leetcode-prompt">
-                      Solve the problem on LeetCode, then return to AlgoTrack to record your progress.
+              {/* LeetCode Official Link Callout */}
+              {problem.leetcode_url && (
+                <div className="ws-leetcode-callout">
+                  <div className="ws-leetcode-text">
+                    <span className="ws-leetcode-label">Official Challenge Runner</span>
+                    <p className="ws-leetcode-prompt">
+                      Test and submit against official test suites on LeetCode, then record your best solution here.
                     </p>
                   </div>
                   <a
                     href={problem.leetcode_url}
                     target="_blank"
                     rel="noopener noreferrer"
-                    className="btn btn-leetcode"
-                    title={`Open ${problem.title} on LeetCode in a new tab`}
+                    className="ws-btn ws-btn-leetcode"
+                    title={`Open ${problem.title} on LeetCode`}
                   >
                     <span>Open in LeetCode</span>
-                    <ExternalLink size={14} />
+                    <ExternalLink size={13} />
                   </a>
                 </div>
-              </div>
-            )}
-          </div>
-
-          {/* Section 6: Understand the Concept (Theory and Concepts) */}
-          <div className="learning-card card-saas">
-            <div className="section-title-wrap">
-              <div className="section-title-left">
-                <BookOpen size={18} className="text-primary" />
-                <h3 className="section-heading">Understand the Concept</h3>
-              </div>
-
-              {/* AI Explain Callout Button */}
-              <button
-                type="button"
-                className="btn-ai-explain-callout"
-                onClick={() => {
-                  setRightPanelTab('ai');
-                  setMobileTab('workspace');
-                }}
-                title="Ask AI to break down this problem in plain English"
-              >
-                <Sparkles size={13} color="#0284C7" />
-                <span>Explain with AI</span>
-              </button>
+              )}
             </div>
 
-            {problem.theory_content ? (
-              <div className="theory-body-content">
-                <p className="theory-paragraph">{problem.theory_content}</p>
-                <div className="theory-keypoints">
-                  <div className="keypoint-item">
-                    <span className="keypoint-bullet"></span>
-                    <span className="keypoint-txt">
-                      <strong>Core Pattern:</strong> {problem.pattern || 'Algorithmic Pattern Recognition'}
-                    </span>
-                  </div>
-                  <div className="keypoint-item">
-                    <span className="keypoint-bullet"></span>
-                    <span className="keypoint-txt">
-                      <strong>Interview Takeaway:</strong> Analyze edge cases such as empty inputs, duplicates, or extreme values before coding.
-                    </span>
+            {/* Card 2: Understand the Concept */}
+            <div className="ws-card">
+              <div className="ws-section-header">
+                <div className="ws-section-title-wrap">
+                  <BookOpen size={17} color="#0284C7" />
+                  <h3 className="ws-section-title">Understand the Concept</h3>
+                </div>
+
+                <button
+                  type="button"
+                  className="ws-btn-explain-ai"
+                  onClick={() => {
+                    setRightPanelTab('ai');
+                    setMobileTab('workspace');
+                  }}
+                  title="Ask AI to break down this problem"
+                >
+                  <Sparkles size={13} color="#0284C7" />
+                  <span>Explain with AI</span>
+                </button>
+              </div>
+
+              {problem.theory_content ? (
+                <div className="ws-theory-content">
+                  <p className="ws-theory-text">{problem.theory_content}</p>
+                  <div className="ws-theory-keypoints">
+                    <div className="ws-keypoint-row">
+                      <span className="ws-keypoint-dot"></span>
+                      <span className="ws-keypoint-text">
+                        <strong>Core Pattern:</strong> {problem.pattern || 'Pattern Recognition'}
+                      </span>
+                    </div>
+                    <div className="ws-keypoint-row">
+                      <span className="ws-keypoint-dot"></span>
+                      <span className="ws-keypoint-text">
+                        <strong>Interview Strategy:</strong> Identify boundary invariants and analyze trade-offs before writing code.
+                      </span>
+                    </div>
                   </div>
                 </div>
-              </div>
-            ) : (
-              <div className="theory-empty-state">
-                <p className="empty-state-text">
-                  Theory notes for this challenge will be updated in the curated catalog. Click <strong>"Explain with AI"</strong> above to generate an instant breakdown!
-                </p>
-              </div>
-            )}
-          </div>
-
-          {/* Section 7: Personal Problem-Solving Approach */}
-          <div className="learning-card card-saas">
-            <div className="section-title-wrap">
-              <FileText size={18} className="text-purple" />
-              <h3 className="section-heading">My Approach</h3>
+              ) : (
+                <div className="ws-theory-placeholder">
+                  <p className="ws-theory-placeholder-text">
+                    Structured notes for this challenge are being prepared. Click <strong>"Explain with AI"</strong> above to generate an instant explanation!
+                  </p>
+                </div>
+              )}
             </div>
-            <p className="field-hint">
-              Describe your line of thinking, step-by-step logic, and why your selected algorithmic pattern works.
-            </p>
-            <textarea
-              className="approach-textarea"
-              rows={4}
-              value={personalApproach}
-              onChange={(e) => {
-                setPersonalApproach(e.target.value);
-                markDirtyAndDebounceSave();
-              }}
-              placeholder="e.g. 1. Initialize two pointers at start and end. 2. Compare sum against target. 3. Adjust pointers based on magnitude..."
-            />
-          </div>
 
-          {/* Section 8: Complexity Analysis */}
-          <div className="learning-card card-saas">
-            <div className="section-title-wrap">
-              <Clock size={18} className="text-success" />
-              <h3 className="section-heading">Time & Space Complexity</h3>
+            {/* Card 3: Personal Approach */}
+            <div className="ws-card">
+              <div className="ws-section-header">
+                <div className="ws-section-title-wrap">
+                  <FileText size={17} color="#0284C7" />
+                  <h3 className="ws-section-title">My Approach</h3>
+                </div>
+              </div>
+              <p className="ws-field-desc">
+                Describe your thought process, step-by-step logic, and why your selected algorithmic pattern works.
+              </p>
+              <textarea
+                className="ws-textarea"
+                rows={4}
+                value={personalApproach}
+                onChange={(e) => {
+                  setPersonalApproach(e.target.value);
+                  markDirtyAndDebounceSave();
+                }}
+                placeholder="e.g. 1. Initialize two pointers at start and end. 2. Compare sum against target. 3. Adjust pointers based on magnitude..."
+              />
             </div>
-            <div className="complexity-inputs-grid">
-              <div className="complexity-field">
-                <label htmlFor="time-complexity-input" className="complexity-label">
-                  Time Complexity
-                </label>
-                <div className="complexity-input-wrap">
+
+            {/* Card 4: Time & Space Complexity */}
+            <div className="ws-card">
+              <div className="ws-section-header">
+                <div className="ws-section-title-wrap">
+                  <Clock size={17} color="#059669" />
+                  <h3 className="ws-section-title">Time & Space Complexity</h3>
+                </div>
+              </div>
+
+              <div className="ws-complexity-grid">
+                <div className="ws-complexity-box">
+                  <label htmlFor="time-complexity-input" className="ws-complexity-label">
+                    Time Complexity
+                  </label>
                   <input
                     id="time-complexity-input"
                     type="text"
-                    className="complexity-input"
+                    className="ws-complexity-input"
                     value={timeComplexity}
                     onChange={(e) => {
                       setTimeComplexity(e.target.value);
@@ -597,19 +601,17 @@ export const ProblemWorkspacePage: React.FC = () => {
                     }}
                     placeholder="e.g. O(N) or O(N log N)"
                   />
+                  <span className="ws-complexity-hint">Asymptotic runtime bound</span>
                 </div>
-                <span className="complexity-helper">Asymptotic runtime bound</span>
-              </div>
 
-              <div className="complexity-field">
-                <label htmlFor="space-complexity-input" className="complexity-label">
-                  Space Complexity
-                </label>
-                <div className="complexity-input-wrap">
+                <div className="ws-complexity-box">
+                  <label htmlFor="space-complexity-input" className="ws-complexity-label">
+                    Space Complexity
+                  </label>
                   <input
                     id="space-complexity-input"
                     type="text"
-                    className="complexity-input"
+                    className="ws-complexity-input"
                     value={spaceComplexity}
                     onChange={(e) => {
                       setSpaceComplexity(e.target.value);
@@ -617,129 +619,134 @@ export const ProblemWorkspacePage: React.FC = () => {
                     }}
                     placeholder="e.g. O(1) or O(N)"
                   />
+                  <span className="ws-complexity-hint">Auxiliary memory consumption</span>
                 </div>
-                <span className="complexity-helper">Auxiliary memory consumption</span>
               </div>
             </div>
-          </div>
 
-          {/* Section 9: Mistakes & Edge Cases */}
-          <div className="learning-card card-saas">
-            <div className="section-title-wrap">
-              <AlertCircle size={18} className="text-warning" />
-              <h3 className="section-heading">Mistakes & Edge Cases</h3>
+            {/* Card 5: Mistakes & Edge Cases */}
+            <div className="ws-card">
+              <div className="ws-section-header">
+                <div className="ws-section-title-wrap">
+                  <AlertCircle size={17} color="#D97706" />
+                  <h3 className="ws-section-title">Mistakes & Edge Cases</h3>
+                </div>
+              </div>
+              <p className="ws-field-desc">
+                Log tricky test cases, unexpected bugs, off-by-one indices, or misconceptions to revisit during interview revision.
+              </p>
+              <textarea
+                className="ws-textarea"
+                rows={4}
+                value={mistakesEdgeCases}
+                onChange={(e) => {
+                  setMistakesEdgeCases(e.target.value);
+                  markDirtyAndDebounceSave();
+                }}
+                placeholder="e.g. 1. Handle empty input / null head. 2. Account for negative indices. 3. Watch for 32-bit integer overflow..."
+              />
             </div>
-            <p className="field-hint">
-              Log tricky test cases, unexpected bugs, off-by-one indices, or misconceptions to revisit during interview revision.
-            </p>
-            <textarea
-              className="approach-textarea"
-              rows={4}
-              value={mistakesEdgeCases}
-              onChange={(e) => {
-                setMistakesEdgeCases(e.target.value);
-                markDirtyAndDebounceSave();
-              }}
-              placeholder="Record mistakes, edge cases and important lessons for future revision..."
-            />
-          </div>
-        </section>
+          </section>
 
-        {/* ==================================================================
-            RIGHT COLUMN — Personal Workspace & Code Editor / AI Assistant
-            ================================================================== */}
-        <section
-          className={`workspace-column right-editor-col ${mobileTab === 'workspace' ? 'mobile-visible' : 'mobile-hidden'}`}
-          aria-label="Personal Code Editor and Learning Scratchpad"
-        >
-          {/* Panel Tab Switcher */}
-          <div className="right-panel-switcher">
-            <button
-              type="button"
-              className={`panel-switch-btn ${rightPanelTab === 'editor' ? 'active' : ''}`}
-              onClick={() => setRightPanelTab('editor')}
-            >
-              <Code2 size={16} />
-              <span>Solution Code & Notes</span>
-            </button>
+          {/* ================================================================
+              RIGHT COLUMN — Code Editor, AI Tutor, and Personal Notes
+              ================================================================ */}
+          <section
+            className={`ws-column ws-right-column ${mobileTab === 'workspace' ? 'mobile-show' : 'mobile-hide'}`}
+            aria-label="Code Editor, AI Assistant, and Personal Scratchpad"
+          >
+            {/* Panel View Switcher: Code vs AI Tutor */}
+            <div className="ws-panel-tabs">
+              <button
+                type="button"
+                className={`ws-panel-tab-btn ${rightPanelTab === 'editor' ? 'active' : ''}`}
+                onClick={() => setRightPanelTab('editor')}
+              >
+                <Code2 size={15} />
+                <span>Solution Code & Notes</span>
+              </button>
 
-            <button
-              type="button"
-              className={`panel-switch-btn ${rightPanelTab === 'ai' ? 'active' : ''}`}
-              onClick={() => setRightPanelTab('ai')}
-            >
-              <Sparkles size={16} color={rightPanelTab === 'ai' ? '#0284C7' : '#64748B'} />
-              <span>AI Tutor & Explainer</span>
-              <span className="ai-tab-badge">Ask Questions</span>
-            </button>
-          </div>
+              <button
+                type="button"
+                className={`ws-panel-tab-btn ${rightPanelTab === 'ai' ? 'active' : ''}`}
+                onClick={() => setRightPanelTab('ai')}
+              >
+                <Sparkles size={15} color={rightPanelTab === 'ai' ? '#0284C7' : '#64748B'} />
+                <span>AI Tutor & Explainer</span>
+                <span className="ws-ai-chip">Ask Questions</span>
+              </button>
+            </div>
 
-          {rightPanelTab === 'ai' ? (
-            /* AI Explainer / Tutor Tab */
-            <AIAssistant
-              problem={{
-                title: problem.title,
-                problem_number: problem.problem_number,
-                difficulty: problem.difficulty,
-                pattern: problem.pattern,
-                topics: problem.topics || [],
-                description: problem.description,
-                theory_content: problem.theory_content,
-                hints: problem.hints,
-              }}
-            />
-          ) : (
-            /* Solution Code Editor Tab */
-            <>
-              {/* Personal Solution Code Editor */}
-              <div className="editor-card card-saas">
-                <div className="editor-card-header">
-                  <div className="editor-title-wrap">
-                    <Code2 size={18} className="text-primary" />
-                    <h3 className="section-heading">Personal Code Solution</h3>
+            {rightPanelTab === 'ai' ? (
+              /* AI Explainer / Interactive Tutor Component */
+              <AIAssistant
+                problem={{
+                  title: problem.title,
+                  problem_number: problem.problem_number,
+                  difficulty: problem.difficulty,
+                  pattern: problem.pattern,
+                  topics: problem.topics || [],
+                  description: problem.description,
+                  theory_content: problem.theory_content,
+                  hints: problem.hints,
+                }}
+              />
+            ) : (
+              /* Solution Code Editor & Personal Notes */
+              <>
+                {/* Personal Solution Code Editor Card */}
+                <div className="ws-card ws-editor-card">
+                  <div className="ws-section-header">
+                    <div className="ws-section-title-wrap">
+                      <Code2 size={17} color="#0284C7" />
+                      <h3 className="ws-section-title">Personal Code Solution</h3>
+                    </div>
+                    <span className="ws-lang-tag">Multi-Language Sandbox</span>
                   </div>
-                  <span className="multi-lang-pill">Multi-Language Sandbox</span>
+
+                  <CodeEditor
+                    language={activeLanguage}
+                    onLanguageChange={(newLang) => {
+                      setActiveLanguage(newLang);
+                      markDirtyAndDebounceSave();
+                    }}
+                    code={activeCode}
+                    onChange={handleCodeChange}
+                    onResetToTemplate={handleResetTemplate}
+                    isSaved={!hasUnsavedChanges}
+                  />
                 </div>
 
-                <CodeEditor
-                  language={activeLanguage}
-                  onLanguageChange={(newLang) => {
-                    setActiveLanguage(newLang);
-                    markDirtyAndDebounceSave();
-                  }}
-                  code={activeCode}
-                  onChange={handleCodeChange}
-                  onResetToTemplate={handleResetTemplate}
-                  isSaved={!hasUnsavedChanges}
-                />
-              </div>
-
-              {/* Personal Notes / Observations Scratchpad */}
-              <div className="editor-card card-saas">
-                <div className="editor-card-header">
-                  <div className="editor-title-wrap">
-                    <FileText size={18} className="text-purple" />
-                    <h3 className="section-heading">Personal Notes & Observations</h3>
+                {/* Personal Notes & Observations Card */}
+                <div className="ws-card">
+                  <div className="ws-section-header">
+                    <div className="ws-section-title-wrap">
+                      <FileText size={17} color="#0284C7" />
+                      <h3 className="ws-section-title">Personal Notes & Observations</h3>
+                    </div>
+                    <span className="ws-privacy-badge">
+                      <Lock size={11} />
+                      <span>Private to your account</span>
+                    </span>
                   </div>
-                  <span className="private-note-badge">
-                    <Lock size={12} /> Private to your account
-                  </span>
+                  <p className="ws-field-desc">
+                    Record insights, alternative algorithmic designs, or personal test observations here.
+                  </p>
+                  <textarea
+                    className="ws-textarea ws-notes-textarea"
+                    rows={6}
+                    value={personalNotes}
+                    onChange={(e) => {
+                      setPersonalNotes(e.target.value);
+                      markDirtyAndDebounceSave();
+                    }}
+                    placeholder="Record key takeaways, alternative patterns, edge-case observations, or interview prep thoughts..."
+                  />
                 </div>
-
-                <textarea
-                  className="approach-textarea notes-textarea"
-                  rows={6}
-                  value={personalNotes}
-                  onChange={(e) => {
-                    setPersonalNotes(e.target.value);
-                    markDirtyAndDebounceSave();
-                  }}
-                  placeholder="Record insights, alternative algorithmic designs, or personal test observations here..."
-                />
-              </div>
-            </>
-          )}
-        </section>
+              </>
+            )}
+          </section>
+        </div>
       </main>
     </div>
   );
