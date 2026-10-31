@@ -8,6 +8,8 @@ import { ForgotPasswordPage } from './pages/ForgotPasswordPage';
 import { ResetPasswordPage } from './pages/ResetPasswordPage';
 import { AuthCallbackPage } from './pages/AuthCallbackPage';
 import { DashboardPage } from './pages/DashboardPage';
+import { ProblemsPage } from './pages/ProblemsPage';
+import { ProblemWorkspacePage } from './pages/ProblemWorkspacePage';
 
 export function App() {
   return (
@@ -24,12 +26,32 @@ export function App() {
           <Route path="/reset-password" element={<ResetPasswordPage />} />
           <Route path="/auth/callback" element={<AuthCallbackPage />} />
 
-          {/* Phase 2 Protected Placeholder Route */}
+          {/* Phase 3 Protected Dashboard Route */}
           <Route
             path="/dashboard"
             element={
               <ProtectedRoute>
                 <DashboardPage />
+              </ProtectedRoute>
+            }
+          />
+
+          {/* Phase 4 Protected Problem Library Route */}
+          <Route
+            path="/problems"
+            element={
+              <ProtectedRoute>
+                <ProblemsPage />
+              </ProtectedRoute>
+            }
+          />
+
+          {/* Phase 5 Individual Problem Workspace Route */}
+          <Route
+            path="/problems/:slug"
+            element={
+              <ProtectedRoute>
+                <ProblemWorkspacePage />
               </ProtectedRoute>
             }
           />
