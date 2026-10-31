@@ -2,7 +2,7 @@
 // Secure Judge0 CE Code Execution & Submission Engine
 
 import { env } from '../config/env.js';
-import { supabase } from '../config/supabase.js';
+import { getSupabaseClient } from '../config/supabase.js';
 import { ApiError } from '../utils/ApiError.js';
 import { getLanguageConfig, SUPPORTED_LANGUAGES } from '../config/languages.js';
 
@@ -218,31 +218,34 @@ export class Judge0Service {
 
     // Store submission in Supabase if configured
     try {
-      await supabase.from('user_submissions').insert({
-        id: submissionId.startsWith('sub_') ? undefined : submissionId,
-        user_id: userId,
-        problem_id: problemId,
-        language,
-        source_code: sourceCode,
-        status: finalVerdict,
-        runtime_ms: maxRuntimeMs,
-        memory_kb: maxMemoryKb,
-        test_cases_passed: passedCount,
-        total_test_cases: testSuite.length,
-        stdout: executionResults[0]?.stdout || '',
-        stderr: executionResults[0]?.stderr || '',
-        compile_output: executionResults[0]?.compile_output || '',
-      });
-
-      // If accepted, update user progress
-      if (finalVerdict === 'Accepted') {
-        await supabase.from('user_problem_progress').upsert({
+      const supabase = getSupabaseClient();
+      if (supabase) {
+        await supabase.from('user_submissions').insert({
+          id: submissionId.startsWith('sub_') ? undefined : submissionId,
           user_id: userId,
           problem_id: problemId,
-          status: 'solved',
-          solved_at: new Date().toISOString(),
-          updated_at: new Date().toISOString(),
+          language,
+          source_code: sourceCode,
+          status: finalVerdict,
+          runtime_ms: maxRuntimeMs,
+          memory_kb: maxMemoryKb,
+          test_cases_passed: passedCount,
+          total_test_cases: testSuite.length,
+          stdout: executionResults[0]?.stdout || '',
+          stderr: executionResults[0]?.stderr || '',
+          compile_output: executionResults[0]?.compile_output || '',
         });
+
+        // If accepted, update user progress
+        if (finalVerdict === 'Accepted') {
+          await supabase.from('user_problem_progress').upsert({
+            user_id: userId,
+            problem_id: problemId,
+            status: 'solved',
+            solved_at: new Date().toISOString(),
+            updated_at: new Date().toISOString(),
+          });
+        }
       }
     } catch {
       // Non-fatal if table is offline
@@ -265,6 +268,9 @@ export class Judge0Service {
    */
   async getSubmissionHistory(userId: string, problemId: string): Promise<any[]> {
     try {
+      const supabase = getSupabaseClient();
+      if (!supabase) return [];
+
       const { data, error } = await supabase
         .from('user_submissions')
         .select('*')
