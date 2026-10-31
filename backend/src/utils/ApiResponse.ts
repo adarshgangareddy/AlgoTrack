@@ -21,3 +21,4 @@ export class ApiResponse<T = unknown> {
     return new ApiResponse(false, message, null, meta);
   }
 }
+

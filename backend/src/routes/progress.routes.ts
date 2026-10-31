@@ -18,3 +18,4 @@ router.get('/:problemId', requireAuth, ProgressController.getProgressForProblem)
 router.put('/:problemId', requireAuth, validateBody(updateProgressSchema), ProgressController.updateProgress);
 
 export default router;
+

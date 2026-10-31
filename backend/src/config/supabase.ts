@@ -28,3 +28,4 @@ export function getSupabaseClient(): SupabaseClient | null {
 export function isSupabaseReady(): boolean {
   return getSupabaseClient() !== null;
 }
+

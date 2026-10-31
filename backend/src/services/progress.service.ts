@@ -28,3 +28,4 @@ export class ProgressService {
     return this.repository.updateProgress(params);
   }
 }
+

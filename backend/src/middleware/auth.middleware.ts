@@ -70,3 +70,4 @@ export async function optionalAuth(req: AuthenticatedRequest, _res: Response, ne
 
   return next();
 }
+

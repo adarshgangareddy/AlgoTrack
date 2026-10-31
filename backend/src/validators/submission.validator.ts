@@ -14,3 +14,4 @@ export const submitCodeSchema = z.object({
   language: z.enum(['python', 'javascript', 'typescript', 'java', 'cpp']),
   sourceCode: z.string().min(1, 'Source code cannot be empty'),
 });
+

@@ -13,3 +13,4 @@ router.get('/verify', AuthController.verify);
 router.get('/me', requireAuth, AuthController.me);
 
 export default router;
+

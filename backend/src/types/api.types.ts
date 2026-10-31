@@ -13,3 +13,4 @@ export interface ApiResponseFormat<T = unknown> {
   data?: T;
   meta?: Record<string, unknown>;
 }
+

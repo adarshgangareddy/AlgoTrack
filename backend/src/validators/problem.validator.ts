@@ -28,3 +28,4 @@ export const updateWorkspaceSchema = z.object({
   problemTitle: z.string().optional(),
   problemDifficulty: z.string().optional(),
 });
+

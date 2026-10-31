@@ -47,3 +47,4 @@ export interface SubmissionPayload {
   sourceCode: string;
   stdin?: string;
 }
+

@@ -17,3 +17,4 @@ router.get('/', validateQuery(problemQuerySchema), ProblemsController.getProblem
 router.get('/:id', ProblemsController.getProblemById);
 
 export default router;
+

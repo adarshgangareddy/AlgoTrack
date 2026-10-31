@@ -15,3 +15,4 @@ router.get('/:problemId', requireAuth, WorkspaceController.getWorkspace);
 router.put('/:problemId', requireAuth, validateBody(updateWorkspaceSchema), WorkspaceController.saveWorkspace);
 
 export default router;
+

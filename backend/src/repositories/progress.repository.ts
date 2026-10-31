@@ -96,3 +96,4 @@ export class ProgressRepository {
     return { status, updated_at: now };
   }
 }
+
