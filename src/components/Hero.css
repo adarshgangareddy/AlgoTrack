@@ -429,25 +429,48 @@
 
 @media (max-width: 640px) {
   .things-stadium-wrapper {
-    margin-top: 50px;
+    margin-top: 45px;
+    margin-bottom: 30px;
   }
-  /* On mobile, tuck rooms neatly so there is zero overflow */
-  .arcade-pos { display: none; }
-  .chick-pos { top: 20px; right: 10px; width: 65px; height: 65px; }
-  .crab-pos { top: -35px; left: 10px; width: 65px; height: 65px; }
-  .coin-pos { bottom: -25px; left: 15px; width: 55px; height: 65px; }
-  .dev-lab-pos { top: -45px; right: 10px; width: 100px; height: 90px; }
-  .disco-pos { bottom: -45px; right: 10px; width: 110px; height: 100px; }
+  /* On mobile, tuck rooms neatly into the 4 corners to guarantee zero overlap */
+  .arcade-pos,
+  .chick-pos {
+    display: none;
+  }
+  .crab-pos {
+    top: -32px;
+    left: 12px;
+    width: 64px;
+    height: 64px;
+  }
+  .dev-lab-pos {
+    top: -36px;
+    right: 12px;
+    width: 88px;
+    height: 78px;
+  }
+  .coin-pos {
+    bottom: -22px;
+    left: 16px;
+    width: 50px;
+    height: 60px;
+  }
+  .disco-pos {
+    bottom: -36px;
+    right: 12px;
+    width: 96px;
+    height: 86px;
+  }
 
   .things-main-card {
     border-radius: 28px;
     padding: 24px 16px;
-    min-height: 400px;
+    min-height: 380px;
   }
 
   .stadium-statement {
     font-size: 0.95rem;
-    margin-bottom: 20px;
+    margin: 14px auto 22px auto;
   }
 
   .stadium-cta-row {
@@ -457,5 +480,14 @@
 
   .stadium-cta-row .btn {
     width: 100%;
+  }
+}
+
+@media (max-width: 400px) {
+  .floating-voxel {
+    transform: scale(0.8);
+  }
+  .things-main-card {
+    padding: 20px 12px;
   }
 }
