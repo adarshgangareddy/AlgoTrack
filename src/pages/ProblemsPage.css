@@ -423,3 +423,228 @@
   }
 }
 
+
+
+/* ==========================================================================
+   Pagination & Problem Cards Grid Styles
+   ========================================================================== */
+
+.library-pagination-info-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 16px;
+  gap: 16px;
+  flex-wrap: wrap;
+}
+
+.results-count-text {
+  font-size: 13.5px;
+  color: #64748B;
+}
+
+.results-count-text strong {
+  color: #0F172A;
+}
+
+.pagination-controls,
+.library-pagination-bottom {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.library-pagination-bottom {
+  justify-content: center;
+  margin-top: 32px;
+  padding: 16px;
+}
+
+.page-nav-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 7px 14px;
+  font-size: 13px;
+  font-weight: 600;
+  color: #334155;
+  background-color: #FFFFFF;
+  border: 1px solid #CBD5E1;
+  border-radius: 8px;
+  cursor: pointer;
+  transition: all 0.15s ease;
+}
+
+.page-nav-btn:hover:not(:disabled) {
+  background-color: #F1F5F9;
+  border-color: #94A3B8;
+  color: #0F172A;
+}
+
+.page-nav-btn:disabled {
+  opacity: 0.45;
+  cursor: not-allowed;
+}
+
+.page-indicator {
+  font-size: 13px;
+  font-weight: 600;
+  color: #475569;
+  padding: 0 4px;
+}
+
+/* Problem Cards Grid */
+.problem-cards-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(320px, 1fr));
+  gap: 16px;
+}
+
+.problem-summary-card {
+  background-color: #FFFFFF;
+  border: 1px solid #E2E8F0;
+  border-radius: 14px;
+  padding: 18px;
+  box-shadow: 0 2px 6px rgba(15, 23, 42, 0.03);
+  cursor: pointer;
+  transition: all 0.2s ease;
+  display: flex;
+  flex-direction: column;
+}
+
+.problem-summary-card:hover {
+  transform: translateY(-2px);
+  border-color: #38BDF8;
+  box-shadow: 0 6px 20px rgba(2, 132, 199, 0.08);
+}
+
+.card-top-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 8px;
+}
+
+.prob-num-tag {
+  font-family: var(--font-mono, monospace);
+  font-size: 12px;
+  font-weight: 700;
+  color: #0284C7;
+  background-color: #E0F2FE;
+  padding: 2px 7px;
+  border-radius: 6px;
+}
+
+.status-badge-inline span {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  font-size: 11px;
+  font-weight: 700;
+  padding: 2px 8px;
+  border-radius: 999px;
+  text-transform: uppercase;
+}
+
+.badge-solved {
+  background-color: #ECFDF5;
+  color: #059669;
+  border: 1px solid #A7F3D0;
+}
+
+.badge-attempted {
+  background-color: #FFFBEB;
+  color: #D97706;
+  border: 1px solid #FDE68A;
+}
+
+.badge-not-started {
+  background-color: #F1F5F9;
+  color: #64748B;
+  border: 1px solid #E2E8F0;
+}
+
+.card-problem-title {
+  font-size: 15px;
+  font-weight: 700;
+  color: #0F172A;
+  margin: 0 0 10px 0;
+  line-height: 1.35;
+}
+
+.card-meta-row {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  flex-wrap: wrap;
+  margin-bottom: 10px;
+}
+
+.diff-pill-micro {
+  font-size: 11px;
+  font-weight: 700;
+  padding: 2px 7px;
+  border-radius: 999px;
+  text-transform: uppercase;
+}
+
+.diff-pill-micro.easy {
+  background-color: #ECFDF5;
+  color: #059669;
+}
+
+.diff-pill-micro.medium {
+  background-color: #FFFBEB;
+  color: #D97706;
+}
+
+.diff-pill-micro.hard {
+  background-color: #FEF2F2;
+  color: #DC2626;
+}
+
+.pattern-pill-micro {
+  font-size: 11px;
+  font-weight: 600;
+  color: #475569;
+  background-color: #F1F5F9;
+  padding: 2px 8px;
+  border-radius: 6px;
+}
+
+.card-problem-desc {
+  font-size: 12.5px;
+  color: #64748B;
+  line-height: 1.5;
+  margin: 0 0 14px 0;
+  flex: 1;
+}
+
+.card-footer-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding-top: 10px;
+  border-top: 1px solid #F1F5F9;
+}
+
+.open-workspace-cta {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  font-size: 12.5px;
+  font-weight: 700;
+  color: #0284C7;
+}
+
+.card-ext-link {
+  color: #94A3B8;
+  padding: 4px;
+  border-radius: 4px;
+  display: inline-flex;
+  align-items: center;
+}
+
+.card-ext-link:hover {
+  color: #0284C7;
+}
