@@ -1,4 +1,5 @@
 import React from 'react';
+import { useNavigate } from 'react-router-dom';
 import { Compass, Play, BarChart2, ArrowRight } from 'lucide-react';
 
 interface QuickActionsProps {
@@ -6,6 +7,8 @@ interface QuickActionsProps {
 }
 
 export const QuickActions: React.FC<QuickActionsProps> = ({ onScrollToActivity }) => {
+  const navigate = useNavigate();
+
   return (
     <div className="dashboard-card-section" aria-label="Quick Actions">
       <div className="card-section-header">
@@ -13,11 +16,14 @@ export const QuickActions: React.FC<QuickActionsProps> = ({ onScrollToActivity }
       </div>
 
       <div className="quick-actions-row">
-        {/* Explore Problems (Phase 4) */}
+        {/* Explore Problems */}
         <div 
           className="quick-action-card" 
-          style={{ cursor: 'not-allowed', opacity: 0.8 }}
-          title="Curated 400 questions library arriving in Phase 4"
+          onClick={() => navigate('/problems')}
+          role="button"
+          tabIndex={0}
+          title="Browse curated problem library and start learning"
+          style={{ cursor: 'pointer' }}
         >
           <div className="quick-action-left">
             <div className="quick-action-icon">
@@ -25,19 +31,20 @@ export const QuickActions: React.FC<QuickActionsProps> = ({ onScrollToActivity }
             </div>
             <div className="quick-action-text">
               <span className="quick-action-title">Explore Problems</span>
-              <span className="quick-action-desc">400 curated interview challenges</span>
+              <span className="quick-action-desc">Curated interview challenges</span>
             </div>
           </div>
-          <span className="nav-badge" style={{ background: '#F1F5F9', color: '#64748B' }}>
-            Phase 4
-          </span>
+          <ArrowRight size={16} color="#0284C7" />
         </div>
 
-        {/* Continue Practice (Phase 4) */}
+        {/* Continue Practice */}
         <div 
           className="quick-action-card" 
-          style={{ cursor: 'not-allowed', opacity: 0.8 }}
-          title="Resume your last attempted challenge"
+          onClick={() => navigate('/problems/two-sum')}
+          role="button"
+          tabIndex={0}
+          title="Resume your practice workspace"
+          style={{ cursor: 'pointer' }}
         >
           <div className="quick-action-left">
             <div className="quick-action-icon" style={{ color: '#F59E0B' }}>
@@ -45,12 +52,10 @@ export const QuickActions: React.FC<QuickActionsProps> = ({ onScrollToActivity }
             </div>
             <div className="quick-action-text">
               <span className="quick-action-title">Continue Practice</span>
-              <span className="quick-action-desc">Jump straight to your next question</span>
+              <span className="quick-action-desc">Jump into problem workspace</span>
             </div>
           </div>
-          <span className="nav-badge" style={{ background: '#F1F5F9', color: '#64748B' }}>
-            Phase 4
-          </span>
+          <ArrowRight size={16} color="#0284C7" />
         </div>
 
         {/* View Progress (Active) */}
@@ -60,6 +65,7 @@ export const QuickActions: React.FC<QuickActionsProps> = ({ onScrollToActivity }
           role="button"
           tabIndex={0}
           title="Scroll to coding activity overview"
+          style={{ cursor: 'pointer' }}
         >
           <div className="quick-action-left">
             <div className="quick-action-icon" style={{ color: '#10B981' }}>

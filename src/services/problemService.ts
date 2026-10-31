@@ -117,7 +117,7 @@ export const CURATED_PROBLEMS: Problem[] = [
     leetcode_url: 'https://leetcode.com/problems/maximum-subarray/',
     topics: ['Arrays', 'Dynamic Programming'],
     description: 'Given an integer array nums, find the subarray with the largest sum, and return its sum.',
-    theory_content: 'Kadane''s algorithm iterates through the array while maintaining current_sum = max(num, current_sum + num). If the running sum becomes negative, starting fresh at the next number yields a higher potential.'
+    theory_content: "Kadane's algorithm iterates through the array while maintaining current_sum = max(num, current_sum + num). If the running sum becomes negative, starting fresh at the next number yields a higher potential."
   },
   {
     id: 'p70-climbing-stairs',

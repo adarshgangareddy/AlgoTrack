@@ -137,30 +137,31 @@ export const DashboardSidebar: React.FC<DashboardSidebarProps> = ({
                 {!isCollapsed && <span>Overview</span>}
               </button>
 
-              <button
-                type="button"
-                className="nav-item-btn disabled"
-                title="Problems Library (Phase 4)"
+              <Link
+                to="/problems"
+                className="nav-item-btn"
+                onClick={onCloseMobile}
+                title="Problems Library & Workspace"
               >
                 <Code2 size={18} />
                 {!isCollapsed && (
                   <>
                     <span>Problems</span>
-                    <span className="nav-badge">Phase 4</span>
+                    <span className="nav-badge" style={{ background: '#E0F2FE', color: '#0369A1' }}>Practice</span>
                   </>
                 )}
-              </button>
+              </Link>
 
               <button
                 type="button"
                 className="nav-item-btn disabled"
-                title="Advanced Analytics (Phase 5)"
+                title="Advanced Analytics (Phase 6)"
               >
                 <BarChart3 size={18} />
                 {!isCollapsed && (
                   <>
                     <span>Analytics</span>
-                    <span className="nav-badge">Phase 5</span>
+                    <span className="nav-badge">Phase 6</span>
                   </>
                 )}
               </button>
@@ -186,7 +187,7 @@ export const DashboardSidebar: React.FC<DashboardSidebarProps> = ({
               <button
                 type="button"
                 className="nav-item-btn disabled"
-                title="Settings (Phase 5)"
+                title="Settings (Phase 6)"
               >
                 <Settings size={18} />
                 {!isCollapsed && (
