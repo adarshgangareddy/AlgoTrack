@@ -125,7 +125,7 @@ export const Hero: React.FC<HeroProps> = ({ onStartJourneyClick, isNightMode = t
 
           {/* THE MAIN SKY / NIGHT SLANTED STADIUM CARD */}
           <div className={`things-main-card ${isNightMode ? 'night-active' : 'day-active'}`}>
-            
+
             {/* Dynamic Animated Celestial Canvas & Shimmer Atmosphere */}
             <div className="stadium-sky-canvas" aria-hidden="true">
               <div className="celestial-aurora-glow" />
