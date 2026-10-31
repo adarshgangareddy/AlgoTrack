@@ -16,7 +16,7 @@ export interface CodeEditorProps {
   isSaved?: boolean;
 }
 
-export const LANGUAGE_OPTIONS = [
+const LANGUAGE_OPTIONS = [
   { id: 'python', label: 'Python 3', ext: '.py' },
   { id: 'typescript', label: 'TypeScript', ext: '.ts' },
   { id: 'javascript', label: 'JavaScript', ext: '.js' },

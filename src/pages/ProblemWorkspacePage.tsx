@@ -179,7 +179,7 @@ export const ProblemWorkspacePage: React.FC = () => {
     } else {
       setSaveSuccessMsg(res.error || 'Failed to save');
     }
-  }, [user?.id, problem, solutionsByLang, activeLanguage, personalNotes, personalApproach, timeComplexity, spaceComplexity, mistakesEdgeCases, problemStatus]);
+  }, [user, problem, solutionsByLang, activeLanguage, personalNotes, personalApproach, timeComplexity, spaceComplexity, mistakesEdgeCases, problemStatus]);
 
   // Debounced Autosave Trigger
   const markDirtyAndDebounceSave = useCallback(() => {

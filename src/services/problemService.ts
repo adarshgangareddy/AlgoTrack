@@ -394,8 +394,6 @@ export async function saveUserWorkspaceAndProgress(params: {
     return { success: false, error: 'User or Problem ID missing', updated_at: now };
   }
 
-  let dbSuccess = false;
-
   if (isSupabaseConfigured()) {
     try {
       // 1. Upsert workspace data
@@ -464,8 +462,6 @@ export async function saveUserWorkspaceAndProgress(params: {
           created_at: now
         });
       }
-
-      dbSuccess = true;
     } catch (err: unknown) {
       console.warn('[AlgoTrack] Supabase workspace save fallback:', err);
     }
