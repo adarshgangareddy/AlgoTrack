@@ -1,242 +1,137 @@
-import React, { useState } from 'react';
-import { 
-  BookOpen, 
-  Code2, 
-  Clock, 
-  AlertTriangle, 
-  RotateCcw, 
-  Check, 
-  Sparkles, 
-  FileCode2
-} from 'lucide-react';
+import React from 'react';
+import { BookOpen, FileCode2, Clock, NotebookPen } from 'lucide-react';
 import './PersonalLearning.css';
 
 export const PersonalLearning: React.FC = () => {
-  const [activeLang, setActiveLang] = useState<'python' | 'ts' | 'java' | 'cpp'>('python');
-
-  const codeSnippets = {
-    python: `def lengthOfLongestSubstring(s: str) -> int:
-    char_map = {}
-    max_len = left = 0
-    
-    for right, char in enumerate(s):
-        if char in char_map and char_map[char] >= left:
-            left = char_map[char] + 1
-        char_map[char] = right
-        max_len = max(max_len, right - left + 1)
-        
-    return max_len`,
-    ts: `function lengthOfLongestSubstring(s: string): number {
-  const map = new Map<string, number>();
-  let maxLen = 0, left = 0;
-  
-  for (let right = 0; right < s.length; right++) {
-    const char = s[right];
-    if (map.has(char) && map.get(char)! >= left) {
-      left = map.get(char)! + 1;
-    }
-    map.set(char, right);
-    maxLen = Math.max(maxLen, right - left + 1);
-  }
-  return maxLen;
-}`,
-    java: `public int lengthOfLongestSubstring(String s) {
-    Map<Character, Integer> map = new HashMap<>();
-    int maxLen = 0, left = 0;
-    
-    for (int right = 0; right < s.length(); right++) {
-        char c = s.charAt(right);
-        if (map.containsKey(c) && map.get(c) >= left) {
-            left = map.get(c) + 1;
-        }
-        map.put(c, right);
-        maxLen = Math.max(maxLen, right - left + 1);
-    }
-    return maxLen;
-}`,
-    cpp: `int lengthOfLongestSubstring(string s) {
-    unordered_map<char, int> map;
-    int maxLen = 0, left = 0;
-    
-    for (int right = 0; right < s.length(); right++) {
-        char c = s[right];
-        if (map.count(c) && map[c] >= left) {
-            left = map[c] + 1;
-        }
-        map[c] = right;
-        maxLen = max(maxLen, right - left + 1);
-    }
-    return maxLen;
-}`
-  };
-
-  const learningPillars = [
-    {
-      title: 'Pre-Problem Reading',
-      desc: 'Review fundamental pattern concepts before jumping directly into problem solving.',
-      icon: <BookOpen size={18} className="text-orange" />
-    },
-    {
-      title: 'Structured Approach Log',
-      desc: 'Formulate and articulate your step-by-step logic before writing code.',
-      icon: <FileCode2 size={18} className="text-purple" />
-    },
-    {
-      title: 'Time & Space Complexity',
-      desc: 'Document asymptotic bounds to build intuition for interview-ready justifications.',
-      icon: <Clock size={18} className="text-orange" />
-    },
-    {
-      title: 'Mistake & Edge-Case Archive',
-      desc: 'Flag exact traps: off-by-one errors, empty sets, negative inputs, and duplicates.',
-      icon: <AlertTriangle size={18} className="text-purple" />
-    },
-    {
-      title: 'Multi-Language Solutions',
-      desc: 'Keep clean, verified reference solutions in your preferred interview language.',
-      icon: <Code2 size={18} className="text-orange" />
-    },
-    {
-      title: 'Spaced Revision Triggers',
-      desc: 'Revisit difficult patterns automatically before critical technical rounds.',
-      icon: <RotateCcw size={18} className="text-purple" />
-    },
-  ];
-
   return (
     <section className="learning-section" id="learning">
       <div className="container">
         <div className="section-header">
-          <span className="section-tag purple">Deep Understanding</span>
+          <span className="section-tag">Learn Your Way</span>
           <h2 className="section-title">Don't Just Solve Problems. Understand Them.</h2>
           <p className="section-description">
-            Memorizing solutions leads to blanking during interviews. AlgoTrack gives you a personal 
-            workspace to document approaches, analyze complexity, and archive crucial mistakes.
+            Every problem is an opportunity to learn. AlgoTrack gives you a personal space to understand concepts, record your approach, analyze complexity and revisit important lessons.
           </p>
         </div>
 
-        {/* 6 Capabilities Cards Grid */}
-        <div className="pillars-grid">
-          {learningPillars.map((p) => (
-            <div key={p.title} className="pillar-card card-saas">
-              <div className="pillar-header">
-                <div className="pillar-icon-box">
-                  {p.icon}
-                </div>
-                <h3 className="pillar-title">{p.title}</h3>
+        {/* 4 Feature Cards Grid */}
+        <div className="learning-features-grid">
+          {/* Card 1: Theory and Concept Notes */}
+          <div className="learning-card card-saas">
+            <div className="learning-card-top">
+              <div className="learning-icon-box orange">
+                <BookOpen size={22} />
               </div>
-              <p className="pillar-desc">{p.desc}</p>
+              <span className="card-pill">Theory</span>
             </div>
-          ))}
-        </div>
 
-        {/* Visual Workspace Preview Mockup */}
-        <div className="workspace-preview-card card-saas">
-          <div className="workspace-preview-topbar">
-            <div className="workspace-problem-meta">
-              <span className="meta-tag diff-med">Medium</span>
-              <span className="meta-id">Problem #3</span>
-              <span className="meta-name">Longest Substring Without Repeating Characters</span>
+            <div className="learning-card-content">
+              <h3 className="learning-card-title">Theory and Concept Notes</h3>
+              <p className="learning-card-desc">
+                Review fundamental pattern principles, algorithmic edge cases, and core mental models before jumping into problem solving.
+              </p>
             </div>
-            <div className="workspace-preview-badge">
-              <Sparkles size={12} className="text-orange" />
-              <span>Future Learning Workspace Preview</span>
+
+            <div className="learning-micro-visual">
+              <div className="concept-pill-group">
+                <span className="concept-tag">Pattern Invariant</span>
+                <span className="concept-tag">Base Cases</span>
+              </div>
+              <div className="concept-line">
+                <span className="concept-bullet"></span>
+                <span className="concept-text">Internalize the underlying principle behind the solution</span>
+              </div>
             </div>
           </div>
 
-          <div className="workspace-preview-split">
-            {/* Left: Notes, Complexity, Traps */}
-            <div className="workspace-notes-panel">
-              <div className="notes-block">
-                <div className="block-label">Your Approach & Mental Model</div>
-                <div className="approach-text-box">
-                  Use the <strong>Sliding Window</strong> pattern with a dynamic right pointer. Store 
-                  the most recent 0-indexed position of each seen character in a Hash Map. 
-                  When encountering a duplicate, move the <code>left</code> pointer past the previous occurrence.
-                </div>
+          {/* Card 2: Personal Problem-Solving Approach */}
+          <div className="learning-card card-saas">
+            <div className="learning-card-top">
+              <div className="learning-icon-box purple">
+                <FileCode2 size={22} />
               </div>
-
-              <div className="complexity-grid">
-                <div className="complexity-item">
-                  <div className="complexity-label">Time Complexity</div>
-                  <div className="complexity-val">O(N)</div>
-                  <div className="complexity-sub">Each char visited at most twice</div>
-                </div>
-                <div className="complexity-item">
-                  <div className="complexity-label">Space Complexity</div>
-                  <div className="complexity-val">O(min(N, M))</div>
-                  <div className="complexity-sub">Bounded by alphabet character set size</div>
-                </div>
-              </div>
-
-              <div className="traps-box">
-                <div className="traps-header">
-                  <AlertTriangle size={14} className="text-danger" />
-                  <span className="traps-title">Key Mistake to Avoid</span>
-                </div>
-                <div className="traps-text">
-                  Make sure <code>map.get(char) &gt;= left</code> before updating <code>left</code>. 
-                  Otherwise, an older duplicate from outside the current window could pull 
-                  <code>left</code> backwards!
-                </div>
-              </div>
-
-              <div className="revision-pill-row">
-                <span className="revision-pill">
-                  <RotateCcw size={12} />
-                  <span>Scheduled Revision: In 5 Days</span>
-                </span>
-                <span className="confidence-pill">High Confidence</span>
-              </div>
+              <span className="card-pill purple">Method</span>
             </div>
 
-            {/* Right: Code Solution Viewer */}
-            <div className="workspace-code-panel">
-              <div className="code-panel-header">
-                <div className="code-lang-tabs">
-                  <button 
-                    type="button" 
-                    className={`lang-tab ${activeLang === 'python' ? 'active' : ''}`}
-                    onClick={() => setActiveLang('python')}
-                  >
-                    Python 3
-                  </button>
-                  <button 
-                    type="button" 
-                    className={`lang-tab ${activeLang === 'ts' ? 'active' : ''}`}
-                    onClick={() => setActiveLang('ts')}
-                  >
-                    TypeScript
-                  </button>
-                  <button 
-                    type="button" 
-                    className={`lang-tab ${activeLang === 'java' ? 'active' : ''}`}
-                    onClick={() => setActiveLang('java')}
-                  >
-                    Java
-                  </button>
-                  <button 
-                    type="button" 
-                    className={`lang-tab ${activeLang === 'cpp' ? 'active' : ''}`}
-                    onClick={() => setActiveLang('cpp')}
-                  >
-                    C++
-                  </button>
+            <div className="learning-card-content">
+              <h3 className="learning-card-title">Personal Problem-Solving Approach</h3>
+              <p className="learning-card-desc">
+                Document your thinking process, step-by-step logic, and alternative attempts in your own words for clear interview articulation.
+              </p>
+            </div>
+
+            <div className="learning-micro-visual">
+              <div className="approach-step-list">
+                <div className="approach-step">
+                  <span className="step-badge">1</span>
+                  <span className="step-txt">Identify monotonic search space</span>
                 </div>
-                <span className="code-status-pill">
-                  <Check size={12} /> Verified Solution
-                </span>
+                <div className="approach-step">
+                  <span className="step-badge">2</span>
+                  <span className="step-txt">Maintain left and right boundaries</span>
+                </div>
+                <div className="approach-step">
+                  <span className="step-badge">3</span>
+                  <span className="step-txt">Verify convergence criteria</span>
+                </div>
               </div>
+            </div>
+          </div>
 
-              <div className="code-editor-area">
-                <pre className="code-pre">
-                  <code>{codeSnippets[activeLang]}</code>
-                </pre>
+          {/* Card 3: Time and Space Complexity */}
+          <div className="learning-card card-saas">
+            <div className="learning-card-top">
+              <div className="learning-icon-box orange">
+                <Clock size={22} />
               </div>
+              <span className="card-pill">Complexity</span>
+            </div>
 
-              <div className="code-panel-footer">
-                <span className="footer-filename">solution.{activeLang === 'python' ? 'py' : activeLang === 'ts' ? 'ts' : activeLang === 'java' ? 'java' : 'cpp'}</span>
-                <span className="footer-sync-note">Personal saved solution • Editable in Phase 2</span>
+            <div className="learning-card-content">
+              <h3 className="learning-card-title">Time and Space Complexity</h3>
+              <p className="learning-card-desc">
+                Analyze and record asymptotic Big-O bounds for both runtime and auxiliary memory to build interview-ready reasoning.
+              </p>
+            </div>
+
+            <div className="learning-micro-visual">
+              <div className="complexity-badge-row">
+                <div className="complexity-badge">
+                  <span className="comp-label">Time</span>
+                  <span className="comp-val">O(N log N)</span>
+                </div>
+                <div className="complexity-badge">
+                  <span className="comp-label">Space</span>
+                  <span className="comp-val">O(1)</span>
+                </div>
+              </div>
+              <p className="complexity-caption">Single pass traversal with constant auxiliary memory</p>
+            </div>
+          </div>
+
+          {/* Card 4: Personal Notes and Saved Solutions */}
+          <div className="learning-card card-saas">
+            <div className="learning-card-top">
+              <div className="learning-icon-box purple">
+                <NotebookPen size={22} />
+              </div>
+              <span className="card-pill purple">Archive</span>
+            </div>
+
+            <div className="learning-card-content">
+              <h3 className="learning-card-title">Personal Notes and Saved Solutions</h3>
+              <p className="learning-card-desc">
+                Maintain a clean personal revision archive of your verified solutions, tricky edge-case traps, and key lessons.
+              </p>
+            </div>
+
+            <div className="learning-micro-visual">
+              <div className="archive-tags-row">
+                <span className="archive-pill">Edge Case: Empty Array</span>
+                <span className="archive-pill green">Verified Solution</span>
+              </div>
+              <div className="archive-note-text">
+                "Revisit before tech screen: remember off-by-one trap on pointer swap."
               </div>
             </div>
           </div>
