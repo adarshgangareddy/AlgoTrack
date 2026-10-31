@@ -1,0 +1,611 @@
+/* ==========================================================================
+   AlgoTrack Phase 6: Monaco Code Editor & Execution Panel Styles
+   ========================================================================== */
+
+.monaco-workspace-container {
+  display: flex;
+  flex-direction: column;
+  background-color: #FFFFFF;
+  border: 1px solid #E2E8F0;
+  border-radius: 12px;
+  overflow: hidden;
+  box-shadow: 0 1px 3px rgba(15, 23, 42, 0.04);
+  transition: all 0.2s ease;
+  position: relative;
+}
+
+.monaco-workspace-container.is-fullscreen {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100vw;
+  height: 100vh;
+  z-index: 9999;
+  border-radius: 0;
+  border: none;
+}
+
+/* 1. Header Toolbar */
+.monaco-toolbar {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 10px 16px;
+  background-color: #F8FAFC;
+  border-bottom: 1px solid #E2E8F0;
+  gap: 12px;
+  flex-wrap: wrap;
+}
+
+.monaco-toolbar-left {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.monaco-lang-dropdown {
+  padding: 6px 12px;
+  font-size: 13px;
+  font-weight: 700;
+  color: #0F172A;
+  background-color: #FFFFFF;
+  border: 1px solid #CBD5E1;
+  border-radius: 8px;
+  cursor: pointer;
+  transition: all 0.15s ease;
+}
+
+.monaco-lang-dropdown:hover {
+  border-color: #0284C7;
+}
+
+.monaco-lang-dropdown:focus {
+  outline: none;
+  border-color: #0284C7;
+  box-shadow: 0 0 0 2px rgba(2, 132, 199, 0.15);
+}
+
+.monaco-judge0-pill {
+  font-family: var(--font-mono, monospace);
+  font-size: 11px;
+  font-weight: 600;
+  color: #0284C7;
+  background-color: #E0F2FE;
+  padding: 3px 8px;
+  border-radius: 6px;
+  border: 1px solid #BAE6FD;
+}
+
+.monaco-toolbar-right {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.monaco-tool-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  padding: 6px 10px;
+  font-size: 12px;
+  font-weight: 600;
+  color: #475569;
+  background-color: #FFFFFF;
+  border: 1px solid #CBD5E1;
+  border-radius: 8px;
+  cursor: pointer;
+  transition: all 0.15s ease;
+}
+
+.monaco-tool-btn:hover:not(:disabled) {
+  background-color: #F1F5F9;
+  color: #0F172A;
+  border-color: #94A3B8;
+}
+
+.monaco-tool-btn:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+.monaco-tool-btn.icon-only {
+  padding: 6px 8px;
+}
+
+/* 2. Monaco Editor Pane */
+.monaco-editor-pane {
+  background-color: #1E1E1E;
+  position: relative;
+  min-height: 380px;
+}
+
+.monaco-loading-box {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 10px;
+  height: 380px;
+  color: #94A3B8;
+  font-size: 13px;
+}
+
+/* 3. Bottom Execution & Test Panel */
+.monaco-test-panel {
+  background-color: #FFFFFF;
+  border-top: 1px solid #E2E8F0;
+  display: flex;
+  flex-direction: column;
+}
+
+.test-panel-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 8px 14px;
+  background-color: #F8FAFC;
+  border-bottom: 1px solid #E2E8F0;
+  gap: 12px;
+  flex-wrap: wrap;
+}
+
+.test-panel-tabs {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.test-tab-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 6px 12px;
+  font-size: 12.5px;
+  font-weight: 600;
+  color: #64748B;
+  background: transparent;
+  border: 1px solid transparent;
+  border-radius: 6px;
+  cursor: pointer;
+  transition: all 0.15s ease;
+  position: relative;
+}
+
+.test-tab-btn:hover {
+  color: #0F172A;
+  background-color: #F1F5F9;
+}
+
+.test-tab-btn.active {
+  color: #0284C7;
+  background-color: #FFFFFF;
+  border-color: #CBD5E1;
+  box-shadow: 0 1px 2px rgba(15, 23, 42, 0.04);
+}
+
+.output-status-indicator {
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+  background-color: #0284C7;
+}
+
+.test-panel-actions {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.btn-run-code {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 7px 14px;
+  font-size: 13px;
+  font-weight: 700;
+  color: #0F172A;
+  background-color: #F1F5F9;
+  border: 1px solid #CBD5E1;
+  border-radius: 8px;
+  cursor: pointer;
+  transition: all 0.15s ease;
+}
+
+.btn-run-code:hover:not(:disabled) {
+  background-color: #E2E8F0;
+  border-color: #94A3B8;
+  transform: translateY(-1px);
+}
+
+.btn-run-code:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+}
+
+.btn-submit-code {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 7px 16px;
+  font-size: 13px;
+  font-weight: 700;
+  color: #FFFFFF;
+  background: linear-gradient(135deg, #0284C7 0%, #0369A1 100%);
+  border: 1px solid #0284C7;
+  border-radius: 8px;
+  cursor: pointer;
+  transition: all 0.15s ease;
+  box-shadow: 0 2px 6px rgba(2, 132, 199, 0.25);
+}
+
+.btn-submit-code:hover:not(:disabled) {
+  background: linear-gradient(135deg, #0369A1 0%, #075985 100%);
+  transform: translateY(-1px);
+  box-shadow: 0 4px 10px rgba(2, 132, 199, 0.35);
+}
+
+.btn-submit-code:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+}
+
+/* Panel Body */
+.test-panel-body {
+  padding: 14px 16px;
+  min-height: 150px;
+  max-height: 280px;
+  overflow-y: auto;
+}
+
+/* Case Pills */
+.case-pills-row {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin-bottom: 12px;
+}
+
+.case-pill-btn {
+  padding: 4px 10px;
+  font-size: 12px;
+  font-weight: 600;
+  color: #475569;
+  background-color: #F1F5F9;
+  border: 1px solid #CBD5E1;
+  border-radius: 6px;
+  cursor: pointer;
+  transition: all 0.15s ease;
+}
+
+.case-pill-btn:hover {
+  background-color: #E2E8F0;
+  color: #0F172A;
+}
+
+.case-pill-btn.active {
+  background-color: #0284C7;
+  color: #FFFFFF;
+  border-color: #0284C7;
+}
+
+/* I/O Grids */
+.case-io-grid {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 12px;
+}
+
+@media (max-width: 640px) {
+  .case-io-grid {
+    grid-template-columns: 1fr;
+  }
+}
+
+.case-io-box {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.case-io-label {
+  font-size: 11px;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.03em;
+  color: #64748B;
+}
+
+.case-io-pre {
+  margin: 0;
+  padding: 10px 12px;
+  font-family: var(--font-mono, monospace);
+  font-size: 12.5px;
+  line-height: 1.5;
+  color: #0F172A;
+  background-color: #F8FAFC;
+  border: 1px solid #E2E8F0;
+  border-radius: 8px;
+  white-space: pre-wrap;
+  word-break: break-all;
+}
+
+/* Custom Input */
+.custom-stdin-textarea {
+  width: 100%;
+  margin-top: 4px;
+  padding: 10px 12px;
+  font-family: var(--font-mono, monospace);
+  font-size: 13px;
+  color: #0F172A;
+  background-color: #F8FAFC;
+  border: 1px solid #CBD5E1;
+  border-radius: 8px;
+  resize: vertical;
+}
+
+.custom-stdin-textarea:focus {
+  outline: none;
+  background-color: #FFFFFF;
+  border-color: #0284C7;
+  box-shadow: 0 0 0 2px rgba(2, 132, 199, 0.15);
+}
+
+.custom-input-hint {
+  font-size: 11px;
+  color: #64748B;
+  margin-top: 6px;
+  display: block;
+}
+
+/* Output Tab */
+.output-running-box {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 24px 0;
+  gap: 8px;
+  text-align: center;
+}
+
+.output-running-box h4 {
+  margin: 4px 0 0 0;
+  font-size: 14px;
+  font-weight: 700;
+  color: #0F172A;
+}
+
+.output-running-box p {
+  margin: 0;
+  font-size: 12px;
+  color: #64748B;
+}
+
+.output-empty-state {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  padding: 30px 0;
+  color: #64748B;
+  font-size: 13px;
+  text-align: center;
+}
+
+/* Verdict Cards */
+.submission-verdict-card,
+.run-output-card {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.verdict-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  flex-wrap: wrap;
+  border-bottom: 1px solid #F1F5F9;
+  padding-bottom: 10px;
+}
+
+.verdict-left {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  flex-wrap: wrap;
+}
+
+.verdict-tag {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 13px;
+  font-weight: 800;
+  padding: 4px 10px;
+  border-radius: 6px;
+  letter-spacing: 0.02em;
+}
+
+.verdict-tag.accepted {
+  background-color: #ECFDF5;
+  color: #059669;
+  border: 1px solid #A7F3D0;
+}
+
+.verdict-tag.rejected {
+  background-color: #FEF2F2;
+  color: #DC2626;
+  border: 1px solid #FECACA;
+}
+
+.testcases-pass-count {
+  font-size: 12.5px;
+  font-weight: 600;
+  color: #475569;
+}
+
+.verdict-stats {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  flex-wrap: wrap;
+}
+
+.verdict-stat-pill {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  font-size: 11.5px;
+  color: #475569;
+  background-color: #F1F5F9;
+  padding: 3px 8px;
+  border-radius: 6px;
+  border: 1px solid #E2E8F0;
+}
+
+.btn-clear-output {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  padding: 3px 8px;
+  font-size: 11px;
+  font-weight: 600;
+  color: #64748B;
+  background-color: transparent;
+  border: 1px solid #E2E8F0;
+  border-radius: 6px;
+  cursor: pointer;
+  transition: all 0.15s ease;
+}
+
+.btn-clear-output:hover {
+  background-color: #F1F5F9;
+  color: #DC2626;
+}
+
+.output-notice-banner {
+  font-size: 11.5px;
+  color: #0284C7;
+  background-color: #F0F9FF;
+  border: 1px solid #BAE6FD;
+  padding: 6px 10px;
+  border-radius: 6px;
+}
+
+/* Streams */
+.console-stream-box {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.stream-label {
+  font-size: 11px;
+  font-weight: 700;
+  text-transform: uppercase;
+  color: #475569;
+}
+
+.stream-label.compile {
+  color: #D97706;
+}
+
+.stream-label.error {
+  color: #DC2626;
+}
+
+.stream-pre {
+  margin: 0;
+  padding: 10px 12px;
+  font-family: var(--font-mono, monospace);
+  font-size: 12.5px;
+  border-radius: 8px;
+  white-space: pre-wrap;
+  word-break: break-all;
+}
+
+.stream-pre.stdout {
+  background-color: #0F172A;
+  color: #38BDF8;
+  border: 1px solid #1E293B;
+}
+
+.stream-pre.compile {
+  background-color: #FFFBEB;
+  color: #92400E;
+  border: 1px solid #FDE68A;
+}
+
+.stream-pre.stderr {
+  background-color: #FEF2F2;
+  color: #991B1B;
+  border: 1px solid #FECACA;
+}
+
+/* Diff grid */
+.failed-case-diff {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  background-color: #F8FAFC;
+  border: 1px solid #E2E8F0;
+  border-radius: 8px;
+  padding: 10px 12px;
+}
+
+.diff-title {
+  font-size: 11.5px;
+  font-weight: 700;
+  color: #DC2626;
+}
+
+.diff-grid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 8px;
+}
+
+@media (max-width: 640px) {
+  .diff-grid {
+    grid-template-columns: 1fr;
+  }
+}
+
+.diff-box {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.diff-label {
+  font-size: 10.5px;
+  font-weight: 600;
+  text-transform: uppercase;
+  color: #64748B;
+}
+
+.diff-box pre {
+  margin: 0;
+  padding: 6px 8px;
+  font-family: var(--font-mono, monospace);
+  font-size: 12px;
+  border-radius: 6px;
+  background-color: #FFFFFF;
+  border: 1px solid #CBD5E1;
+  white-space: pre-wrap;
+}
+
+.diff-box.expected pre {
+  border-color: #10B981;
+  background-color: #F0FDF4;
+  color: #065F46;
+}
+
+.diff-box.actual pre {
+  border-color: #EF4444;
+  background-color: #FEF2F2;
+  color: #991B1B;
+}
