@@ -9,13 +9,13 @@ export const LoginPage: React.FC = () => {
   const location = useLocation();
   const { signIn, signInWithGoogle } = useAuth();
 
-  const [email, setEmail] = useState('');
+  const [identifier, setIdentifier] = useState('');
   const [password, setPassword] = useState('');
   const [showPassword, setShowPassword] = useState(false);
   const [rememberMe, setRememberMe] = useState(false);
   const [submitting, setSubmitting] = useState(false);
   const [errorMsg, setErrorMsg] = useState<string | null>(null);
-  const [emailError, setEmailError] = useState<string | null>(null);
+  const [identifierError, setIdentifierError] = useState<string | null>(null);
 
   const handleGoogleSignIn = async () => {
     if (submitting) return;
@@ -38,15 +38,12 @@ export const LoginPage: React.FC = () => {
 
   const validate = (): boolean => {
     let isValid = true;
-    setEmailError(null);
+    setIdentifierError(null);
     setErrorMsg(null);
 
-    const emailTrimmed = email.trim();
-    if (!emailTrimmed) {
-      setEmailError('Email address is required.');
-      isValid = false;
-    } else if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(emailTrimmed)) {
-      setEmailError('Please enter a valid email address.');
+    const trimmed = identifier.trim();
+    if (!trimmed) {
+      setIdentifierError('Email address or username is required.');
       isValid = false;
     }
 
@@ -68,10 +65,10 @@ export const LoginPage: React.FC = () => {
     setErrorMsg(null);
 
     try {
-      const { error } = await signIn(email.trim(), password);
+      const { error } = await signIn(identifier.trim(), password);
       if (error) {
         if (error.message.includes('Invalid login credentials')) {
-          setErrorMsg('Incorrect email or password. Please try again.');
+          setErrorMsg('Incorrect email, username, or password. Please try again.');
         } else {
           setErrorMsg(error.message || 'Failed to sign in. Please check your credentials.');
         }
@@ -122,28 +119,28 @@ export const LoginPage: React.FC = () => {
           </div>
         )}
 
-        {/* Email Field */}
+        {/* Email or Username Field */}
         <div className="auth-form-group">
-          <label htmlFor="login-email" className="auth-label">
-            Email address
+          <label htmlFor="login-identifier" className="auth-label">
+            Email or Username
           </label>
           <div className="auth-input-wrapper">
             <input
-              id="login-email"
-              type="email"
-              autoComplete="email"
-              value={email}
+              id="login-identifier"
+              type="text"
+              autoComplete="username"
+              value={identifier}
               onChange={(e) => {
-                setEmail(e.target.value);
-                if (emailError) setEmailError(null);
+                setIdentifier(e.target.value);
+                if (identifierError) setIdentifierError(null);
               }}
-              placeholder="name@example.com"
-              className={`auth-input ${emailError ? 'has-error' : ''}`}
+              placeholder="name@example.com or @username"
+              className={`auth-input ${identifierError ? 'has-error' : ''}`}
               disabled={submitting}
               required
             />
           </div>
-          {emailError && <span className="field-error-text">{emailError}</span>}
+          {identifierError && <span className="field-error-text">{identifierError}</span>}
         </div>
 
         {/* Password Field */}

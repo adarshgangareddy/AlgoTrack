@@ -312,6 +312,51 @@
   font-size: 14px;
 }
 
+.auth-input-prefix {
+  position: absolute;
+  left: 16px;
+  color: #64748B;
+  font-weight: 700;
+  font-size: 14.5px;
+  pointer-events: none;
+  user-select: none;
+}
+
+.auth-input-with-prefix {
+  padding-left: 34px !important;
+}
+
+.auth-input-hint {
+  font-size: 11.5px;
+  color: #94A3B8;
+  margin-top: 3px;
+}
+
+.auth-select {
+  cursor: pointer;
+  appearance: auto;
+}
+
+.auth-alert-body {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+
+.auth-alert-action-link {
+  display: inline-flex;
+  align-items: center;
+  font-size: 12.5px;
+  font-weight: 700;
+  color: #0284C7;
+  text-decoration: underline;
+  cursor: pointer;
+}
+
+.auth-alert-action-link:hover {
+  color: #0369A1;
+}
+
 .auth-input-icon-btn {
   position: absolute;
   right: 14px;
