@@ -5,8 +5,11 @@ import { supabase, isSupabaseConfigured } from '../lib/supabase';
 export interface UserProfile {
   id: string;
   full_name: string;
+  username?: string;
   email: string;
   avatar_url?: string;
+  bio?: string;
+  target_role?: string;
   created_at?: string;
 }
 
@@ -16,8 +19,14 @@ interface AuthContextType {
   profile: UserProfile | null;
   loading: boolean;
   isConfigured: boolean;
-  signIn: (email: string, password: string) => Promise<{ error: Error | null }>;
-  signUp: (fullName: string, email: string, password: string) => Promise<{ error: Error | null; requiresEmailVerification?: boolean }>;
+  signIn: (identifier: string, password: string) => Promise<{ error: Error | null }>;
+  signUp: (
+    fullName: string,
+    username: string,
+    email: string,
+    password: string,
+    profileDetails?: { target_role?: string; bio?: string }
+  ) => Promise<{ error: Error | null; requiresEmailVerification?: boolean }>;
   signInWithGoogle: () => Promise<{ error: Error | null }>;
   signOut: () => Promise<void>;
   resetPasswordForEmail: (email: string) => Promise<{ error: Error | null }>;
@@ -38,7 +47,12 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
   const configured = isSupabaseConfigured();
 
   // Fetch user profile from Supabase profiles table
-  const fetchProfile = async (userId: string, userEmail: string, userFullName?: string) => {
+  const fetchProfile = async (
+    userId: string,
+    userEmail: string,
+    userFullName?: string,
+    userUsername?: string
+  ) => {
     if (!configured) {
       const stored = localStorage.getItem(LOCAL_STORAGE_KEY_PROFILE);
       if (stored) {
@@ -47,7 +61,10 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
         const demoProf: UserProfile = {
           id: userId,
           full_name: userFullName || 'AlgoTrack Engineer',
+          username: userUsername || userEmail.split('@')[0],
           email: userEmail,
+          target_role: 'Software Engineer',
+          bio: '',
         };
         setProfile(demoProf);
         localStorage.setItem(LOCAL_STORAGE_KEY_PROFILE, JSON.stringify(demoProf));
@@ -67,7 +84,10 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
         const fallbackProfile: UserProfile = {
           id: userId,
           full_name: userFullName || userEmail.split('@')[0],
+          username: userUsername || userEmail.split('@')[0],
           email: userEmail,
+          target_role: 'Software Engineer',
+          bio: '',
         };
         await supabase.from('profiles').upsert(fallbackProfile);
         setProfile(fallbackProfile);
@@ -79,7 +99,10 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
       setProfile({
         id: userId,
         full_name: userFullName || userEmail.split('@')[0],
+        username: userUsername || userEmail.split('@')[0],
         email: userEmail,
+        target_role: 'Software Engineer',
+        bio: '',
       });
     }
   };
@@ -137,16 +160,59 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
     }
   }, [configured]);
 
-  // Sign In
-  const signIn = async (email: string, password: string): Promise<{ error: Error | null }> => {
+  // Sign In (Supports Email OR Username)
+  const signIn = async (identifier: string, password: string): Promise<{ error: Error | null }> => {
     if (configured) {
+      let resolvedEmail = identifier.trim();
+
+      // If user typed a username (no '@'), resolve their email
+      if (!resolvedEmail.includes('@')) {
+        const cleanUsername = resolvedEmail.replace(/^@/, '').toLowerCase();
+        
+        try {
+          // Attempt resolution via get_email_by_username RPC
+          const { data: rpcEmail, error: rpcErr } = await supabase.rpc('get_email_by_username', {
+            p_username: cleanUsername,
+          });
+
+          if (!rpcErr && rpcEmail) {
+            resolvedEmail = rpcEmail as string;
+          } else {
+            // Fallback direct table select
+            const { data: prof } = await supabase
+              .from('profiles')
+              .select('email')
+              .ilike('username', cleanUsername)
+              .maybeSingle();
+
+            if (prof?.email) {
+              resolvedEmail = prof.email;
+            } else {
+              return {
+                error: new Error(`No account found with username "@${cleanUsername}". Check your spelling or sign in with your email.`),
+              };
+            }
+          }
+        } catch {
+          // If profile table doesn't have username yet, inform user
+          return {
+            error: new Error(`Could not resolve username "@${cleanUsername}". Please sign in with your email address.`),
+          };
+        }
+      }
+
       const { data, error } = await supabase.auth.signInWithPassword({
-        email,
+        email: resolvedEmail,
         password,
       });
       if (error) return { error };
       if (data.user) {
-        await fetchProfile(data.user.id, data.user.email || email, data.user.user_metadata?.full_name);
+        await fetchProfile(
+          data.user.id,
+          data.user.email || resolvedEmail,
+          data.user.user_metadata?.full_name,
+          data.user.user_metadata?.username
+        );
       }
       return { error: null };
     } else {
@@ -156,13 +222,14 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
       }
       const mockUser = {
         id: 'usr_' + Math.random().toString(36).substring(2, 10),
-        email,
-        user_metadata: { full_name: email.split('@')[0] },
+        email: identifier.includes('@') ? identifier : `${identifier}@example.com`,
+        user_metadata: { full_name: identifier.split('@')[0], username: identifier },
       } as unknown as User;
       const mockProfile: UserProfile = {
         id: mockUser.id,
-        full_name: email.split('@')[0],
-        email,
+        full_name: identifier.split('@')[0],
+        username: identifier.replace(/^@/, ''),
+        email: mockUser.email || '',
         created_at: new Date().toISOString(),
       };
       setUser(mockUser);
@@ -173,19 +240,43 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
     }
   };
 
-  // Sign Up
+  // Sign Up (Full name, Username, Email, Password, Profile Details)
   const signUp = async (
     fullName: string,
+    username: string,
     email: string,
-    password: string
+    password: string,
+    profileDetails?: { target_role?: string; bio?: string }
   ): Promise<{ error: Error | null; requiresEmailVerification?: boolean }> => {
+    const cleanUsername = username.trim().replace(/^@/, '').toLowerCase();
+
     if (configured) {
+      // Check if username is already taken in profiles table
+      try {
+        const { data: existingUser } = await supabase
+          .from('profiles')
+          .select('id')
+          .ilike('username', cleanUsername)
+          .maybeSingle();
+
+        if (existingUser) {
+          return {
+            error: new Error(`The username "@${cleanUsername}" is already taken. Please choose another username.`),
+          };
+        }
+      } catch {
+        // Table might not have username column yet
+      }
+
       const { data, error } = await supabase.auth.signUp({
         email,
         password,
         options: {
           data: {
             full_name: fullName,
+            username: cleanUsername,
+            target_role: profileDetails?.target_role || 'Software Engineer',
+            bio: profileDetails?.bio || '',
           },
           emailRedirectTo: typeof window !== 'undefined' ? `${window.location.origin}/auth/callback` : undefined,
         },
@@ -199,7 +290,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
       }
 
       if (data.user) {
-        await fetchProfile(data.user.id, email, fullName);
+        await fetchProfile(data.user.id, email, fullName, cleanUsername);
       }
       return { error: null, requiresEmailVerification: false };
     } else {
@@ -207,12 +298,15 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
       const mockUser = {
         id: 'usr_' + Math.random().toString(36).substring(2, 10),
         email,
-        user_metadata: { full_name: fullName },
+        user_metadata: { full_name: fullName, username: cleanUsername },
       } as unknown as User;
       const mockProfile: UserProfile = {
         id: mockUser.id,
         full_name: fullName,
+        username: cleanUsername,
         email,
+        target_role: profileDetails?.target_role || 'Software Engineer',
+        bio: profileDetails?.bio || '',
         created_at: new Date().toISOString(),
       };
       setUser(mockUser);
