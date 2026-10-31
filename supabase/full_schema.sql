@@ -7,18 +7,26 @@
 CREATE TABLE IF NOT EXISTS public.profiles (
   id UUID REFERENCES auth.users(id) ON DELETE CASCADE PRIMARY KEY,
   full_name TEXT NOT NULL,
+  username TEXT UNIQUE,
   email TEXT NOT NULL,
   avatar_url TEXT,
+  bio TEXT DEFAULT '',
+  target_role TEXT DEFAULT 'Software Engineer',
   created_at TIMESTAMPTZ DEFAULT TIMEZONE('utc', NOW()) NOT NULL,
   updated_at TIMESTAMPTZ DEFAULT TIMEZONE('utc', NOW()) NOT NULL
 );
 
+-- Ensure columns exist if table was already created
+ALTER TABLE public.profiles ADD COLUMN IF NOT EXISTS username TEXT UNIQUE;
+ALTER TABLE public.profiles ADD COLUMN IF NOT EXISTS bio TEXT DEFAULT '';
+ALTER TABLE public.profiles ADD COLUMN IF NOT EXISTS target_role TEXT DEFAULT 'Software Engineer';
+
 ALTER TABLE public.profiles ENABLE ROW LEVEL SECURITY;
 
-DROP POLICY IF EXISTS "Users can view their own profile" ON public.profiles;
-CREATE POLICY "Users can view their own profile"
-  ON public.profiles FOR SELECT TO authenticated
-  USING (auth.uid() = id);
+DROP POLICY IF EXISTS "Public profiles are viewable by everyone" ON public.profiles;
+CREATE POLICY "Public profiles are viewable by everyone"
+  ON public.profiles FOR SELECT
+  USING (true);
 
 DROP POLICY IF EXISTS "Users can update their own profile" ON public.profiles;
 CREATE POLICY "Users can update their own profile"
@@ -35,16 +43,20 @@ CREATE POLICY "Users can insert their own profile"
 CREATE OR REPLACE FUNCTION public.handle_new_user()
 RETURNS TRIGGER AS $$
 BEGIN
-  INSERT INTO public.profiles (id, full_name, email, avatar_url)
+  INSERT INTO public.profiles (id, full_name, username, email, avatar_url, bio, target_role)
   VALUES (
     NEW.id,
     COALESCE(NEW.raw_user_meta_data->>'full_name', SPLIT_PART(NEW.email, '@', 1)),
+    COALESCE(NEW.raw_user_meta_data->>'username', SPLIT_PART(NEW.email, '@', 1)),
     NEW.email,
-    NEW.raw_user_meta_data->>'avatar_url'
+    NEW.raw_user_meta_data->>'avatar_url',
+    COALESCE(NEW.raw_user_meta_data->>'bio', ''),
+    COALESCE(NEW.raw_user_meta_data->>'target_role', 'Software Engineer')
   )
   ON CONFLICT (id) DO UPDATE
   SET
     full_name = EXCLUDED.full_name,
+    username = COALESCE(EXCLUDED.username, public.profiles.username),
     email = EXCLUDED.email,
     updated_at = NOW();
   RETURN NEW;
@@ -55,6 +67,16 @@ DROP TRIGGER IF EXISTS on_auth_user_created ON auth.users;
 CREATE TRIGGER on_auth_user_created
   AFTER INSERT ON auth.users
   FOR EACH ROW EXECUTE FUNCTION public.handle_new_user();
+
+-- 3. RPC Function: Resolve email by username for Login
+CREATE OR REPLACE FUNCTION public.get_email_by_username(p_username TEXT)
+RETURNS TEXT AS $$
+  SELECT email FROM public.profiles 
+  WHERE LOWER(username) = LOWER(TRIM(LEADING '@' FROM p_username))
+  LIMIT 1;
+$$ LANGUAGE sql SECURITY DEFINER;
+
+GRANT EXECUTE ON FUNCTION public.get_email_by_username(TEXT) TO anon, authenticated;
 
 -- 3. Topics Table
 CREATE TABLE IF NOT EXISTS public.topics (
