@@ -19,8 +19,8 @@ import {
   askGeminiAI, 
   getGeminiApiKey, 
   saveGeminiApiKey, 
-  ChatMessage, 
-  ProblemContext 
+  type ChatMessage, 
+  type ProblemContext 
 } from '../../services/aiService';
 import './AIAssistant.css';
 

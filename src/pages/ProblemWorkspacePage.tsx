@@ -1,73 +1,80 @@
-import React, { useState, useEffect, useCallback, useRef } from 'react';
-import { useParams, useNavigate, Link } from 'react-router-dom';
+// src/pages/ProblemWorkspacePage.tsx
+// AlgoTrack — Phase 5: Individual Problem Workspace with AI Explainer
+
+import React, { useState, useEffect, useRef, useCallback } from 'react';
+import { useParams, Link, useNavigate } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
 import { 
   ArrowLeft, 
-  ExternalLink, 
-  CheckCircle2, 
-  Clock, 
-  CircleDot, 
-  Save, 
   ChevronLeft, 
   ChevronRight, 
-  Sparkles, 
-  BookOpen, 
-  FileText, 
+  ExternalLink, 
+  Save, 
+  Check, 
   AlertCircle, 
+  BookOpen, 
+  Code2, 
+  FileText, 
+  Clock, 
+  Sparkles, 
   Loader2,
-  Check,
-  Code2
+  Lock,
+  MessageSquareCode
 } from 'lucide-react';
 import { 
   fetchProblemBySlug, 
-  fetchAllProblems, 
   fetchUserWorkspace, 
   fetchUserSolutions, 
   fetchUserProblemProgress, 
   saveUserWorkspaceAndProgress,
   STARTER_CODE_TEMPLATES,
-  type Problem,
-  type ProblemStatus
+  type Problem, 
+  type ProblemStatus 
 } from '../services/problemService';
 import { CodeEditor } from '../components/workspace/CodeEditor';
+import { AIAssistant } from '../components/workspace/AIAssistant';
 import './ProblemWorkspacePage.css';
 
 export const ProblemWorkspacePage: React.FC = () => {
   const { slug } = useParams<{ slug: string }>();
-  const navigate = useNavigate();
   const { user } = useAuth();
+  const navigate = useNavigate();
 
-  // Problem & Catalog State
+  // Problem definition state
   const [problem, setProblem] = useState<Problem | null>(null);
-  const [allProblems, setAllProblems] = useState<Problem[]>([]);
   const [loading, setLoading] = useState(true);
   const [errorMsg, setErrorMsg] = useState<string | null>(null);
 
-  // User Workspace Fields
+  // User personal workspace state
   const [personalNotes, setPersonalNotes] = useState('');
   const [personalApproach, setPersonalApproach] = useState('');
   const [timeComplexity, setTimeComplexity] = useState('');
   const [spaceComplexity, setSpaceComplexity] = useState('');
   const [mistakesEdgeCases, setMistakesEdgeCases] = useState('');
+
+  // Code solutions state (per language)
+  const [activeLanguage, setActiveLanguage] = useState<string>('python');
+  const [solutionsByLang, setSolutionsByLang] = useState<Record<string, string>>({
+    ...STARTER_CODE_TEMPLATES
+  });
+
+  // Problem completion status
   const [problemStatus, setProblemStatus] = useState<ProblemStatus>('not_started');
 
-  // Multi-Language Code Solutions
-  const [activeLanguage, setActiveLanguage] = useState<string>('python');
-  const [solutionsByLang, setSolutionsByLang] = useState<Record<string, string>>({ ...STARTER_CODE_TEMPLATES });
-
-  // Save State Management
+  // Autosave and sync tracking
   const [isSaving, setIsSaving] = useState(false);
-  const [saveSuccessMsg, setSaveSuccessMsg] = useState<string | null>(null);
   const [lastSavedAt, setLastSavedAt] = useState<string | null>(null);
   const [hasUnsavedChanges, setHasUnsavedChanges] = useState(false);
+  const [saveSuccessMsg, setSaveSuccessMsg] = useState<string | null>(null);
 
-  // Mobile Active Tab
+  // Responsive / View modes
   const [mobileTab, setMobileTab] = useState<'learning' | 'workspace'>('learning');
+  const [rightPanelTab, setRightPanelTab] = useState<'editor' | 'ai'>('editor');
 
-  const autosaveTimerRef = useRef<number | null>(null);
+  const autosaveTimerRef = useRef<NodeJS.Timeout | null>(null);
   const initialLoadCompletedRef = useRef(false);
 
-  // 1. Load Problem & User Workspace Data
+  // Fetch Problem & Workspace Data
   useEffect(() => {
     let isMounted = true;
     initialLoadCompletedRef.current = false;
@@ -78,23 +85,19 @@ export const ProblemWorkspacePage: React.FC = () => {
       setErrorMsg(null);
 
       try {
-        const [catalog, currentProblem] = await Promise.all([
-          fetchAllProblems(),
-          fetchProblemBySlug(slug)
-        ]);
+        const currentProblem = await fetchProblemBySlug(slug);
 
         if (!isMounted) return;
-        setAllProblems(catalog);
 
         if (!currentProblem) {
-          setErrorMsg('This problem could not be found.');
+          setErrorMsg(`Problem "${slug}" could not be found.`);
           setLoading(false);
           return;
         }
 
         setProblem(currentProblem);
 
-        // Load authenticated user's workspace
+        // Fetch user data if authenticated
         if (user?.id) {
           const [savedWs, savedSols, savedStatus] = await Promise.all([
             fetchUserWorkspace(user.id, currentProblem.id),
@@ -190,12 +193,12 @@ export const ProblemWorkspacePage: React.FC = () => {
       clearTimeout(autosaveTimerRef.current);
     }
 
-    autosaveTimerRef.current = window.setTimeout(() => {
+    autosaveTimerRef.current = setTimeout(() => {
       handleSaveProgress(true);
     }, 2500);
   }, [handleSaveProgress]);
 
-  // Warn before navigating away if unsaved
+  // Browser Exit Warning if Unsaved
   useEffect(() => {
     const handleBeforeUnload = (e: BeforeUnloadEvent) => {
       if (hasUnsavedChanges) {
@@ -203,11 +206,12 @@ export const ProblemWorkspacePage: React.FC = () => {
         e.returnValue = '';
       }
     };
+
     window.addEventListener('beforeunload', handleBeforeUnload);
     return () => window.removeEventListener('beforeunload', handleBeforeUnload);
   }, [hasUnsavedChanges]);
 
-  // Code editor updates for current language
+  // Handle Code Changes in CodeEditor
   const handleCodeChange = (newCode: string) => {
     setSolutionsByLang((prev) => ({
       ...prev,
@@ -216,17 +220,39 @@ export const ProblemWorkspacePage: React.FC = () => {
     markDirtyAndDebounceSave();
   };
 
+  // Reset current language template
   const handleResetTemplate = () => {
     const template = STARTER_CODE_TEMPLATES[activeLanguage] || '';
-    handleCodeChange(template);
+    setSolutionsByLang((prev) => ({
+      ...prev,
+      [activeLanguage]: template,
+    }));
+    markDirtyAndDebounceSave();
   };
 
-  // Previous & Next Problem Calculation
-  const currentIndex = allProblems.findIndex((p) => p.slug === slug);
-  const prevProblem = currentIndex > 0 ? allProblems[currentIndex - 1] : null;
-  const nextProblem = currentIndex >= 0 && currentIndex < allProblems.length - 1 ? allProblems[currentIndex + 1] : null;
+  // Status Change Handler
+  const handleStatusChange = (newStatus: ProblemStatus) => {
+    setProblemStatus(newStatus);
+    markDirtyAndDebounceSave();
+  };
 
-  const formatTimestamp = (iso?: string | null) => {
+  // Navigation handlers
+  const handleNavPrevious = () => {
+    if (!problem?.problem_number) return;
+    const prevNum = problem.problem_number - 1;
+    if (prevNum >= 1) {
+      navigate(`/problems/${prevNum}`);
+    }
+  };
+
+  const handleNavNext = () => {
+    if (!problem?.problem_number) return;
+    const nextNum = problem.problem_number + 1;
+    navigate(`/problems/${nextNum}`);
+  };
+
+  // Format timestamp helper
+  const formatSavedTime = (iso?: string | null) => {
     if (!iso) return null;
     try {
       const d = new Date(iso);
@@ -236,37 +262,26 @@ export const ProblemWorkspacePage: React.FC = () => {
     }
   };
 
-  // Loading State
+  // Loading Screen
   if (loading) {
     return (
-      <div className="workspace-loading-screen">
-        <div className="workspace-spinner-card">
-          <Loader2 size={36} className="spinner-anim text-primary" />
-          <h2 className="loading-title">Loading Problem Workspace...</h2>
-          <p className="loading-sub">Connecting to your personal learning archive</p>
-        </div>
+      <div className="workspace-loading-state">
+        <Loader2 className="spin-icon" size={36} />
+        <p className="loading-label">Loading problem workspace...</p>
       </div>
     );
   }
 
-  // Error / Not Found State
+  // Error Screen
   if (errorMsg || !problem) {
     return (
-      <div className="workspace-error-screen">
-        <div className="workspace-error-card card-saas">
-          <AlertCircle size={44} className="text-danger" />
-          <h2 className="error-title">Problem Not Found</h2>
-          <p className="error-desc">{errorMsg || 'The requested coding problem could not be found.'}</p>
-          <div className="error-actions">
-            <Link to="/problems" className="btn btn-primary">
-              <ArrowLeft size={16} />
-              <span>Back to Problem Library</span>
-            </Link>
-            <Link to="/dashboard" className="btn btn-secondary">
-              <span>Go to Dashboard</span>
-            </Link>
-          </div>
-        </div>
+      <div className="workspace-error-container">
+        <AlertCircle size={44} color="#EF4444" />
+        <h2 className="error-title">Workspace Unavailable</h2>
+        <p className="error-description">{errorMsg || 'Problem not found.'}</p>
+        <Link to="/problems" className="btn btn-primary">
+          <ArrowLeft size={16} /> Return to Problems Library
+        </Link>
       </div>
     );
   }
@@ -275,14 +290,16 @@ export const ProblemWorkspacePage: React.FC = () => {
 
   return (
     <div className="workspace-page-container">
-      {/* 1. TOP NAVIGATION & STATUS BAR */}
+      {/* ==================================================================
+          1. TOP WORKSPACE HEADER
+          ================================================================== */}
       <header className="workspace-header">
-        <div className="container-fluid workspace-header-inner">
-          {/* Left: Breadcrumbs & Back */}
+        <div className="workspace-header-inner">
+          {/* Left: Back & Sequence Navigation */}
           <div className="header-left-col">
             <Link to="/problems" className="back-link-btn" title="Back to Problem Library">
               <ArrowLeft size={16} />
-              <span className="back-text">Problems</span>
+              <span className="back-btn-text">Problems</span>
             </Link>
 
             <span className="header-separator">/</span>
@@ -292,92 +309,103 @@ export const ProblemWorkspacePage: React.FC = () => {
                 <span className="prob-num">#{problem.problem_number}</span>
               )}
               <h1 className="problem-header-title">{problem.title}</h1>
+              <span className={`diff-pill-badge ${problem.difficulty.toLowerCase()}`}>
+                {problem.difficulty}
+              </span>
             </div>
-
-            <span className={`diff-pill-badge diff-${problem.difficulty.toLowerCase()}`}>
-              {problem.difficulty}
-            </span>
           </div>
 
-          {/* Center: Previous / Next Problem Links */}
-          <div className="header-center-nav">
+          {/* Center: Sequence Previous / Next */}
+          <div className="header-center-col">
             <button
               type="button"
-              className="prob-nav-btn"
-              disabled={!prevProblem}
-              onClick={() => prevProblem && navigate(`/problems/${prevProblem.slug}`)}
-              title={prevProblem ? `Previous: ${prevProblem.title}` : 'No previous problem'}
+              className="nav-seq-btn"
+              onClick={handleNavPrevious}
+              disabled={!problem.problem_number || problem.problem_number <= 1}
+              title="Previous Problem"
             >
               <ChevronLeft size={16} />
-              <span className="nav-btn-text">Previous</span>
+              <span className="seq-btn-txt">Prev</span>
             </button>
 
             <button
               type="button"
-              className="prob-nav-btn"
-              disabled={!nextProblem}
-              onClick={() => nextProblem && navigate(`/problems/${nextProblem.slug}`)}
-              title={nextProblem ? `Next: ${nextProblem.title}` : 'No next problem'}
+              className="nav-seq-btn"
+              onClick={handleNavNext}
+              disabled={!problem.problem_number}
+              title="Next Problem"
             >
-              <span className="nav-btn-text">Next</span>
+              <span className="seq-btn-txt">Next</span>
               <ChevronRight size={16} />
             </button>
           </div>
 
-          {/* Right: Problem Status & Save Button */}
-          <div className="header-right-actions">
-            {/* Status Selector */}
+          {/* Right: Status Selector, Save Button & AI Quick Launcher */}
+          <div className="header-right-col">
+            {/* Status Dropdown */}
             <div className="status-selector-wrap">
-              <label htmlFor="problem-status-select" className="visually-hidden">
-                Problem Progress Status
-              </label>
-              <div className={`status-select-capsule status-${problemStatus}`}>
-                {problemStatus === 'solved' && <CheckCircle2 size={14} className="status-icon solved" />}
-                {problemStatus === 'attempted' && <Clock size={14} className="status-icon attempted" />}
-                {problemStatus === 'not_started' && <CircleDot size={14} className="status-icon not-started" />}
-                <select
-                  id="problem-status-select"
-                  className="status-dropdown"
-                  value={problemStatus}
-                  onChange={(e) => {
-                    setProblemStatus(e.target.value as ProblemStatus);
-                    markDirtyAndDebounceSave();
-                  }}
-                >
-                  <option value="not_started">Not Started</option>
-                  <option value="attempted">Attempted</option>
-                  <option value="solved">Solved</option>
-                </select>
-              </div>
+              <label htmlFor="problem-status-select" className="sr-only">Status</label>
+              <select
+                id="problem-status-select"
+                className={`status-select-pill ${problemStatus}`}
+                value={problemStatus}
+                onChange={(e) => handleStatusChange(e.target.value as ProblemStatus)}
+              >
+                <option value="not_started">⚪ Not Started</option>
+                <option value="attempted">🟡 Attempted</option>
+                <option value="solved">🟢 Solved</option>
+              </select>
             </div>
 
-            {/* Save Status Feedback */}
-            <div className="save-status-indicator">
-              {isSaving ? (
-                <span className="saving-text">
-                  <Loader2 size={12} className="spinner-anim" /> Saving...
-                </span>
-              ) : saveSuccessMsg ? (
-                <span className="saved-badge">
-                  <Check size={12} /> {saveSuccessMsg}
-                </span>
-              ) : hasUnsavedChanges ? (
-                <span className="unsaved-text">Unsaved edits</span>
-              ) : lastSavedAt ? (
-                <span className="timestamp-text">Saved {formatTimestamp(lastSavedAt)}</span>
-              ) : null}
-            </div>
-
-            {/* Manual Save Button */}
+            {/* AI Toggle Button */}
             <button
               type="button"
-              className="btn btn-primary btn-save-progress"
-              onClick={() => handleSaveProgress(false)}
-              disabled={isSaving}
+              className={`header-ai-toggle-btn ${rightPanelTab === 'ai' ? 'active' : ''}`}
+              onClick={() => {
+                setRightPanelTab(rightPanelTab === 'ai' ? 'editor' : 'ai');
+                setMobileTab('workspace');
+              }}
+              title="Toggle AI Problem Explainer & Tutor"
             >
-              {isSaving ? <Loader2 size={15} className="spinner-anim" /> : <Save size={15} />}
-              <span>Save My Progress</span>
+              <Sparkles size={15} color={rightPanelTab === 'ai' ? '#FFFFFF' : '#0284C7'} />
+              <span>{rightPanelTab === 'ai' ? 'Show Code' : 'Ask AI'}</span>
             </button>
+
+            {/* Save Status & Button */}
+            <div className="save-action-group">
+              <div className="save-status-indicator">
+                {isSaving ? (
+                  <span className="status-text saving">
+                    <Loader2 size={12} className="spin-icon" /> Saving...
+                  </span>
+                ) : hasUnsavedChanges ? (
+                  <span className="status-text unsaved">
+                    <span className="unsaved-dot"></span> Unsaved changes
+                  </span>
+                ) : (
+                  <span className="status-text saved">
+                    <Check size={12} /> Saved {formatSavedTime(lastSavedAt) ? `at ${formatSavedTime(lastSavedAt)}` : ''}
+                  </span>
+                )}
+              </div>
+
+              <button
+                type="button"
+                className="btn btn-save-progress"
+                onClick={() => handleSaveProgress(false)}
+                disabled={isSaving}
+                title="Save solution, complexity and learning notes"
+              >
+                <Save size={15} />
+                <span>Save Progress</span>
+              </button>
+            </div>
+
+            {saveSuccessMsg && (
+              <div className="save-toast-bubble">
+                <Check size={13} /> {saveSuccessMsg}
+              </div>
+            )}
           </div>
         </div>
 
@@ -397,12 +425,14 @@ export const ProblemWorkspacePage: React.FC = () => {
             onClick={() => setMobileTab('workspace')}
           >
             <Code2 size={16} />
-            <span>Code & Workspace</span>
+            <span>Code & AI Tutor</span>
           </button>
         </div>
       </header>
 
-      {/* 2. MAIN TWO-COLUMN WORKSPACE BODY */}
+      {/* ==================================================================
+          2. MAIN TWO-COLUMN WORKSPACE BODY
+          ================================================================== */}
       <main className="workspace-body-container container-fluid">
         {/* ==================================================================
             LEFT COLUMN — Problem Learning Area
@@ -477,8 +507,24 @@ export const ProblemWorkspacePage: React.FC = () => {
           {/* Section 6: Understand the Concept (Theory and Concepts) */}
           <div className="learning-card card-saas">
             <div className="section-title-wrap">
-              <BookOpen size={18} className="text-primary" />
-              <h3 className="section-heading">Understand the Concept</h3>
+              <div className="section-title-left">
+                <BookOpen size={18} className="text-primary" />
+                <h3 className="section-heading">Understand the Concept</h3>
+              </div>
+
+              {/* AI Explain Callout Button */}
+              <button
+                type="button"
+                className="btn-ai-explain-callout"
+                onClick={() => {
+                  setRightPanelTab('ai');
+                  setMobileTab('workspace');
+                }}
+                title="Ask AI to break down this problem in plain English"
+              >
+                <Sparkles size={13} color="#0284C7" />
+                <span>Explain with AI</span>
+              </button>
             </div>
 
             {problem.theory_content ? (
@@ -502,7 +548,7 @@ export const ProblemWorkspacePage: React.FC = () => {
             ) : (
               <div className="theory-empty-state">
                 <p className="empty-state-text">
-                  Theory notes for this challenge will be updated in the curated catalog. Record your personal intuition and findings below!
+                  Theory notes for this challenge will be updated in the curated catalog. Click <strong>"Explain with AI"</strong> above to generate an instant breakdown!
                 </p>
               </div>
             )}
@@ -519,20 +565,20 @@ export const ProblemWorkspacePage: React.FC = () => {
             </p>
             <textarea
               className="approach-textarea"
-              rows={6}
+              rows={4}
               value={personalApproach}
               onChange={(e) => {
                 setPersonalApproach(e.target.value);
                 markDirtyAndDebounceSave();
               }}
-              placeholder="Describe how you approached this problem, the steps you followed, and why your solution works..."
+              placeholder="e.g. 1. Initialize two pointers at start and end. 2. Compare sum against target. 3. Adjust pointers based on magnitude..."
             />
           </div>
 
-          {/* Section 8: Time and Space Complexity */}
+          {/* Section 8: Complexity Analysis */}
           <div className="learning-card card-saas">
             <div className="section-title-wrap">
-              <Clock size={18} className="text-orange" />
+              <Clock size={18} className="text-success" />
               <h3 className="section-heading">Time & Space Complexity</h3>
             </div>
             <div className="complexity-inputs-grid">
@@ -601,77 +647,99 @@ export const ProblemWorkspacePage: React.FC = () => {
         </section>
 
         {/* ==================================================================
-            RIGHT COLUMN — Personal Workspace & Code Editor
+            RIGHT COLUMN — Personal Workspace & Code Editor / AI Assistant
             ================================================================== */}
         <section
           className={`workspace-column right-editor-col ${mobileTab === 'workspace' ? 'mobile-visible' : 'mobile-hidden'}`}
           aria-label="Personal Code Editor and Learning Scratchpad"
         >
-          {/* Personal Solution Code Editor */}
-          <div className="editor-card card-saas">
-            <div className="editor-card-header">
-              <div className="editor-title-wrap">
-                <Code2 size={18} className="text-primary" />
-                <h3 className="section-heading">Personal Code Solution</h3>
-              </div>
-              <span className="multi-lang-pill">Multi-Language Sandbox</span>
-            </div>
-
-            <CodeEditor
-              language={activeLanguage}
-              onLanguageChange={(newLang) => {
-                setActiveLanguage(newLang);
-                markDirtyAndDebounceSave();
-              }}
-              code={activeCode}
-              onChange={handleCodeChange}
-              onResetToTemplate={handleResetTemplate}
-              isSaved={!hasUnsavedChanges}
-            />
-          </div>
-
-          {/* Personal Notes / Observations Scratchpad */}
-          <div className="editor-card card-saas">
-            <div className="editor-card-header">
-              <div className="editor-title-wrap">
-                <FileText size={18} className="text-purple" />
-                <h3 className="section-heading">Personal Notes & Observations</h3>
-              </div>
-              <span className="private-note-badge">Private to your account</span>
-            </div>
-            <p className="field-hint">
-              Quick scratchpad for mental models, pattern analogies, or quick reminders.
-            </p>
-            <textarea
-              className="approach-textarea"
-              rows={5}
-              value={personalNotes}
-              onChange={(e) => {
-                setPersonalNotes(e.target.value);
-                markDirtyAndDebounceSave();
-              }}
-              placeholder="Write any personal observations, alternative techniques, or interview tips..."
-            />
-          </div>
-
-          {/* Bottom Floating Save Action Bar */}
-          <div className="workspace-bottom-save-bar card-saas">
-            <div className="save-bar-info">
-              <span className="save-bar-title">Workspace Synchronization</span>
-              <span className="save-bar-sub">
-                {lastSavedAt ? `Last saved at ${formatTimestamp(lastSavedAt)}` : 'Edits autosaved automatically'}
-              </span>
-            </div>
+          {/* Panel Tab Switcher */}
+          <div className="right-panel-switcher">
             <button
               type="button"
-              className="btn btn-primary btn-save-progress"
-              onClick={() => handleSaveProgress(false)}
-              disabled={isSaving}
+              className={`panel-switch-btn ${rightPanelTab === 'editor' ? 'active' : ''}`}
+              onClick={() => setRightPanelTab('editor')}
             >
-              {isSaving ? <Loader2 size={16} className="spinner-anim" /> : <Save size={16} />}
-              <span>Save My Progress</span>
+              <Code2 size={16} />
+              <span>Solution Code & Notes</span>
+            </button>
+
+            <button
+              type="button"
+              className={`panel-switch-btn ${rightPanelTab === 'ai' ? 'active' : ''}`}
+              onClick={() => setRightPanelTab('ai')}
+            >
+              <Sparkles size={16} color={rightPanelTab === 'ai' ? '#0284C7' : '#64748B'} />
+              <span>AI Tutor & Explainer</span>
+              <span className="ai-tab-badge">Ask Questions</span>
             </button>
           </div>
+
+          {rightPanelTab === 'ai' ? (
+            /* AI Explainer / Tutor Tab */
+            <AIAssistant
+              problem={{
+                title: problem.title,
+                problem_number: problem.problem_number,
+                difficulty: problem.difficulty,
+                pattern: problem.pattern,
+                topics: problem.topics || [],
+                description: problem.description,
+                theory_content: problem.theory_content,
+                hints: problem.hints,
+              }}
+            />
+          ) : (
+            /* Solution Code Editor Tab */
+            <>
+              {/* Personal Solution Code Editor */}
+              <div className="editor-card card-saas">
+                <div className="editor-card-header">
+                  <div className="editor-title-wrap">
+                    <Code2 size={18} className="text-primary" />
+                    <h3 className="section-heading">Personal Code Solution</h3>
+                  </div>
+                  <span className="multi-lang-pill">Multi-Language Sandbox</span>
+                </div>
+
+                <CodeEditor
+                  language={activeLanguage}
+                  onLanguageChange={(newLang) => {
+                    setActiveLanguage(newLang);
+                    markDirtyAndDebounceSave();
+                  }}
+                  code={activeCode}
+                  onChange={handleCodeChange}
+                  onResetToTemplate={handleResetTemplate}
+                  isSaved={!hasUnsavedChanges}
+                />
+              </div>
+
+              {/* Personal Notes / Observations Scratchpad */}
+              <div className="editor-card card-saas">
+                <div className="editor-card-header">
+                  <div className="editor-title-wrap">
+                    <FileText size={18} className="text-purple" />
+                    <h3 className="section-heading">Personal Notes & Observations</h3>
+                  </div>
+                  <span className="private-note-badge">
+                    <Lock size={12} /> Private to your account
+                  </span>
+                </div>
+
+                <textarea
+                  className="approach-textarea notes-textarea"
+                  rows={6}
+                  value={personalNotes}
+                  onChange={(e) => {
+                    setPersonalNotes(e.target.value);
+                    markDirtyAndDebounceSave();
+                  }}
+                  placeholder="Record insights, alternative algorithmic designs, or personal test observations here..."
+                />
+              </div>
+            </>
+          )}
         </section>
       </main>
     </div>
