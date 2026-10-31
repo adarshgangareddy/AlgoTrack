@@ -16,7 +16,8 @@ export class WorkspaceController {
         throw ApiError.unauthorized('User identity required to load workspace');
       }
 
-      const data = await workspaceService.getWorkspace(userId, req.params.problemId);
+      const problemId = String(req.params.problemId);
+      const data = await workspaceService.getWorkspace(userId, problemId);
       res.status(200).json(ApiResponse.success(data, 'Workspace loaded successfully'));
     } catch (error) {
       next(error);
@@ -30,6 +31,7 @@ export class WorkspaceController {
         throw ApiError.unauthorized('User identity required to save workspace');
       }
 
+      const problemId = String(req.params.problemId);
       const {
         personal_notes,
         personal_approach,
@@ -45,7 +47,7 @@ export class WorkspaceController {
 
       const result = await workspaceService.saveWorkspace({
         userId,
-        problemId: req.params.problemId,
+        problemId,
         workspace: {
           personal_notes,
           personal_approach,

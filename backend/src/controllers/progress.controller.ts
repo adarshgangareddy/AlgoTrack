@@ -30,7 +30,8 @@ export class ProgressController {
         throw ApiError.unauthorized('User identity required');
       }
 
-      const status = await progressService.getProgressForProblem(userId, req.params.problemId);
+      const problemId = String(req.params.problemId);
+      const status = await progressService.getProgressForProblem(userId, problemId);
       res.status(200).json(ApiResponse.success({ status }, 'Problem status retrieved'));
     } catch (error) {
       next(error);
@@ -44,11 +45,12 @@ export class ProgressController {
         throw ApiError.unauthorized('User identity required');
       }
 
+      const problemId = String(req.params.problemId);
       const { status, problemTitle, problemDifficulty } = req.body;
 
       const result = await progressService.setProgress({
         userId,
-        problemId: req.params.problemId,
+        problemId,
         status,
         problemTitle,
         problemDifficulty,

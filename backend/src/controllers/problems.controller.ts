@@ -36,7 +36,8 @@ export class ProblemsController {
 
   static async getProblemById(req: Request, res: Response, next: NextFunction): Promise<void> {
     try {
-      const problem = await problemsService.getProblemById(req.params.id);
+      const id = String(req.params.id);
+      const problem = await problemsService.getProblemById(id);
       res.status(200).json(ApiResponse.success(problem, 'Problem retrieved successfully'));
     } catch (error) {
       next(error);

@@ -1,35 +1,57 @@
 // backend/src/repositories/problems.repository.ts
 
+import fs from 'fs';
+import path from 'path';
 import { getSupabaseClient } from '../config/supabase.js';
 import { ProblemEntity } from '../types/problem.types.js';
-import leetcodeIndexData from '../data/leetcodeIndex.json' with { type: 'json' };
 
 const cachedProblems: ProblemEntity[] = [];
 
 function loadAllProblems(): ProblemEntity[] {
   if (cachedProblems.length > 0) return cachedProblems;
 
-  const rawList = leetcodeIndexData as Array<{
-    num: number;
-    title: string;
-    slug: string;
-    diff: string;
-    topics: string[];
-  }>;
+  try {
+    const candidates = [
+      path.resolve(process.cwd(), 'src/data/leetcodeIndex.json'),
+      path.resolve(process.cwd(), 'dist/data/leetcodeIndex.json'),
+      path.resolve(process.cwd(), '../src/data/leetcodeIndex.json'),
+    ];
 
-  for (const item of rawList) {
-    const difficulty = (item.diff === 'Hard' || item.diff === 'Medium' ? item.diff : 'Easy');
-    cachedProblems.push({
-      id: `p${item.num}-${item.slug}`,
-      problem_number: item.num,
-      title: item.title,
-      slug: item.slug,
-      difficulty,
-      pattern: item.topics && item.topics.length > 0 ? item.topics[0] : 'General Algorithm',
-      leetcode_url: `https://leetcode.com/problems/${item.slug}/`,
-      topics: item.topics || ['General'],
-      description: `LeetCode challenge #${item.num}: ${item.title}. Master this ${difficulty} level interview question.`,
-    });
+    let foundPath = '';
+    for (const p of candidates) {
+      if (fs.existsSync(p)) {
+        foundPath = p;
+        break;
+      }
+    }
+
+    if (foundPath) {
+      const fileData = fs.readFileSync(foundPath, 'utf-8');
+      const rawList = JSON.parse(fileData) as Array<{
+        num: number;
+        title: string;
+        slug: string;
+        diff: string;
+        topics: string[];
+      }>;
+
+      for (const item of rawList) {
+        const difficulty = (item.diff === 'Hard' || item.diff === 'Medium' ? item.diff : 'Easy');
+        cachedProblems.push({
+          id: `p${item.num}-${item.slug}`,
+          problem_number: item.num,
+          title: item.title,
+          slug: item.slug,
+          difficulty,
+          pattern: item.topics && item.topics.length > 0 ? item.topics[0] : 'General Algorithm',
+          leetcode_url: `https://leetcode.com/problems/${item.slug}/`,
+          topics: item.topics || ['General'],
+          description: `LeetCode challenge #${item.num}: ${item.title}. Master this ${difficulty} level interview question.`,
+        });
+      }
+    }
+  } catch (err) {
+    console.warn('[Backend ProblemsRepository] Could not load leetcodeIndex.json:', err);
   }
 
   return cachedProblems.sort((a, b) => (a.problem_number || 99999) - (b.problem_number || 99999));
@@ -138,4 +160,3 @@ export class ProblemsRepository {
     };
   }
 }
-
