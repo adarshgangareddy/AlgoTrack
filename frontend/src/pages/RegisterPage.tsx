@@ -9,9 +9,11 @@ export const RegisterPage: React.FC = () => {
   const { signUp, signInWithGoogle } = useAuth();
 
   const [fullName, setFullName] = useState('');
+  const [username, setUsername] = useState('');
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [confirmPassword, setConfirmPassword] = useState('');
+  const [targetRole, setTargetRole] = useState('Software Engineer');
   
   const [showPassword, setShowPassword] = useState(false);
   const [showConfirmPassword, setShowConfirmPassword] = useState(false);
@@ -35,23 +37,40 @@ export const RegisterPage: React.FC = () => {
   
   // Validation errors
   const [nameError, setNameError] = useState<string | null>(null);
+  const [usernameError, setUsernameError] = useState<string | null>(null);
   const [emailError, setEmailError] = useState<string | null>(null);
   const [passwordError, setPasswordError] = useState<string | null>(null);
   const [confirmError, setConfirmError] = useState<string | null>(null);
   const [errorMsg, setErrorMsg] = useState<string | null>(null);
+  const [isEmailAlreadyRegistered, setIsEmailAlreadyRegistered] = useState(false);
   const [verificationRequired, setVerificationRequired] = useState(false);
 
   const validate = (): boolean => {
     let isValid = true;
     setNameError(null);
+    setUsernameError(null);
     setEmailError(null);
     setPasswordError(null);
     setConfirmError(null);
     setErrorMsg(null);
+    setIsEmailAlreadyRegistered(false);
 
     // Full name
     if (!fullName.trim()) {
       setNameError('Full name cannot be empty.');
+      isValid = false;
+    }
+
+    // Username
+    const cleanUser = username.trim().replace(/^@/, '');
+    if (!cleanUser) {
+      setUsernameError('Please choose a username.');
+      isValid = false;
+    } else if (cleanUser.length < 3) {
+      setUsernameError('Username must be at least 3 characters.');
+      isValid = false;
+    } else if (!/^[a-zA-Z0-9_]+$/.test(cleanUser)) {
+      setUsernameError('Only letters, numbers, and underscores allowed.');
       isValid = false;
     }
 
@@ -98,13 +117,21 @@ export const RegisterPage: React.FC = () => {
     try {
       const { error, requiresEmailVerification } = await signUp(
         fullName.trim(),
+        username.trim(),
         email.trim(),
-        password
+        password,
+        { target_role: targetRole }
       );
 
       if (error) {
-        if (error.message.includes('already registered')) {
-          setErrorMsg('An account with this email already exists. Please sign in instead.');
+        const msg = error.message.toLowerCase();
+        if (
+          msg.includes('already registered') || 
+          msg.includes('already exists') || 
+          msg.includes('user already registered')
+        ) {
+          setErrorMsg('An account with this email already exists.');
+          setIsEmailAlreadyRegistered(true);
         } else {
           setErrorMsg(error.message || 'Registration failed. Please try again.');
         }
@@ -184,7 +211,16 @@ export const RegisterPage: React.FC = () => {
         {errorMsg && (
           <div className="auth-alert auth-alert-error" role="alert">
             <AlertCircle size={17} className="flex-shrink-0" />
-            <span>{errorMsg}</span>
+            <div className="auth-alert-body">
+              <span>{errorMsg}</span>
+              {isEmailAlreadyRegistered && (
+                <div style={{ marginTop: '6px' }}>
+                  <Link to="/login" className="auth-alert-action-link">
+                    Click here to Sign In &rarr;
+                  </Link>
+                </div>
+              )}
+            </div>
           </div>
         )}
 
@@ -210,6 +246,55 @@ export const RegisterPage: React.FC = () => {
             />
           </div>
           {nameError && <span className="field-error-text">{nameError}</span>}
+        </div>
+
+        {/* Username */}
+        <div className="auth-form-group">
+          <label htmlFor="reg-username" className="auth-label">
+            Username
+          </label>
+          <div className="auth-input-wrapper">
+            <span className="auth-input-prefix">@</span>
+            <input
+              id="reg-username"
+              type="text"
+              autoComplete="username"
+              value={username}
+              onChange={(e) => {
+                setUsername(e.target.value.toLowerCase().replace(/[^a-z0-9_]/g, ''));
+                if (usernameError) setUsernameError(null);
+              }}
+              placeholder="adarshreddy"
+              className={`auth-input auth-input-with-prefix ${usernameError ? 'has-error' : ''}`}
+              disabled={submitting}
+              required
+            />
+          </div>
+          <span className="auth-input-hint">Your unique handle for public profile and sign-in</span>
+          {usernameError && <span className="field-error-text">{usernameError}</span>}
+        </div>
+
+        {/* Target Role */}
+        <div className="auth-form-group">
+          <label htmlFor="reg-role" className="auth-label">
+            Target Role / Specialization
+          </label>
+          <div className="auth-input-wrapper">
+            <select
+              id="reg-role"
+              value={targetRole}
+              onChange={(e) => setTargetRole(e.target.value)}
+              className="auth-input auth-select"
+              disabled={submitting}
+            >
+              <option value="Software Engineer">Software Engineer (General)</option>
+              <option value="Frontend Engineer">Frontend Engineer</option>
+              <option value="Backend Engineer">Backend Engineer</option>
+              <option value="Full-Stack Engineer">Full-Stack Engineer</option>
+              <option value="DevOps / Cloud Engineer">DevOps / Cloud Engineer</option>
+              <option value="Data / ML Engineer">Data / Machine Learning Engineer</option>
+            </select>
+          </div>
         </div>
 
         {/* Email */}

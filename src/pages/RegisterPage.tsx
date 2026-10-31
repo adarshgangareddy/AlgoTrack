@@ -211,7 +211,16 @@ export const RegisterPage: React.FC = () => {
         {errorMsg && (
           <div className="auth-alert auth-alert-error" role="alert">
             <AlertCircle size={17} className="flex-shrink-0" />
-            <span>{errorMsg}</span>
+            <div className="auth-alert-body">
+              <span>{errorMsg}</span>
+              {isEmailAlreadyRegistered && (
+                <div style={{ marginTop: '6px' }}>
+                  <Link to="/login" className="auth-alert-action-link">
+                    Click here to Sign In &rarr;
+                  </Link>
+                </div>
+              )}
+            </div>
           </div>
         )}
 
@@ -237,6 +246,55 @@ export const RegisterPage: React.FC = () => {
             />
           </div>
           {nameError && <span className="field-error-text">{nameError}</span>}
+        </div>
+
+        {/* Username */}
+        <div className="auth-form-group">
+          <label htmlFor="reg-username" className="auth-label">
+            Username
+          </label>
+          <div className="auth-input-wrapper">
+            <span className="auth-input-prefix">@</span>
+            <input
+              id="reg-username"
+              type="text"
+              autoComplete="username"
+              value={username}
+              onChange={(e) => {
+                setUsername(e.target.value.toLowerCase().replace(/[^a-z0-9_]/g, ''));
+                if (usernameError) setUsernameError(null);
+              }}
+              placeholder="adarshreddy"
+              className={`auth-input auth-input-with-prefix ${usernameError ? 'has-error' : ''}`}
+              disabled={submitting}
+              required
+            />
+          </div>
+          <span className="auth-input-hint">Your unique handle for public profile and sign-in</span>
+          {usernameError && <span className="field-error-text">{usernameError}</span>}
+        </div>
+
+        {/* Target Role */}
+        <div className="auth-form-group">
+          <label htmlFor="reg-role" className="auth-label">
+            Target Role / Specialization
+          </label>
+          <div className="auth-input-wrapper">
+            <select
+              id="reg-role"
+              value={targetRole}
+              onChange={(e) => setTargetRole(e.target.value)}
+              className="auth-input auth-select"
+              disabled={submitting}
+            >
+              <option value="Software Engineer">Software Engineer (General)</option>
+              <option value="Frontend Engineer">Frontend Engineer</option>
+              <option value="Backend Engineer">Backend Engineer</option>
+              <option value="Full-Stack Engineer">Full-Stack Engineer</option>
+              <option value="DevOps / Cloud Engineer">DevOps / Cloud Engineer</option>
+              <option value="Data / ML Engineer">Data / Machine Learning Engineer</option>
+            </select>
+          </div>
         </div>
 
         {/* Email */}
