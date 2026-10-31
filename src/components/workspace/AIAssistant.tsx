@@ -1,7 +1,7 @@
 // src/components/workspace/AIAssistant.tsx
 // AlgoTrack — AI Problem Explainer & Interactive Tutor Component
 
-import React, { useState, useEffect, useRef } from 'react';
+import React, { useState, useEffect, useRef, useCallback } from 'react';
 import { 
   Sparkles, 
   Send, 
@@ -30,43 +30,24 @@ interface AIAssistantProps {
 }
 
 export const AIAssistant: React.FC<AIAssistantProps> = ({ problem, autoExplainOnMount = false }) => {
-  const [messages, setMessages] = useState<ChatMessage[]>([]);
-  const [inputText, setInputText] = useState('');
-  const [isLoading, setIsLoading] = useState(false);
-  const [showKeyModal, setShowKeyModal] = useState(false);
-  const [apiKeyInput, setApiKeyInput] = useState('');
-  const [hasApiKey, setHasApiKey] = useState(false);
-  const [saveKeySuccess, setSaveKeySuccess] = useState(false);
-
-  const messagesEndRef = useRef<HTMLDivElement>(null);
-
-  // Initialize key & initial greeting
-  useEffect(() => {
-    const activeKey = getGeminiApiKey();
-    setHasApiKey(Boolean(activeKey));
-    setApiKeyInput(activeKey);
-
-    // Initial greeting
-    const greeting: ChatMessage = {
+  const [messages, setMessages] = useState<ChatMessage[]>(() => [
+    {
       id: 'greeting',
       sender: 'ai',
       text: `👋 **Welcome! I'm your AlgoTrack AI Tutor.**\n\nI can explain **${problem.title}**, reveal its optimal algorithmic pattern, walk through tricky edge cases, or answer any coding questions.\n\n*Click a quick prompt below or type your question!*`,
       timestamp: new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })
-    };
-
-    setMessages([greeting]);
-
-    if (autoExplainOnMount) {
-      handleSendPrompt(`Can you explain this problem: ${problem.title}? What is the core intuition and optimal approach?`);
     }
-  }, [problem.title, autoExplainOnMount]);
+  ]);
+  const [inputText, setInputText] = useState('');
+  const [isLoading, setIsLoading] = useState(false);
+  const [showKeyModal, setShowKeyModal] = useState(false);
+  const [apiKeyInput, setApiKeyInput] = useState(() => getGeminiApiKey());
+  const [hasApiKey, setHasApiKey] = useState(() => Boolean(getGeminiApiKey()));
+  const [saveKeySuccess, setSaveKeySuccess] = useState(false);
 
-  // Scroll to bottom on new messages
-  useEffect(() => {
-    messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' });
-  }, [messages, isLoading]);
+  const messagesEndRef = useRef<HTMLDivElement>(null);
 
-  const handleSendPrompt = async (promptText: string) => {
+  const handleSendPrompt = useCallback(async (promptText: string) => {
     if (!promptText.trim() || isLoading) return;
 
     const userMsg: ChatMessage = {
@@ -106,7 +87,14 @@ export const AIAssistant: React.FC<AIAssistantProps> = ({ problem, autoExplainOn
     } finally {
       setIsLoading(false);
     }
-  };
+  }, [isLoading, problem, messages]);
+
+  // Handle auto-explain on mount
+  useEffect(() => {
+    if (autoExplainOnMount) {
+      handleSendPrompt(`Can you explain this problem: ${problem.title}? What is the core intuition and optimal approach?`);
+    }
+  }, [autoExplainOnMount, handleSendPrompt, problem.title]);
 
   const handleSaveApiKey = () => {
     saveGeminiApiKey(apiKeyInput.trim());

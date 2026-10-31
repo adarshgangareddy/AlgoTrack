@@ -18,8 +18,7 @@ import {
   Clock, 
   Sparkles, 
   Loader2,
-  Lock,
-  MessageSquareCode
+  Lock
 } from 'lucide-react';
 import { 
   fetchProblemBySlug, 

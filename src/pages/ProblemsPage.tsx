@@ -10,7 +10,6 @@ import {
   Clock, 
   CircleDot, 
   Filter, 
-  BookOpen, 
   ArrowRight,
   Code2,
   Loader2,
