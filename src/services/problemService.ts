@@ -1,4 +1,5 @@
 import { supabase, isSupabaseConfigured } from '../lib/supabase';
+import leetcodeIndexData from '../data/leetcodeIndex.json';
 
 export interface Problem {
   id: string;
@@ -11,6 +12,7 @@ export interface Problem {
   description?: string;
   theory_content?: string;
   topics?: string[];
+  hints?: string[];
 }
 
 export interface UserWorkspaceData {
@@ -33,7 +35,10 @@ export interface UserSolutionRecord {
 
 export type ProblemStatus = 'not_started' | 'attempted' | 'solved';
 
-// Curated default problem dataset
+// In-memory cache for loaded problem details
+const problemDetailsCache = new Map<string, Problem>();
+
+// Curated core problem dataset with rich hand-crafted theory
 export const CURATED_PROBLEMS: Problem[] = [
   {
     id: 'p1-two-sum',
@@ -105,7 +110,7 @@ export const CURATED_PROBLEMS: Problem[] = [
     leetcode_url: 'https://leetcode.com/problems/trapping-rain-water/',
     topics: ['Arrays', 'Two Pointers', 'Dynamic Programming'],
     description: 'Given n non-negative integers representing an elevation map where the width of each bar is 1, compute how much water it can trap after raining.',
-    theory_content: 'The water trapped above bar i is min(max_left, max_right) - height[i]. Using two pointers moving inward, we can track the maximum heights seen from the left and right, eliminating extra memory.'
+    theory_content: 'The water above any bar is min(max_left, max_right) - height[i]. Using two pointers moving from exterior inward while tracking left_max and right_max eliminates auxiliary array storage.'
   },
   {
     id: 'p53-maximum-subarray',
@@ -137,23 +142,35 @@ export const CURATED_PROBLEMS: Problem[] = [
     title: 'Best Time to Buy and Sell Stock',
     slug: 'best-time-to-buy-and-sell-stock',
     difficulty: 'Easy',
-    pattern: 'Sliding Window / Greedy',
+    pattern: 'Greedy / Sliding Window',
     leetcode_url: 'https://leetcode.com/problems/best-time-to-buy-and-sell-stock/',
-    topics: ['Arrays', 'Greedy'],
+    topics: ['Arrays', 'Dynamic Programming'],
     description: 'You want to maximize your profit by choosing a single day to buy one stock and choosing a different day in the future to sell that stock.',
-    theory_content: 'Track the minimum purchase price seen so far in a single pass. For each subsequent day, compute the candidate profit (price - min_price) and maintain the maximum.'
+    theory_content: 'Iterate once through the prices array while keeping track of the minimum price observed so far. Calculate potential profit at each day (price - min_price) and maintain the global maximum.'
   },
   {
-    id: 'p146-lru-cache',
-    problem_number: 146,
-    title: 'LRU Cache',
-    slug: 'lru-cache',
+    id: 'p141-linked-list-cycle',
+    problem_number: 141,
+    title: 'Linked List Cycle',
+    slug: 'linked-list-cycle',
+    difficulty: 'Easy',
+    pattern: 'Fast & Slow Pointers / Floyd Cycle Detection',
+    leetcode_url: 'https://leetcode.com/problems/linked-list-cycle/',
+    topics: ['Linked Lists', 'Two Pointers'],
+    description: 'Given head, the head of a linked list, determine if the linked list has a cycle in it.',
+    theory_content: "Floyd's cycle-finding algorithm uses two pointers moving at different speeds (slow by 1, fast by 2). If there is a cycle, the fast pointer is guaranteed to catch up to the slow pointer within the loop."
+  },
+  {
+    id: 'p200-number-of-islands',
+    problem_number: 200,
+    title: 'Number of Islands',
+    slug: 'number-of-islands',
     difficulty: 'Medium',
-    pattern: 'Hash Table + Doubly Linked List',
-    leetcode_url: 'https://leetcode.com/problems/lru-cache/',
-    topics: ['Linked Lists', 'Hash Maps', 'Design'],
-    description: 'Design a data structure that follows the constraints of a Least Recently Used (LRU) cache.',
-    theory_content: 'A hash map provides O(1) key-to-node lookups, while a Doubly Linked List (DLL) allows O(1) node removal and insertion at the head. Maintain dummy head and tail nodes to simplify edge boundary manipulations.'
+    pattern: 'Graph / DFS & BFS',
+    leetcode_url: 'https://leetcode.com/problems/number-of-islands/',
+    topics: ['Arrays', 'Graph', 'DFS / BFS'],
+    description: 'Given an m x n 2D binary grid grid which represents a map of "1"s (land) and "0"s (water), return the number of islands.',
+    theory_content: 'Scan every cell in the matrix. Whenever a "1" is encountered, increment the island count and initiate a Breadth-First or Depth-First search to sink or mark all adjacent connected land cells to "0".'
   },
   {
     id: 'p206-reverse-linked-list',
@@ -161,39 +178,72 @@ export const CURATED_PROBLEMS: Problem[] = [
     title: 'Reverse Linked List',
     slug: 'reverse-linked-list',
     difficulty: 'Easy',
-    pattern: 'Linked List / Pointers',
+    pattern: 'Linked Lists / In-Place Reversal',
     leetcode_url: 'https://leetcode.com/problems/reverse-linked-list/',
     topics: ['Linked Lists', 'Recursion'],
     description: 'Given the head of a singly linked list, reverse the list, and return the reversed list.',
-    theory_content: 'Maintain three pointers: prev (initially null), curr (initially head), and next_temp. In each step, save curr.next, redirect curr.next = prev, advance prev = curr, and curr = next_temp.'
+    theory_content: 'Maintain three pointers: prev (initially null), curr (starting at head), and next_temp. In each iteration, save curr.next, invert the link (curr.next = prev), and shift both prev and curr forward.'
   },
   {
-    id: 'p226-invert-binary-tree',
-    problem_number: 226,
-    title: 'Invert Binary Tree',
-    slug: 'invert-binary-tree',
-    difficulty: 'Easy',
-    pattern: 'Binary Tree / DFS / BFS',
-    leetcode_url: 'https://leetcode.com/problems/invert-binary-tree/',
-    topics: ['Trees', 'Binary Trees', 'DFS'],
-    description: 'Given the root of a binary tree, invert the tree, and return its root.',
-    theory_content: 'Recursively swap the left and right child pointers of each node. Depth-First Search visits every node once in O(N) time with call stack depth bounded by the tree height O(H).'
-  },
-  {
-    id: 'p704-binary-search',
-    problem_number: 704,
-    title: 'Binary Search',
-    slug: 'binary-search',
-    difficulty: 'Easy',
-    pattern: 'Binary Search',
-    leetcode_url: 'https://leetcode.com/problems/binary-search/',
-    topics: ['Arrays', 'Binary Search'],
-    description: 'Given an array of integers nums which is sorted in ascending order, and an integer target, write a function to search target in nums in O(log n) time.',
-    theory_content: 'Calculate mid = left + (right - left) // 2 to avoid integer overflow. If nums[mid] == target, return mid; if nums[mid] < target, search the right half; otherwise, search the left half.'
+    id: 'p23-merge-k-sorted-lists',
+    problem_number: 23,
+    title: 'Merge k Sorted Lists',
+    slug: 'merge-k-sorted-lists',
+    difficulty: 'Hard',
+    pattern: 'Heap / Priority Queue / Divide & Conquer',
+    leetcode_url: 'https://leetcode.com/problems/merge-k-sorted-lists/',
+    topics: ['Linked Lists', 'Divide and Conquer', 'Heap'],
+    description: 'You are given an array of k linked-lists lists, each linked-list is sorted in ascending order. Merge all the linked-lists into one sorted linked-list and return it.',
+    theory_content: 'A min-heap / priority queue storing the heads of all k lists allows retrieving the smallest node across lists in O(log k) time, yielding an optimal overall runtime of O(N log k).'
   }
 ];
 
-// Starter template code for each language
+// Combine index problems with curated data
+function buildAllProblemsList(): Problem[] {
+  const curatedMap = new Map<string, Problem>();
+  CURATED_PROBLEMS.forEach((p) => curatedMap.set(p.slug, p));
+
+  const list: Problem[] = [];
+
+  const rawList = leetcodeIndexData as Array<{
+    num: number;
+    title: string;
+    slug: string;
+    diff: string;
+    topics: string[];
+  }>;
+
+  for (const item of rawList) {
+    const existing = curatedMap.get(item.slug);
+    if (existing) {
+      list.push(existing);
+      curatedMap.delete(item.slug);
+    } else {
+      const difficulty = (item.diff === 'Hard' || item.diff === 'Medium' ? item.diff : 'Easy') as 'Easy' | 'Medium' | 'Hard';
+      list.push({
+        id: `p${item.num}-${item.slug}`,
+        problem_number: item.num,
+        title: item.title,
+        slug: item.slug,
+        difficulty,
+        pattern: item.topics && item.topics.length > 0 ? item.topics[0] : 'General Algorithm',
+        leetcode_url: `https://leetcode.com/problems/${item.slug}/`,
+        topics: item.topics || ['General'],
+        description: `LeetCode challenge #${item.num}: ${item.title}. Master this ${difficulty} level interview question.`,
+      });
+    }
+  }
+
+  // Add any remaining curated items
+  curatedMap.forEach((p) => list.push(p));
+
+  // Sort by problem number
+  return list.sort((a, b) => (a.problem_number || 99999) - (b.problem_number || 99999));
+}
+
+let cachedAllProblems: Problem[] | null = null;
+
+// Multi-language starter templates
 export const STARTER_CODE_TEMPLATES: Record<string, string> = {
   python: `# Write your solution in Python 3\nclass Solution:\n    def solve(self) -> None:\n        # Your implementation here\n        pass\n`,
   typescript: `// Write your solution in TypeScript\nfunction solve(): void {\n  // Your implementation here\n}\n`,
@@ -203,60 +253,83 @@ export const STARTER_CODE_TEMPLATES: Record<string, string> = {
 };
 
 /**
- * Fetch all available problems
+ * Fetch all available problems (2,913+ LeetCode problems)
  */
 export async function fetchAllProblems(): Promise<Problem[]> {
-  if (!isSupabaseConfigured()) {
-    return CURATED_PROBLEMS;
+  if (!cachedAllProblems) {
+    cachedAllProblems = buildAllProblemsList();
   }
-
-  try {
-    const { data, error } = await supabase
-      .from('problems')
-      .select('id, problem_number, title, slug, difficulty, pattern, leetcode_url, description, theory_content')
-      .order('problem_number', { ascending: true, nullsFirst: false });
-
-    if (error || !data || data.length === 0) {
-      return CURATED_PROBLEMS;
-    }
-
-    return data.map((item) => ({
-      ...item,
-      topics: item.pattern ? [item.pattern.split('/')[0].trim()] : ['General']
-    }));
-  } catch {
-    return CURATED_PROBLEMS;
-  }
+  return cachedAllProblems;
 }
 
 /**
- * Fetch a single problem by slug
+ * Fetch a single problem by slug, including full descriptions and hints
  */
 export async function fetchProblemBySlug(slug: string): Promise<Problem | null> {
   const normalizedSlug = slug.toLowerCase().trim();
 
-  if (isSupabaseConfigured()) {
-    try {
-      const { data, error } = await supabase
-        .from('problems')
-        .select('id, problem_number, title, slug, difficulty, pattern, leetcode_url, description, theory_content')
-        .eq('slug', normalizedSlug)
-        .single();
-
-      if (!error && data) {
-        return {
-          ...data,
-          topics: data.pattern ? [data.pattern.split('/')[0].trim()] : ['General']
-        };
-      }
-    } catch {
-      // Fallback below
-    }
+  // Check cache first
+  if (problemDetailsCache.has(normalizedSlug)) {
+    return problemDetailsCache.get(normalizedSlug)!;
   }
 
-  // Fallback to in-memory curated catalog
-  const found = CURATED_PROBLEMS.find((p) => p.slug === normalizedSlug);
-  return found || null;
+  // 1. Check curated list
+  const curated = CURATED_PROBLEMS.find((p) => p.slug === normalizedSlug);
+  if (curated) {
+    problemDetailsCache.set(normalizedSlug, curated);
+    return curated;
+  }
+
+  // 2. Search in all indexed problems
+  const all = await fetchAllProblems();
+  const indexed = all.find((p) => p.slug === normalizedSlug || p.problem_number?.toString() === normalizedSlug);
+
+  if (indexed) {
+    // Try to dynamically fetch richer details (descriptions, hints) from open dataset
+    try {
+      const paddedNum = String(indexed.problem_number || 0).padStart(4, '0');
+      const url = `https://raw.githubusercontent.com/neenza/leetcode-problems/master/problems/${paddedNum}-${indexed.slug}.json`;
+      const res = await fetch(url, { headers: { 'User-Agent': 'Mozilla/5.0' } });
+      if (res.ok) {
+        const details = await res.json();
+        const enriched: Problem = {
+          ...indexed,
+          description: details.description || indexed.description,
+          hints: details.hints || [],
+          theory_content: details.solution || indexed.theory_content,
+        };
+        problemDetailsCache.set(normalizedSlug, enriched);
+        return enriched;
+      }
+    } catch {
+      // Offline fallback: return indexed problem directly
+    }
+
+    problemDetailsCache.set(normalizedSlug, indexed);
+    return indexed;
+  }
+
+  // 3. Fallback for custom or high-number problems (up to 4096+)
+  const fallbackNum = parseInt(normalizedSlug.replace(/\D/g, ''), 10) || undefined;
+  const fallbackTitle = normalizedSlug
+    .split('-')
+    .map((w) => w.charAt(0).toUpperCase() + w.slice(1))
+    .join(' ');
+
+  const dynamicProblem: Problem = {
+    id: `p-${normalizedSlug}`,
+    problem_number: fallbackNum,
+    title: fallbackTitle,
+    slug: normalizedSlug,
+    difficulty: 'Medium',
+    pattern: 'Algorithm & Data Structures',
+    leetcode_url: `https://leetcode.com/problems/${normalizedSlug}/`,
+    topics: ['Algorithms'],
+    description: `Practice and track your solution for ${fallbackTitle} on AlgoTrack.`,
+  };
+
+  problemDetailsCache.set(normalizedSlug, dynamicProblem);
+  return dynamicProblem;
 }
 
 /**
@@ -288,6 +361,48 @@ export async function fetchUserProblemProgress(userId: string, problemId: string
     return stored;
   }
   return 'not_started';
+}
+
+/**
+ * Batch fetch user problem statuses (Instant 1-query load for entire library)
+ */
+export async function fetchUserProblemProgressBatch(userId: string): Promise<Record<string, ProblemStatus>> {
+  const map: Record<string, ProblemStatus> = {};
+  if (!userId) return map;
+
+  if (isSupabaseConfigured()) {
+    try {
+      const { data, error } = await supabase
+        .from('user_problem_progress')
+        .select('problem_id, status')
+        .eq('user_id', userId);
+
+      if (!error && data) {
+        for (const row of data) {
+          map[row.problem_id] = row.status as ProblemStatus;
+        }
+      }
+    } catch {
+      // continue to local storage
+    }
+  }
+
+  try {
+    for (let i = 0; i < localStorage.length; i++) {
+      const key = localStorage.key(i);
+      if (key && key.startsWith(`algotrack_prog_${userId}_`)) {
+        const probId = key.replace(`algotrack_prog_${userId}_`, '');
+        const val = localStorage.getItem(key);
+        if (val === 'attempted' || val === 'solved') {
+          map[probId] = val as ProblemStatus;
+        }
+      }
+    }
+  } catch {
+    // ignore
+  }
+
+  return map;
 }
 
 /**
@@ -329,9 +444,12 @@ export async function fetchUserWorkspace(userId: string, problemId: string): Pro
 /**
  * Fetch saved code solutions across languages for a user and problem
  */
-export async function fetchUserSolutions(userId: string, problemId: string): Promise<Record<string, string>> {
-  const result: Record<string, string> = { ...STARTER_CODE_TEMPLATES };
-  if (!userId || !problemId) return result;
+export async function fetchUserSolutions(
+  userId: string,
+  problemId: string
+): Promise<Record<string, string>> {
+  const solutionsMap: Record<string, string> = { ...STARTER_CODE_TEMPLATES };
+  if (!userId || !problemId) return solutionsMap;
 
   if (isSupabaseConfigured()) {
     try {
@@ -341,13 +459,13 @@ export async function fetchUserSolutions(userId: string, problemId: string): Pro
         .eq('user_id', userId)
         .eq('problem_id', problemId);
 
-      if (!error && Array.isArray(data) && data.length > 0) {
+      if (!error && data && data.length > 0) {
         data.forEach((row) => {
-          if (row.language && typeof row.source_code === 'string') {
-            result[row.language] = row.source_code;
+          if (row.language && row.source_code) {
+            solutionsMap[row.language] = row.source_code;
           }
         });
-        return result;
+        return solutionsMap;
       }
     } catch {
       // Fallback below
@@ -359,19 +477,16 @@ export async function fetchUserSolutions(userId: string, problemId: string): Pro
   if (stored) {
     try {
       const parsed = JSON.parse(stored);
-      return { ...result, ...parsed };
+      return { ...solutionsMap, ...parsed };
     } catch {
-      return result;
+      // ignore
     }
   }
 
-  return result;
+  return solutionsMap;
 }
 
-/**
- * Save user workspace, code solution, and synchronize status
- */
-export async function saveUserWorkspaceAndProgress(params: {
+export interface SaveWorkspaceParams {
   userId: string;
   problemId: string;
   problemTitle?: string;
@@ -386,7 +501,16 @@ export async function saveUserWorkspaceAndProgress(params: {
   status: ProblemStatus;
   activeLanguage: string;
   sourceCode: string;
-}): Promise<{ success: boolean; error?: string; updated_at: string }> {
+}
+
+/**
+ * Persist user workspace notes, current language solution, and status
+ */
+export async function saveUserWorkspaceAndProgress(params: SaveWorkspaceParams): Promise<{
+  success: boolean;
+  error?: string;
+  updated_at: string;
+}> {
   const now = new Date().toISOString();
   const { userId, problemId, workspace, status, activeLanguage, sourceCode, problemTitle, problemDifficulty } = params;
 
@@ -415,7 +539,7 @@ export async function saveUserWorkspaceAndProgress(params: {
 
       if (wsError) throw wsError;
 
-      // 2. Upsert code solution for active language
+      // 2. Upsert solution for the active language
       const { error: solError } = await supabase
         .from('user_problem_solutions')
         .upsert(

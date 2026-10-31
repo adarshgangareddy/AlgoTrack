@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useMemo } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
 import { 
@@ -13,15 +13,19 @@ import {
   BookOpen, 
   ArrowRight,
   Code2,
-  Loader2
+  Loader2,
+  ChevronLeft,
+  ChevronRight
 } from 'lucide-react';
 import { 
   fetchAllProblems, 
-  fetchUserProblemProgress, 
+  fetchUserProblemProgressBatch, 
   type Problem, 
   type ProblemStatus 
 } from '../services/problemService';
 import './ProblemsPage.css';
+
+const PROBLEMS_PER_PAGE = 50;
 
 export const ProblemsPage: React.FC = () => {
   const { user } = useAuth();
@@ -31,10 +35,11 @@ export const ProblemsPage: React.FC = () => {
   const [userStatuses, setUserStatuses] = useState<Record<string, ProblemStatus>>({});
   const [loading, setLoading] = useState(true);
 
-  // Filters
+  // Filters & Pagination
   const [searchQuery, setSearchQuery] = useState('');
   const [selectedDifficulty, setSelectedDifficulty] = useState<string>('all');
   const [selectedStatus, setSelectedStatus] = useState<string>('all');
+  const [currentPage, setCurrentPage] = useState(1);
 
   useEffect(() => {
     let isMounted = true;
@@ -46,18 +51,10 @@ export const ProblemsPage: React.FC = () => {
         if (!isMounted) return;
         setProblems(list);
 
-        // Fetch user progress for problems
+        // Fetch user progress for problems in 1 batch query
         if (user?.id) {
-          const statusPromises = list.map(async (p) => {
-            const status = await fetchUserProblemProgress(user.id, p.id);
-            return { id: p.id, status };
-          });
-          const results = await Promise.all(statusPromises);
+          const statusMap = await fetchUserProblemProgressBatch(user.id);
           if (!isMounted) return;
-          const statusMap: Record<string, ProblemStatus> = {};
-          results.forEach((r) => {
-            statusMap[r.id] = r.status;
-          });
           setUserStatuses(statusMap);
         }
       } catch (err) {
@@ -73,144 +70,203 @@ export const ProblemsPage: React.FC = () => {
     };
   }, [user?.id]);
 
+  // Reset page when filters change
+  useEffect(() => {
+    setCurrentPage(1);
+  }, [searchQuery, selectedDifficulty, selectedStatus]);
+
   // Filter problems
-  const filteredProblems = problems.filter((p) => {
-    // Search
+  const filteredProblems = useMemo(() => {
     const q = searchQuery.toLowerCase().trim();
-    const matchSearch =
-      !q ||
-      p.title.toLowerCase().includes(q) ||
-      (p.pattern && p.pattern.toLowerCase().includes(q)) ||
-      (p.topics && p.topics.some((t) => t.toLowerCase().includes(q))) ||
-      (p.problem_number && p.problem_number.toString().includes(q));
+    return problems.filter((p) => {
+      const matchSearch =
+        !q ||
+        p.title.toLowerCase().includes(q) ||
+        (p.pattern && p.pattern.toLowerCase().includes(q)) ||
+        (p.topics && p.topics.some((t) => t.toLowerCase().includes(q))) ||
+        (p.problem_number && p.problem_number.toString().includes(q));
 
-    // Difficulty
-    const matchDiff =
-      selectedDifficulty === 'all' || p.difficulty.toLowerCase() === selectedDifficulty.toLowerCase();
+      const matchDiff =
+        selectedDifficulty === 'all' || p.difficulty.toLowerCase() === selectedDifficulty.toLowerCase();
 
-    // Status
-    const status = userStatuses[p.id] || 'not_started';
-    const matchStatus =
-      selectedStatus === 'all' || status === selectedStatus;
+      const status = userStatuses[p.id] || 'not_started';
+      const matchStatus =
+        selectedStatus === 'all' || status === selectedStatus;
 
-    return matchSearch && matchDiff && matchStatus;
-  });
+      return matchSearch && matchDiff && matchStatus;
+    });
+  }, [problems, searchQuery, selectedDifficulty, selectedStatus, userStatuses]);
+
+  // Pagination calculation
+  const totalPages = Math.max(1, Math.ceil(filteredProblems.length / PROBLEMS_PER_PAGE));
+  const paginatedProblems = useMemo(() => {
+    const start = (currentPage - 1) * PROBLEMS_PER_PAGE;
+    return filteredProblems.slice(start, start + PROBLEMS_PER_PAGE);
+  }, [filteredProblems, currentPage]);
+
+  const solvedCount = Object.values(userStatuses).filter((s) => s === 'solved').length;
+  const attemptedCount = Object.values(userStatuses).filter((s) => s === 'attempted').length;
 
   return (
     <div className="problems-library-page">
-      {/* Header */}
+      {/* Top Navbar */}
       <header className="library-header">
-        <div className="container library-header-container">
+        <div className="library-header-inner">
           <div className="library-header-left">
             <Link to="/dashboard" className="library-back-btn" title="Back to Dashboard">
               <ArrowLeft size={16} />
               <span>Dashboard</span>
             </Link>
             <div className="library-title-group">
-              <div className="library-tag-pill">
-                <Sparkles size={12} className="text-orange" />
-                <span>Phase 4 & 5 Curated Library</span>
+              <div className="library-logo-icon">
+                <Code2 size={20} color="#0284C7" />
               </div>
-              <h1 className="library-main-heading">Problem Library & Workspaces</h1>
+              <h1 className="library-title">Problem Library</h1>
+              <span className="library-count-badge">
+                {problems.length > 0 ? `${problems.length} Problems` : 'Curated Library'}
+              </span>
             </div>
           </div>
 
-          <div className="library-header-stats">
-            <div className="library-stat-chip">
-              <span className="stat-chip-num">{problems.length}</span>
-              <span className="stat-chip-label">Curated Challenges</span>
+          <div className="library-header-right">
+            <div className="stat-pill-group">
+              <span className="user-stat-pill solved" title="Total problems solved">
+                <CheckCircle2 size={13} /> {solvedCount} Solved
+              </span>
+              <span className="user-stat-pill attempted" title="Problems currently in progress">
+                <Clock size={13} /> {attemptedCount} Attempted
+              </span>
             </div>
           </div>
         </div>
       </header>
 
-      {/* Main Content */}
-      <main className="container library-content-container">
-        {/* Search & Filter Bar */}
-        <div className="library-filter-panel card-saas">
-          {/* Search Box */}
-          <div className="library-search-box">
+      {/* Main Container */}
+      <main className="library-main-content">
+        {/* Hero Banner */}
+        <section className="library-hero-card">
+          <div className="library-hero-content">
+            <span className="library-hero-label">
+              <Sparkles size={14} /> AlgoTrack Comprehensive Practice Library
+            </span>
+            <h2 className="library-hero-title">Browse & Master 2,900+ LeetCode Challenges</h2>
+            <p className="library-hero-desc">
+              Explore interview questions by difficulty, topics, and algorithmic patterns. Every problem includes an individual workspace with multi-language code templates, note-taking, complexity analysis, and built-in AI explanation.
+            </p>
+          </div>
+        </section>
+
+        {/* Search & Filter Controls */}
+        <section className="library-filters-bar">
+          <div className="library-search-wrap">
             <Search size={18} className="search-icon" />
             <input
               type="text"
               className="library-search-input"
-              placeholder="Search problems by title, topic, pattern, or number..."
+              placeholder="Search by problem name, #number (e.g. 1, 15, 200), or topic..."
               value={searchQuery}
               onChange={(e) => setSearchQuery(e.target.value)}
             />
             {searchQuery && (
               <button
                 type="button"
-                className="search-clear-btn"
+                className="clear-search-btn"
                 onClick={() => setSearchQuery('')}
               >
-                Clear
+                ✕
               </button>
             )}
           </div>
 
-          {/* Filters Row */}
-          <div className="filters-row">
-            {/* Difficulty Tabs */}
-            <div className="filter-group">
-              <span className="filter-label">
-                <Filter size={13} />
-                <span>Difficulty</span>
-              </span>
-              <div className="filter-pills">
-                {['all', 'easy', 'medium', 'hard'].map((diff) => (
-                  <button
-                    key={diff}
-                    type="button"
-                    className={`filter-pill-btn ${selectedDifficulty === diff ? 'active' : ''}`}
-                    onClick={() => setSelectedDifficulty(diff)}
-                  >
-                    {diff.charAt(0).toUpperCase() + diff.slice(1)}
-                  </button>
-                ))}
-              </div>
+          <div className="library-filter-pills-row">
+            {/* Difficulty Filter */}
+            <div className="filter-pill-cluster">
+              <span className="cluster-label">Difficulty:</span>
+              {(['all', 'Easy', 'Medium', 'Hard'] as const).map((diff) => (
+                <button
+                  key={diff}
+                  type="button"
+                  className={`filter-pill-btn ${selectedDifficulty === diff ? 'active' : ''}`}
+                  onClick={() => setSelectedDifficulty(diff)}
+                >
+                  {diff === 'all' ? 'All' : diff}
+                </button>
+              ))}
             </div>
 
             {/* Status Filter */}
-            <div className="filter-group">
-              <span className="filter-label">
-                <span>Status</span>
-              </span>
-              <div className="filter-pills">
-                {[
-                  { id: 'all', label: 'All' },
-                  { id: 'not_started', label: 'Not Started' },
-                  { id: 'attempted', label: 'Attempted' },
-                  { id: 'solved', label: 'Solved' },
-                ].map((st) => (
-                  <button
-                    key={st.id}
-                    type="button"
-                    className={`filter-pill-btn ${selectedStatus === st.id ? 'active' : ''}`}
-                    onClick={() => setSelectedStatus(st.id)}
-                  >
-                    {st.label}
-                  </button>
-                ))}
-              </div>
+            <div className="filter-pill-cluster">
+              <span className="cluster-label">Status:</span>
+              {[
+                { id: 'all', label: 'All' },
+                { id: 'solved', label: 'Solved' },
+                { id: 'attempted', label: 'Attempted' },
+                { id: 'not_started', label: 'Todo' },
+              ].map((st) => (
+                <button
+                  key={st.id}
+                  type="button"
+                  className={`filter-pill-btn ${selectedStatus === st.id ? 'active' : ''}`}
+                  onClick={() => setSelectedStatus(st.id)}
+                >
+                  {st.label}
+                </button>
+              ))}
             </div>
           </div>
+        </section>
+
+        {/* Results Counter & Pagination Bar */}
+        <div className="library-pagination-info-row">
+          <span className="results-count-text">
+            Showing <strong>{filteredProblems.length === 0 ? 0 : (currentPage - 1) * PROBLEMS_PER_PAGE + 1}–{Math.min(currentPage * PROBLEMS_PER_PAGE, filteredProblems.length)}</strong> of <strong>{filteredProblems.length}</strong> problems
+          </span>
+
+          {totalPages > 1 && (
+            <div className="pagination-controls">
+              <button
+                type="button"
+                className="page-nav-btn"
+                onClick={() => setCurrentPage((p) => Math.max(1, p - 1))}
+                disabled={currentPage === 1}
+                title="Previous Page"
+              >
+                <ChevronLeft size={16} />
+                <span>Prev</span>
+              </button>
+
+              <span className="page-indicator">
+                Page {currentPage} of {totalPages}
+              </span>
+
+              <button
+                type="button"
+                className="page-nav-btn"
+                onClick={() => setCurrentPage((p) => Math.min(totalPages, p + 1))}
+                disabled={currentPage === totalPages}
+                title="Next Page"
+              >
+                <span>Next</span>
+                <ChevronRight size={16} />
+              </button>
+            </div>
+          )}
         </div>
 
         {/* Problems List / Table */}
         {loading ? (
-          <div className="library-loading-box card-saas">
-            <Loader2 size={32} className="spinner-anim text-primary" />
-            <p>Loading curated problems...</p>
+          <div className="library-loading-state">
+            <Loader2 size={32} className="spin-loader" />
+            <p>Loading problem library...</p>
           </div>
         ) : filteredProblems.length === 0 ? (
-          <div className="library-empty-box card-saas">
-            <BookOpen size={40} className="text-muted" />
+          <div className="library-empty-state">
+            <Filter size={36} color="#94A3B8" />
             <h3>No problems found</h3>
-            <p>Try adjusting your search query or difficulty filters.</p>
+            <p>No challenges match your current search or filters. Try adjusting your query.</p>
             <button
               type="button"
-              className="btn btn-secondary"
+              className="reset-filters-btn"
               onClick={() => {
                 setSearchQuery('');
                 setSelectedDifficulty('all');
@@ -221,95 +277,120 @@ export const ProblemsPage: React.FC = () => {
             </button>
           </div>
         ) : (
-          <div className="problems-table-wrapper card-saas">
-            <div className="problems-table-header">
-              <span className="col-num">#</span>
-              <span className="col-title">Problem Title</span>
-              <span className="col-diff">Difficulty</span>
-              <span className="col-pattern">Pattern / Topic</span>
-              <span className="col-status">Your Status</span>
-              <span className="col-action">Action</span>
-            </div>
-
-            <div className="problems-table-body">
-              {filteredProblems.map((prob) => {
-                const status = userStatuses[prob.id] || 'not_started';
-
-                return (
-                  <div
-                    key={prob.id}
-                    className="problem-row-item"
-                    onClick={() => navigate(`/problems/${prob.slug}`)}
-                    role="button"
-                    tabIndex={0}
-                    onKeyDown={(e) => {
-                      if (e.key === 'Enter') navigate(`/problems/${prob.slug}`);
-                    }}
-                  >
-                    <span className="col-num prob-id-txt">
-                      {prob.problem_number ? `#${prob.problem_number}` : '—'}
-                    </span>
-
-                    <div className="col-title prob-title-box">
-                      <span className="prob-title-text">{prob.title}</span>
-                      {prob.leetcode_url && (
-                        <a
-                          href={prob.leetcode_url}
-                          target="_blank"
-                          rel="noopener noreferrer"
-                          className="leetcode-link-icon"
-                          onClick={(e) => e.stopPropagation()}
-                          title="Open on LeetCode"
-                        >
-                          <ExternalLink size={13} />
-                        </a>
-                      )}
+          <div className="problem-cards-grid">
+            {paginatedProblems.map((problem) => {
+              const status = userStatuses[problem.id] || 'not_started';
+              return (
+                <div
+                  key={problem.id}
+                  className={`problem-summary-card status-${status}`}
+                  onClick={() => navigate(`/problems/${problem.slug}`)}
+                  role="button"
+                  tabIndex={0}
+                >
+                  <div className="card-top-row">
+                    <div className="prob-num-tag">
+                      {problem.problem_number ? `#${problem.problem_number}` : 'LC'}
                     </div>
 
-                    <span className="col-diff">
-                      <span className={`diff-tag-pill ${prob.difficulty.toLowerCase()}`}>
-                        {prob.difficulty}
-                      </span>
-                    </span>
-
-                    <span className="col-pattern pattern-text">
-                      {prob.pattern || 'Algorithmic Pattern'}
-                    </span>
-
-                    <span className="col-status">
-                      <span className={`status-badge-chip ${status}`}>
-                        {status === 'solved' && <CheckCircle2 size={13} />}
-                        {status === 'attempted' && <Clock size={13} />}
-                        {status === 'not_started' && <CircleDot size={13} />}
-                        <span>
-                          {status === 'solved'
-                            ? 'Solved'
-                            : status === 'attempted'
-                            ? 'Attempted'
-                            : 'Not Started'}
+                    <div className="status-badge-inline">
+                      {status === 'solved' && (
+                        <span className="badge-solved">
+                          <CheckCircle2 size={12} /> Solved
                         </span>
-                      </span>
+                      )}
+                      {status === 'attempted' && (
+                        <span className="badge-attempted">
+                          <Clock size={12} /> Attempted
+                        </span>
+                      )}
+                      {status === 'not_started' && (
+                        <span className="badge-not-started">
+                          <CircleDot size={12} /> Todo
+                        </span>
+                      )}
+                    </div>
+                  </div>
+
+                  <h3 className="card-problem-title">{problem.title}</h3>
+
+                  <div className="card-meta-row">
+                    <span className={`diff-pill-micro ${problem.difficulty.toLowerCase()}`}>
+                      {problem.difficulty}
                     </span>
 
-                    <span className="col-action">
-                      <Link
-                        to={`/problems/${prob.slug}`}
-                        className="workspace-link-btn"
-                        onClick={(e) => e.stopPropagation()}
-                      >
-                        <Code2 size={14} />
-                        <span>Workspace</span>
-                        <ArrowRight size={13} />
-                      </Link>
-                    </span>
+                    {problem.pattern && (
+                      <span className="pattern-pill-micro">
+                        {problem.pattern}
+                      </span>
+                    )}
                   </div>
-                );
-              })}
-            </div>
+
+                  {problem.description && (
+                    <p className="card-problem-desc">
+                      {problem.description.slice(0, 110)}...
+                    </p>
+                  )}
+
+                  <div className="card-footer-row">
+                    <span className="open-workspace-cta">
+                      Open Workspace <ArrowRight size={13} />
+                    </span>
+
+                    {problem.leetcode_url && (
+                      <a
+                        href={problem.leetcode_url}
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        className="card-ext-link"
+                        onClick={(e) => e.stopPropagation()}
+                        title="View on LeetCode"
+                      >
+                        <ExternalLink size={13} />
+                      </a>
+                    )}
+                  </div>
+                </div>
+              );
+            })}
+          </div>
+        )}
+
+        {/* Bottom Pagination Bar */}
+        {totalPages > 1 && !loading && (
+          <div className="library-pagination-bottom">
+            <button
+              type="button"
+              className="page-nav-btn"
+              onClick={() => {
+                setCurrentPage((p) => Math.max(1, p - 1));
+                window.scrollTo({ top: 300, behavior: 'smooth' });
+              }}
+              disabled={currentPage === 1}
+            >
+              <ChevronLeft size={16} />
+              <span>Previous Page</span>
+            </button>
+
+            <span className="page-indicator">
+              Page {currentPage} of {totalPages}
+            </span>
+
+            <button
+              type="button"
+              className="page-nav-btn"
+              onClick={() => {
+                setCurrentPage((p) => Math.min(totalPages, p + 1));
+                window.scrollTo({ top: 300, behavior: 'smooth' });
+              }}
+              disabled={currentPage === totalPages}
+            >
+              <span>Next Page</span>
+              <ChevronRight size={16} />
+            </button>
           </div>
         )}
       </main>
     </div>
   );
 };
-
