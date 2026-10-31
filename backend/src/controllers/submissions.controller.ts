@@ -48,16 +48,16 @@ export class SubmissionsController {
         throw ApiError.unauthorized('User identity required');
       }
 
-      const problemId = req.params.problemId;
+      const problemId = String(req.params.problemId);
+      const submissions = await judge0Service.getSubmissionHistory(userId, problemId);
 
       res.status(200).json(
         ApiResponse.success(
           {
             problemId,
-            submissions: [],
-            message: 'Submission history pipeline prepared for Phase 6.',
+            submissions,
           },
-          'Submission history'
+          'Submission history retrieved'
         )
       );
     } catch (error) {
