@@ -1,0 +1,12 @@
+/* App level container styles */
+.algotrack-app {
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+  position: relative;
+  background-color: var(--bg-page);
+}
+
+main {
+  flex: 1;
+}

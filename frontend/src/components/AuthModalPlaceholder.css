@@ -1,0 +1,147 @@
+/* ==========================================================================
+   Auth Modal Placeholder — Things Cosmic Theme
+   ========================================================================== */
+
+.modal-backdrop {
+  position: fixed;
+  inset: 0;
+  background-color: rgba(10, 8, 28, 0.75);
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+  z-index: 2000;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 20px;
+  animation: modalFadeIn 0.2s ease-out;
+}
+
+.modal-container {
+  width: 100%;
+  max-width: 490px;
+  background: linear-gradient(180deg, #242055 0%, #1A1644 100%);
+  border: 2px solid rgba(165, 180, 252, 0.35);
+  border-radius: var(--radius-2xl);
+  box-shadow: 0 30px 80px -10px rgba(0, 0, 0, 0.8), 0 0 35px rgba(255, 78, 116, 0.2);
+  padding: 28px;
+  animation: modalZoomIn 0.25s cubic-bezier(0.16, 1, 0.3, 1);
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+}
+
+.modal-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.modal-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 11.5px;
+  font-weight: 700;
+  color: #FF6B8B;
+  background-color: rgba(255, 78, 116, 0.15);
+  border: 1px solid rgba(255, 78, 116, 0.35);
+  padding: 3px 12px;
+  border-radius: var(--radius-pill);
+}
+
+.modal-close-btn {
+  background: rgba(36, 32, 85, 0.8);
+  border: 1px solid rgba(165, 180, 252, 0.25);
+  border-radius: 50%;
+  width: 34px;
+  height: 34px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: #C7D2FE;
+  cursor: pointer;
+  transition: all 0.15s ease;
+}
+
+.modal-close-btn:hover {
+  background-color: rgba(255, 78, 116, 0.2);
+  color: #FFFFFF;
+}
+
+.modal-body {
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+}
+
+.modal-title {
+  font-size: 1.4rem;
+  font-weight: 800;
+  color: #FFFFFF;
+  letter-spacing: -0.02em;
+}
+
+.modal-description {
+  font-size: 0.925rem;
+  color: #CBD5E1;
+  line-height: 1.55;
+}
+
+.modal-description strong {
+  color: #FFFFFF;
+}
+
+.modal-features-list {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  padding: 16px;
+  background-color: rgba(20, 16, 48, 0.85);
+  border: 1px solid rgba(165, 180, 252, 0.2);
+  border-radius: var(--radius-md);
+  font-size: 12.5px;
+  color: #CBD5E1;
+  line-height: 1.5;
+}
+
+.modal-feature-item {
+  display: flex;
+  gap: 10px;
+  align-items: flex-start;
+}
+
+.modal-feature-item strong {
+  color: #FFFFFF;
+}
+
+.modal-icon-circle {
+  width: 22px;
+  height: 22px;
+  border-radius: 50%;
+  background-color: rgba(255, 78, 116, 0.2);
+  color: #FF6B8B;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+  margin-top: 1px;
+}
+
+.modal-icon-circle.purple {
+  background-color: rgba(168, 85, 247, 0.2);
+  color: #E879F9;
+}
+
+.modal-footer {
+  padding-top: 8px;
+}
+
+@keyframes modalFadeIn {
+  from { opacity: 0; }
+  to { opacity: 1; }
+}
+
+@keyframes modalZoomIn {
+  from { opacity: 0; transform: scale(0.95) translateY(6px); }
+  to { opacity: 1; transform: scale(1) translateY(0); }
+}

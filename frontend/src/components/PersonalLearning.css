@@ -1,0 +1,224 @@
+/* ==========================================================================
+   Personal Learning — Things Cosmic Theme
+   ========================================================================== */
+
+.learning-section {
+  padding-top: clamp(60px, 7vw, 100px);
+  padding-bottom: clamp(60px, 7vw, 100px);
+  position: relative;
+}
+
+/* 4 Feature Cards Grid */
+.learning-features-grid {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 24px;
+}
+
+.learning-card {
+  padding: 32px 28px;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  gap: 20px;
+}
+
+.learning-card-top {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.learning-icon-box {
+  width: 48px;
+  height: 48px;
+  border-radius: var(--radius-lg);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.learning-icon-box.orange {
+  background-color: rgba(249, 115, 22, 0.2);
+  color: #FB923C;
+  border: 1px solid rgba(249, 115, 22, 0.4);
+  box-shadow: 0 0 15px rgba(249, 115, 22, 0.2);
+}
+
+.learning-icon-box.purple {
+  background-color: rgba(168, 85, 247, 0.2);
+  color: #C084FC;
+  border: 1px solid rgba(168, 85, 247, 0.4);
+  box-shadow: 0 0 15px rgba(168, 85, 247, 0.2);
+}
+
+.learning-card-content {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.learning-card-title {
+  font-size: 1.25rem;
+  font-weight: 700;
+  letter-spacing: -0.015em;
+  color: #FFFFFF;
+}
+
+.learning-card-desc {
+  font-size: 0.925rem;
+  color: #CBD5E1;
+  line-height: 1.6;
+}
+
+/* Micro Visual Box inside Learning Cards */
+.learning-micro-visual {
+  background-color: rgba(22, 18, 52, 0.85);
+  border: 1px solid rgba(165, 180, 252, 0.18);
+  border-radius: var(--radius-md);
+  padding: 16px;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+/* Concept Notes Micro Visual */
+.concept-pill-group {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+}
+
+.concept-tag {
+  font-size: 11px;
+  font-weight: 700;
+  padding: 3px 8px;
+  border-radius: 4px;
+  background-color: rgba(38, 33, 90, 0.8);
+  color: #C7D2FE;
+  border: 1px solid rgba(165, 180, 252, 0.25);
+}
+
+.concept-line {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 12px;
+  color: #94A3B8;
+}
+
+.concept-bullet {
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+  background-color: #FB923C;
+  box-shadow: 0 0 8px #FB923C;
+}
+
+/* Approach Steps Micro Visual */
+.approach-step-list {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.approach-step {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 12px;
+  color: #E2E8F0;
+}
+
+.step-badge {
+  font-family: var(--font-mono);
+  font-size: 11px;
+  font-weight: 700;
+  width: 18px;
+  height: 18px;
+  border-radius: 50%;
+  background-color: rgba(168, 85, 247, 0.25);
+  color: #C084FC;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border: 1px solid rgba(168, 85, 247, 0.4);
+}
+
+.step-txt {
+  font-size: 12px;
+}
+
+/* Complexity Badges Micro Visual */
+.complexity-badge-row {
+  display: flex;
+  gap: 10px;
+}
+
+.complexity-badge {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  padding: 4px 10px;
+  background-color: rgba(30, 26, 72, 0.85);
+  border: 1px solid rgba(165, 180, 252, 0.2);
+  border-radius: var(--radius-sm);
+}
+
+.comp-label {
+  font-size: 11px;
+  font-weight: 700;
+  color: #94A3B8;
+  text-transform: uppercase;
+}
+
+.comp-val {
+  font-family: var(--font-mono);
+  font-size: 12px;
+  font-weight: 700;
+  color: #FB923C;
+}
+
+.complexity-caption {
+  font-size: 11.5px;
+  color: #94A3B8;
+  margin: 0;
+}
+
+/* Archive Notes Micro Visual */
+.archive-tags-row {
+  display: flex;
+  gap: 8px;
+  flex-wrap: wrap;
+}
+
+.archive-pill {
+  font-size: 11px;
+  font-weight: 600;
+  padding: 3px 8px;
+  border-radius: 4px;
+  background-color: rgba(244, 63, 94, 0.15);
+  color: #FB7185;
+  border: 1px solid rgba(244, 63, 94, 0.3);
+}
+
+.archive-pill.green {
+  background-color: rgba(16, 185, 129, 0.15);
+  color: #34D399;
+  border-color: rgba(16, 185, 129, 0.3);
+}
+
+.archive-note-text {
+  font-size: 12px;
+  color: #CBD5E1;
+  font-style: italic;
+  line-height: 1.4;
+}
+
+/* Responsive */
+@media (max-width: 900px) {
+  .learning-features-grid {
+    grid-template-columns: 1fr;
+    gap: 20px;
+  }
+}
