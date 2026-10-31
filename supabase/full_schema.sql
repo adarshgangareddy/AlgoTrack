@@ -209,3 +209,4 @@ DROP POLICY IF EXISTS "Users can insert own activity logs" ON public.user_activi
 CREATE POLICY "Users can insert own activity logs"
   ON public.user_activity_logs FOR INSERT TO authenticated
   WITH CHECK (auth.uid() = user_id);
+
