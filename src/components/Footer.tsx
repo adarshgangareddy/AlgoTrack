@@ -1,4 +1,5 @@
 import React from 'react';
+import { Link } from 'react-router-dom';
 import { ArrowUp } from 'lucide-react';
 import './Footer.css';
 
@@ -54,7 +55,7 @@ export const Footer: React.FC = () => {
             </p>
           </div>
 
-          {/* Navigation Links Col */}
+          {/* Quick Navigation Links Col */}
           <div className="footer-nav-col">
             <h4 className="footer-nav-title">Quick Navigation</h4>
             <ul className="footer-links-list">
@@ -86,6 +87,28 @@ export const Footer: React.FC = () => {
             </ul>
           </div>
 
+          {/* Account & Auth Links Col */}
+          <div className="footer-nav-col">
+            <h4 className="footer-nav-title">Account</h4>
+            <ul className="footer-links-list">
+              <li>
+                <Link to="/login">
+                  Sign In
+                </Link>
+              </li>
+              <li>
+                <Link to="/register">
+                  Create Account
+                </Link>
+              </li>
+              <li>
+                <Link to="/forgot-password">
+                  Reset Password
+                </Link>
+              </li>
+            </ul>
+          </div>
+
           {/* Philosophy / Statement Col */}
           <div className="footer-statement-col">
             <h4 className="footer-nav-title">Platform Philosophy</h4>
@@ -94,7 +117,7 @@ export const Footer: React.FC = () => {
             </p>
             <div className="statement-badge">
               <span className="badge-bullet"></span>
-              <span>Single Public Homepage • Phase 1</span>
+              <span>AlgoTrack • Single Public Homepage</span>
             </div>
           </div>
         </div>

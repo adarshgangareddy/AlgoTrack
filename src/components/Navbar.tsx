@@ -20,8 +20,8 @@ export const Navbar: React.FC<NavbarProps> = ({ isNightMode = true, onToggleThem
     const handleScroll = () => {
       setIsScrolled(window.scrollY > 16);
 
-      // Simple scroll spy
-      const sections = ['features', 'how-it-works', 'problem-library', 'progress-tracking', 'faq'];
+      // Simple scroll spy in DOM order
+      const sections = ['problem-library', 'progress-tracking', 'how-it-works', 'features', 'faq'];
       const scrollPosition = window.scrollY + 120;
 
       for (const sectionId of sections) {
