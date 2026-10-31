@@ -1,26 +1,26 @@
 import React, { useState, useEffect, useMemo } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
-import { 
-  ArrowLeft, 
-  Search, 
-  Sparkles, 
-  ExternalLink, 
-  CheckCircle2, 
-  Clock, 
-  CircleDot, 
-  Filter, 
+import {
+  ArrowLeft,
+  Search,
+  Sparkles,
+  ExternalLink,
+  CheckCircle2,
+  Clock,
+  CircleDot,
+  Filter,
   ArrowRight,
   Code2,
   Loader2,
   ChevronLeft,
   ChevronRight
 } from 'lucide-react';
-import { 
-  fetchAllProblems, 
-  fetchUserProblemProgressBatch, 
-  type Problem, 
-  type ProblemStatus 
+import {
+  fetchAllProblems,
+  fetchUserProblemProgressBatch,
+  type Problem,
+  type ProblemStatus
 } from '../services/problemService';
 import './ProblemsPage.css';
 
