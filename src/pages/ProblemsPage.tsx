@@ -15,8 +15,7 @@ import {
   ExternalLink,
   Loader2,
   ChevronLeft,
-  ChevronRight,
-  Code2
+  ChevronRight
 } from 'lucide-react';
 import { 
   fetchAllProblems, 
