@@ -50,3 +50,4 @@ export function createClient(): SupabaseClient {
 
   return createBrowserClient(url, key);
 }
+

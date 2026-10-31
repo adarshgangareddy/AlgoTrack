@@ -89,3 +89,4 @@ try {
   console.error(`\n[ERROR]: Connection failed: ${err.message}`);
   process.exit(1);
 }
+

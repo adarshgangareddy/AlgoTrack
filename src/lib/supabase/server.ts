@@ -40,3 +40,4 @@ export function createClient(cookieStore?: CookieMethodsServer): SupabaseClient 
     },
   });
 }
+
