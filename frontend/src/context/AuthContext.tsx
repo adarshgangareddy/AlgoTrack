@@ -18,6 +18,7 @@ interface AuthContextType {
   isConfigured: boolean;
   signIn: (email: string, password: string) => Promise<{ error: Error | null }>;
   signUp: (fullName: string, email: string, password: string) => Promise<{ error: Error | null; requiresEmailVerification?: boolean }>;
+  signInWithGoogle: () => Promise<{ error: Error | null }>;
   signOut: () => Promise<void>;
   resetPasswordForEmail: (email: string) => Promise<{ error: Error | null }>;
   updateUserPassword: (password: string) => Promise<{ error: Error | null }>;
@@ -186,6 +187,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
           data: {
             full_name: fullName,
           },
+          emailRedirectTo: typeof window !== 'undefined' ? `${window.location.origin}/auth/callback` : undefined,
         },
       });
       if (error) return { error };
@@ -218,6 +220,37 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
       localStorage.setItem(LOCAL_STORAGE_KEY_USER, JSON.stringify(mockUser));
       localStorage.setItem(LOCAL_STORAGE_KEY_PROFILE, JSON.stringify(mockProfile));
       return { error: null, requiresEmailVerification: false };
+    }
+  };
+
+  // Sign in with Google (OAuth)
+  const signInWithGoogle = async (): Promise<{ error: Error | null }> => {
+    if (configured) {
+      const { error } = await supabase.auth.signInWithOAuth({
+        provider: 'google',
+        options: {
+          redirectTo: typeof window !== 'undefined' ? `${window.location.origin}/auth/callback` : undefined,
+        },
+      });
+      return { error };
+    } else {
+      // Local demo fallback
+      const mockUser = {
+        id: 'usr_google_' + Math.random().toString(36).substring(2, 10),
+        email: 'developer@google.com',
+        user_metadata: { full_name: 'Google Engineer' },
+      } as unknown as User;
+      const mockProfile: UserProfile = {
+        id: mockUser.id,
+        full_name: 'Google Engineer',
+        email: 'developer@google.com',
+        created_at: new Date().toISOString(),
+      };
+      setUser(mockUser);
+      setProfile(mockProfile);
+      localStorage.setItem(LOCAL_STORAGE_KEY_USER, JSON.stringify(mockUser));
+      localStorage.setItem(LOCAL_STORAGE_KEY_PROFILE, JSON.stringify(mockProfile));
+      return { error: null };
     }
   };
 
@@ -274,6 +307,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
         isConfigured: configured,
         signIn,
         signUp,
+        signInWithGoogle,
         signOut,
         resetPasswordForEmail,
         updateUserPassword,
