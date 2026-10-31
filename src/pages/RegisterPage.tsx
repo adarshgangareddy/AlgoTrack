@@ -9,9 +9,11 @@ export const RegisterPage: React.FC = () => {
   const { signUp, signInWithGoogle } = useAuth();
 
   const [fullName, setFullName] = useState('');
+  const [username, setUsername] = useState('');
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [confirmPassword, setConfirmPassword] = useState('');
+  const [targetRole, setTargetRole] = useState('Software Engineer');
   
   const [showPassword, setShowPassword] = useState(false);
   const [showConfirmPassword, setShowConfirmPassword] = useState(false);
@@ -35,23 +37,40 @@ export const RegisterPage: React.FC = () => {
   
   // Validation errors
   const [nameError, setNameError] = useState<string | null>(null);
+  const [usernameError, setUsernameError] = useState<string | null>(null);
   const [emailError, setEmailError] = useState<string | null>(null);
   const [passwordError, setPasswordError] = useState<string | null>(null);
   const [confirmError, setConfirmError] = useState<string | null>(null);
   const [errorMsg, setErrorMsg] = useState<string | null>(null);
+  const [isEmailAlreadyRegistered, setIsEmailAlreadyRegistered] = useState(false);
   const [verificationRequired, setVerificationRequired] = useState(false);
 
   const validate = (): boolean => {
     let isValid = true;
     setNameError(null);
+    setUsernameError(null);
     setEmailError(null);
     setPasswordError(null);
     setConfirmError(null);
     setErrorMsg(null);
+    setIsEmailAlreadyRegistered(false);
 
     // Full name
     if (!fullName.trim()) {
       setNameError('Full name cannot be empty.');
+      isValid = false;
+    }
+
+    // Username
+    const cleanUser = username.trim().replace(/^@/, '');
+    if (!cleanUser) {
+      setUsernameError('Please choose a username.');
+      isValid = false;
+    } else if (cleanUser.length < 3) {
+      setUsernameError('Username must be at least 3 characters.');
+      isValid = false;
+    } else if (!/^[a-zA-Z0-9_]+$/.test(cleanUser)) {
+      setUsernameError('Only letters, numbers, and underscores allowed.');
       isValid = false;
     }
 
@@ -98,13 +117,21 @@ export const RegisterPage: React.FC = () => {
     try {
       const { error, requiresEmailVerification } = await signUp(
         fullName.trim(),
+        username.trim(),
         email.trim(),
-        password
+        password,
+        { target_role: targetRole }
       );
 
       if (error) {
-        if (error.message.includes('already registered')) {
-          setErrorMsg('An account with this email already exists. Please sign in instead.');
+        const msg = error.message.toLowerCase();
+        if (
+          msg.includes('already registered') || 
+          msg.includes('already exists') || 
+          msg.includes('user already registered')
+        ) {
+          setErrorMsg('An account with this email already exists.');
+          setIsEmailAlreadyRegistered(true);
         } else {
           setErrorMsg(error.message || 'Registration failed. Please try again.');
         }
