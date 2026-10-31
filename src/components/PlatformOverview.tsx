@@ -1,5 +1,5 @@
 import React from 'react';
-import { Layers, BookMarked, BarChart3 } from 'lucide-react';
+import { Layers, BookMarked, TrendingUp, CheckCircle2 } from 'lucide-react';
 import './PlatformOverview.css';
 
 export const PlatformOverview: React.FC = () => {
@@ -7,15 +7,15 @@ export const PlatformOverview: React.FC = () => {
     <section className="overview-section" id="overview">
       <div className="container">
         <div className="section-header">
-          <span className="section-tag">Platform Overview</span>
-          <h2 className="section-title">Everything You Need to Stay Consistent</h2>
+          <span className="section-tag">Introduction</span>
+          <h2 className="section-title">Your Practice. Your Progress. Your Journey.</h2>
           <p className="section-description">
-            AlgoTrack brings your coding practice, learning notes and progress into one organized space.
+            AlgoTrack brings coding practice, learning notes and progress tracking into one organized space. Build consistency, recognize algorithmic patterns and make every problem a meaningful learning experience.
           </p>
         </div>
 
         <div className="overview-grid">
-          {/* CARD 1 — Organized Practice */}
+          {/* CARD 1 — Structured Practice */}
           <div className="overview-card card-saas">
             <div className="card-top">
               <div className="overview-icon-box orange">
@@ -25,9 +25,9 @@ export const PlatformOverview: React.FC = () => {
             </div>
 
             <div className="card-content">
-              <h3 className="card-heading">Organized Practice</h3>
+              <h3 className="card-heading">Structured Practice</h3>
               <p className="card-text">
-                Explore a curated collection of popular coding interview problems organized by difficulty, topic and algorithmic pattern.
+                Explore a curated collection of coding challenges organized systematically by difficulty, topic and algorithmic pattern.
               </p>
             </div>
 
@@ -40,7 +40,7 @@ export const PlatformOverview: React.FC = () => {
               </div>
               <div className="micro-tree-item">
                 <span className="micro-tree-bullet"></span>
-                <span className="micro-tree-text">Blind 75 & Grind 169 Curated Sets</span>
+                <span className="micro-tree-text">Curated pattern roadmap & problem sets</span>
               </div>
             </div>
           </div>
@@ -57,7 +57,7 @@ export const PlatformOverview: React.FC = () => {
             <div className="card-content">
               <h3 className="card-heading">Personal Learning</h3>
               <p className="card-text">
-                Understand concepts, record your own approaches and save important learning notes for future revision.
+                Understand core concepts, record your own problem-solving approaches, and save notes for future interview revision.
               </p>
             </div>
 
@@ -69,45 +69,45 @@ export const PlatformOverview: React.FC = () => {
                   <span className="note-badge">Time: O(N)</span>
                   <span className="note-badge">Space: O(1)</span>
                 </div>
-                <div className="note-line detail">Mistake: Check empty array edge case</div>
+                <div className="note-line detail">Key insight: Validate boundary conditions first</div>
               </div>
             </div>
           </div>
 
-          {/* CARD 3 — Progress Tracking */}
+          {/* CARD 3 — Consistent Progress */}
           <div className="overview-card card-saas">
             <div className="card-top">
               <div className="overview-icon-box orange">
-                <BarChart3 size={22} />
+                <TrendingUp size={22} />
               </div>
               <span className="card-pill">Momentum</span>
             </div>
 
             <div className="card-content">
-              <h3 className="card-heading">Progress Tracking</h3>
+              <h3 className="card-heading">Consistent Progress</h3>
               <p className="card-text">
-                Track solved problems, monitor your consistency and understand how your coding skills improve over time.
+                Build steady practice habits, monitor your milestones, and see how your algorithmic intuition compounds over time.
               </p>
             </div>
 
-            {/* Illustrative micro-visual */}
+            {/* Illustrative micro-visual: qualitative habit momentum */}
             <div className="overview-visual-box">
-              <div className="micro-metric-row">
-                <div className="metric-col">
-                  <span className="metric-val">142</span>
-                  <span className="metric-sub">Solved</span>
+              <div className="micro-habit-row">
+                <div className="habit-step">
+                  <CheckCircle2 size={15} className="text-orange" />
+                  <span className="habit-label">Daily Problem Solved</span>
                 </div>
-                <div className="metric-col">
-                  <span className="metric-val">18d</span>
-                  <span className="metric-sub">Streak</span>
+                <div className="habit-step">
+                  <CheckCircle2 size={15} className="text-purple" />
+                  <span className="habit-label">Notes Documented</span>
                 </div>
-                <div className="metric-col">
-                  <span className="metric-val">71%</span>
-                  <span className="metric-sub">Accuracy</span>
+                <div className="habit-step">
+                  <CheckCircle2 size={15} className="text-gold" />
+                  <span className="habit-label">Pattern Mastered</span>
                 </div>
               </div>
               <div className="micro-progress-strip">
-                <div className="micro-fill" style={{ width: '65%' }}></div>
+                <div className="micro-fill" style={{ width: '85%' }}></div>
               </div>
             </div>
           </div>
