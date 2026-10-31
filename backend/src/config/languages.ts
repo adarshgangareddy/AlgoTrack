@@ -156,3 +156,4 @@ export function getLanguageConfig(langKey: string): LanguageConfig {
   if (normalized === 'c++') return SUPPORTED_LANGUAGES.cpp;
   return SUPPORTED_LANGUAGES.python;
 }
+
