@@ -1,7 +1,7 @@
 // src/components/workspace/MonacoCodeEditor.tsx
 // AlgoTrack Phase 6: Production Monaco Code Editor & Test Execution Engine
 
-import React, { useState, useEffect, useRef } from 'react';
+import React, { useState, useRef } from 'react';
 import Editor from '@monaco-editor/react';
 import { 
   Play, 
@@ -17,7 +17,6 @@ import {
   Clock, 
   Cpu, 
   Loader2,
-  ChevronRight,
   Maximize2,
   Minimize2
 } from 'lucide-react';

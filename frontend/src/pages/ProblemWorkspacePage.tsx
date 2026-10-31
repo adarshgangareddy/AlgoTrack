@@ -1,4 +1,4 @@
-// frontend/src/pages/ProblemWorkspacePage.tsx
+// src/pages/ProblemWorkspacePage.tsx
 // AlgoTrack — Problem Workspace UI Fix
 
 import React, { useState, useEffect, useRef, useCallback } from 'react';
@@ -30,7 +30,7 @@ import {
   type Problem, 
   type ProblemStatus 
 } from '../services/problemService';
-import { CodeEditor } from '../components/workspace/CodeEditor';
+import { MonacoCodeEditor } from '../components/workspace/MonacoCodeEditor';
 import { AIAssistant } from '../components/workspace/AIAssistant';
 import './ProblemWorkspacePage.css';
 
@@ -694,28 +694,25 @@ export const ProblemWorkspacePage: React.FC = () => {
             ) : (
               /* Solution Code Editor & Personal Notes */
               <>
-                {/* Personal Solution Code Editor Card */}
-                <div className="ws-card ws-editor-card">
-                  <div className="ws-section-header">
-                    <div className="ws-section-title-wrap">
-                      <Code2 size={17} color="#0284C7" />
-                      <h3 className="ws-section-title">Personal Code Solution</h3>
-                    </div>
-                    <span className="ws-lang-tag">Multi-Language Sandbox</span>
-                  </div>
-
-                  <CodeEditor
-                    language={activeLanguage}
-                    onLanguageChange={(newLang) => {
-                      setActiveLanguage(newLang);
-                      markDirtyAndDebounceSave();
-                    }}
-                    code={activeCode}
-                    onChange={handleCodeChange}
-                    onResetToTemplate={handleResetTemplate}
-                    isSaved={!hasUnsavedChanges}
-                  />
-                </div>
+                {/* Personal Solution Monaco Code Editor */}
+                <MonacoCodeEditor
+                  problemId={problem.id}
+                  problemTitle={problem.title}
+                  language={activeLanguage}
+                  onLanguageChange={(newLang) => {
+                    setActiveLanguage(newLang);
+                    markDirtyAndDebounceSave();
+                  }}
+                  code={activeCode}
+                  onChange={handleCodeChange}
+                  onResetToTemplate={handleResetTemplate}
+                  onSubmissionSuccess={() => {
+                    setProblemStatus('solved');
+                    setSaveSuccessMsg('Problem solved! Status updated to Solved.');
+                    setTimeout(() => setSaveSuccessMsg(null), 3500);
+                  }}
+                  userId={user?.id}
+                />
 
                 {/* Personal Notes & Observations Card */}
                 <div className="ws-card">

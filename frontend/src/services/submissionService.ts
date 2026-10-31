@@ -1,7 +1,7 @@
 // src/services/submissionService.ts
 // AlgoTrack Phase 6: Code Execution & Submissions Client Service
 
-import { SUPPORTED_LANGUAGES, getLanguageConfig } from '../config/languages';
+import { getLanguageConfig } from '../config/languages';
 
 const API_BASE_URL = (import.meta.env?.VITE_API_BASE_URL || 'http://localhost:5000/api').replace(/\/$/, '');
 
