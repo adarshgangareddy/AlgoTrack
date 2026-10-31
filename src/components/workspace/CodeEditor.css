@@ -1,0 +1,245 @@
+/* ==========================================================================
+   AlgoTrack — Individual Problem Workspace: Code Editor Styles
+   ========================================================================== */
+
+.workspace-editor-container {
+  display: flex;
+  flex-direction: column;
+  background-color: #FFFFFF;
+  border: 1px solid #E2E8F0;
+  border-radius: var(--radius-xl, 16px);
+  overflow: hidden;
+  box-shadow: 0 4px 12px rgba(15, 23, 42, 0.05);
+  transition: border-color 0.2s ease, box-shadow 0.2s ease;
+}
+
+.workspace-editor-container:focus-within {
+  border-color: #38BDF8;
+  box-shadow: 0 0 0 3px rgba(56, 189, 248, 0.15);
+}
+
+/* Toolbar */
+.editor-toolbar {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 10px 16px;
+  background-color: #F8FAFC;
+  border-bottom: 1px solid #E2E8F0;
+  flex-wrap: wrap;
+  gap: 10px;
+}
+
+.editor-lang-group {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.editor-lang-select {
+  padding: 6px 12px;
+  font-size: 13px;
+  font-weight: 600;
+  color: #0F172A;
+  background-color: #FFFFFF;
+  border: 1px solid #CBD5E1;
+  border-radius: var(--radius-md, 8px);
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.editor-lang-select:hover {
+  border-color: #0284C7;
+}
+
+.editor-lang-select:focus {
+  outline: none;
+  border-color: #0284C7;
+  box-shadow: 0 0 0 2px rgba(2, 132, 199, 0.2);
+}
+
+.editor-saved-pill {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 11px;
+  font-weight: 600;
+  padding: 3px 8px;
+  border-radius: var(--radius-pill, 999px);
+}
+
+.editor-saved-pill.is-saved {
+  background-color: #ECFDF5;
+  color: #059669;
+  border: 1px solid #A7F3D0;
+}
+
+.editor-saved-pill.is-unsaved {
+  background-color: #FFFBEB;
+  color: #D97706;
+  border: 1px solid #FDE68A;
+}
+
+.saved-dot {
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+}
+
+.is-saved .saved-dot {
+  background-color: #10B981;
+}
+
+.is-unsaved .saved-dot {
+  background-color: #F59E0B;
+}
+
+/* Action Buttons */
+.editor-action-buttons {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.editor-tool-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 6px 10px;
+  font-size: 12px;
+  font-weight: 600;
+  color: #475569;
+  background-color: #FFFFFF;
+  border: 1px solid #CBD5E1;
+  border-radius: var(--radius-md, 8px);
+  cursor: pointer;
+  transition: all 0.15s ease;
+}
+
+.editor-tool-btn:hover {
+  background-color: #F1F5F9;
+  color: #0F172A;
+  border-color: #94A3B8;
+}
+
+.editor-tool-btn.clear-btn:hover {
+  background-color: #FEF2F2;
+  color: #DC2626;
+  border-color: #FCA5A5;
+}
+
+.text-success {
+  color: #10B981;
+}
+
+.text-warning {
+  color: #F59E0B;
+}
+
+/* Clear Confirmation Bar */
+.editor-confirm-bar {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 10px 16px;
+  background-color: #FEF2F2;
+  border-bottom: 1px solid #FECACA;
+  font-size: 12px;
+  color: #991B1B;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+
+.confirm-text-wrap {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-weight: 600;
+}
+
+.confirm-buttons {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.confirm-action-btn {
+  padding: 4px 10px;
+  font-size: 11.5px;
+  font-weight: 700;
+  border-radius: var(--radius-sm, 6px);
+  cursor: pointer;
+  border: none;
+  transition: all 0.15s ease;
+}
+
+.confirm-action-btn.cancel {
+  background-color: #FFFFFF;
+  color: #475569;
+  border: 1px solid #CBD5E1;
+}
+
+.confirm-action-btn.cancel:hover {
+  background-color: #F1F5F9;
+}
+
+.confirm-action-btn.danger {
+  background-color: #DC2626;
+  color: #FFFFFF;
+}
+
+.confirm-action-btn.danger:hover {
+  background-color: #B91C1C;
+}
+
+/* CodeMirror Wrapper */
+.codemirror-wrapper {
+  background-color: #FAF5FF;
+  font-family: var(--font-mono, ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace);
+  font-size: 13.5px;
+  line-height: 1.6;
+}
+
+.codemirror-wrapper .cm-editor {
+  background-color: #FFFFFF;
+}
+
+.codemirror-wrapper .cm-scroller {
+  font-family: inherit;
+}
+
+/* Footer Info */
+.editor-footer-info {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 8px 16px;
+  background-color: #F8FAFC;
+  border-top: 1px solid #E2E8F0;
+  font-size: 11.5px;
+  color: #64748B;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+
+.editor-stats {
+  font-family: var(--font-mono, monospace);
+  color: #94A3B8;
+}
+
+/* Mobile Adjustments */
+@media (max-width: 640px) {
+  .editor-toolbar {
+    flex-direction: column;
+    align-items: stretch;
+  }
+  .editor-lang-group {
+    justify-content: space-between;
+  }
+  .editor-action-buttons {
+    justify-content: flex-end;
+  }
+  .codemirror-wrapper {
+    max-height: 360px;
+  }
+}
