@@ -18,7 +18,9 @@ import {
   Clock, 
   Sparkles, 
   Loader2,
-  Lock
+  Lock,
+  ChevronDown,
+  ChevronUp
 } from 'lucide-react';
 import { 
   fetchProblemBySlug, 
@@ -69,6 +71,24 @@ export const ProblemWorkspacePage: React.FC = () => {
   // Responsive / View modes
   const [mobileTab, setMobileTab] = useState<'learning' | 'workspace'>('learning');
   const [rightPanelTab, setRightPanelTab] = useState<'editor' | 'ai'>('editor');
+
+  // Expandable sections state
+  const [expandedSections, setExpandedSections] = useState<Record<string, boolean>>({
+    problemOverview: true,
+    concept: true,
+    approach: true,
+    complexity: true,
+    mistakes: true,
+    editor: true,
+    notes: true,
+  });
+
+  const toggleSection = (sectionKey: string) => {
+    setExpandedSections((prev) => ({
+      ...prev,
+      [sectionKey]: !prev[sectionKey]
+    }));
+  };
 
   const autosaveTimerRef = useRef<NodeJS.Timeout | null>(null);
   const initialLoadCompletedRef = useRef(false);

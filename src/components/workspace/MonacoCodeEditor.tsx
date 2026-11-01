@@ -183,6 +183,18 @@ export const MonacoCodeEditor: React.FC<MonacoCodeEditorProps> = ({
           >
             {isFullscreen ? <Minimize2 size={14} /> : <Maximize2 size={14} />}
           </button>
+
+          {/* Expand / Collapse Section Toggle */}
+          {onToggleExpand && (
+            <button
+              type="button"
+              className="monaco-tool-btn icon-only monaco-collapse-btn"
+              onClick={onToggleExpand}
+              title={isExpanded ? 'Collapse Code Editor' : 'Expand Code Editor'}
+            >
+              {isExpanded ? <ChevronUp size={15} /> : <ChevronDown size={15} />}
+            </button>
+          )}
         </div>
       </div>
 
@@ -194,36 +206,50 @@ export const MonacoCodeEditor: React.FC<MonacoCodeEditorProps> = ({
         </div>
       )}
 
-      {/* 2. Monaco Editor Container */}
-      <div className="monaco-editor-pane">
-        <Editor
-          height={isFullscreen ? 'calc(100vh - 160px)' : '460px'}
-          language={currentLangConfig.monacoLang}
-          value={code}
-          theme={editorTheme}
-          onChange={(val) => onChange(val || '')}
-          options={{
-            fontSize: 13.5,
-            lineHeight: 22,
-            fontFamily: "'Fira Code', 'JetBrains Mono', Consolas, monospace",
-            minimap: { enabled: false },
-            scrollBeyondLastLine: false,
-            automaticLayout: true,
-            tabSize: 4,
-            bracketPairColorization: { enabled: true },
-            wordWrap: 'on',
-            padding: { top: 12, bottom: 12 },
-            cursorBlinking: 'smooth',
-            smoothScrolling: true,
-          }}
-          loading={
-            <div className="monaco-loading-box">
-              <Loader2 size={24} className="spin-icon" />
-              <span>Loading Monaco Editor...</span>
+      {/* 2. Monaco Editor Container & Resizer */}
+      {isExpanded && (
+        <>
+          <div className="monaco-editor-pane" style={{ height: isFullscreen ? 'calc(100vh - 160px)' : `${editorHeight}px` }}>
+            <Editor
+              height="100%"
+              language={currentLangConfig.monacoLang}
+              value={code}
+              theme={editorTheme}
+              onChange={(val) => onChange(val || '')}
+              options={{
+                fontSize: 13.5,
+                lineHeight: 22,
+                fontFamily: "'Fira Code', 'JetBrains Mono', Consolas, monospace",
+                minimap: { enabled: false },
+                scrollBeyondLastLine: false,
+                automaticLayout: true,
+                tabSize: 4,
+                bracketPairColorization: { enabled: true },
+                wordWrap: 'on',
+                padding: { top: 12, bottom: 12 },
+                cursorBlinking: 'smooth',
+                smoothScrolling: true,
+              }}
+              loading={
+                <div className="monaco-loading-box">
+                  <Loader2 size={24} className="spin-icon" />
+                  <span>Loading Monaco Editor...</span>
+                </div>
+              }
+            />
+          </div>
+
+          {!isFullscreen && (
+            <div 
+              className="monaco-resize-handle" 
+              onMouseDown={handleResizeStart} 
+              title="Drag up or down to resize code editor height"
+            >
+              <div className="monaco-resize-bar"></div>
             </div>
-          }
-        />
-      </div>
+          )}
+        </>
+      )}
 
       {/* 3. Informational Footer Note (AlgoTrack does not execute code) */}
       <div className="monaco-info-footer">
