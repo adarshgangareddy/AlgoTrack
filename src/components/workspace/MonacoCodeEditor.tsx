@@ -7,12 +7,14 @@ import {
   RotateCcw, 
   Copy, 
   Check, 
-  Loader2,
-  Maximize2,
-  Minimize2,
-  ExternalLink,
-  Code2,
-  AlertCircle
+  Loader2, 
+  Maximize2, 
+  Minimize2, 
+  ExternalLink, 
+  Code2, 
+  AlertCircle,
+  ChevronDown,
+  ChevronUp
 } from 'lucide-react';
 import { SUPPORTED_LANGUAGES, getLanguageConfig } from '../../config/languages';
 import './MonacoCodeEditor.css';
@@ -26,6 +28,8 @@ export interface MonacoCodeEditorProps {
   onChange: (val: string) => void;
   onResetToTemplate: () => void;
   leetcodeUrl?: string;
+  isExpanded?: boolean;
+  onToggleExpand?: () => void;
 }
 
 export const MonacoCodeEditor: React.FC<MonacoCodeEditorProps> = ({
@@ -35,14 +39,44 @@ export const MonacoCodeEditor: React.FC<MonacoCodeEditorProps> = ({
   onChange,
   onResetToTemplate,
   leetcodeUrl,
+  isExpanded = true,
+  onToggleExpand,
 }) => {
   const [copied, setCopied] = useState(false);
   const [copyFeedback, setCopyFeedback] = useState<string | null>(null);
   const [editorTheme, setEditorTheme] = useState<'vs-dark' | 'light'>('vs-dark');
   const [isFullscreen, setIsFullscreen] = useState(false);
+  const [editorHeight, setEditorHeight] = useState<number>(560);
+  const isResizingRef = useRef(false);
+  const startYRef = useRef(0);
+  const startHeightRef = useRef(0);
 
   const containerRef = useRef<HTMLDivElement>(null);
   const currentLangConfig = getLanguageConfig(language);
+
+  // Vertical resize handlers
+  const handleResizeStart = (e: React.MouseEvent) => {
+    e.preventDefault();
+    isResizingRef.current = true;
+    startYRef.current = e.clientY;
+    startHeightRef.current = editorHeight;
+
+    const onMouseMove = (moveEvent: MouseEvent) => {
+      if (!isResizingRef.current) return;
+      const deltaY = moveEvent.clientY - startYRef.current;
+      const newHeight = Math.max(260, Math.min(1200, startHeightRef.current + deltaY));
+      setEditorHeight(newHeight);
+    };
+
+    const onMouseUp = () => {
+      isResizingRef.current = false;
+      window.removeEventListener('mousemove', onMouseMove);
+      window.removeEventListener('mouseup', onMouseUp);
+    };
+
+    window.addEventListener('mousemove', onMouseMove);
+    window.addEventListener('mouseup', onMouseUp);
+  };
 
   // Copy code to clipboard with graceful error fallback
   const handleCopyCode = async () => {
