@@ -1333,9 +1333,9 @@
   margin-top: 6px;
 }
 
-/* AI Tab Pane */
+/* AI Tab Pane - Spaced cleanly down from top tabs */
 .tab-ai-pane {
-  padding: 0 !important;
+  padding: 14px 0 0 0 !important;
   height: 100%;
 }
 
@@ -1580,6 +1580,16 @@
   box-sizing: border-box;
 }
 
+.right-panel-workspace-body {
+  flex: 1 1 auto;
+  height: calc(100% - 44px);
+  display: flex;
+  flex-direction: column;
+  position: relative;
+  overflow: hidden;
+  min-height: 0;
+}
+
 .code-editor-card {
   display: flex;
   flex-direction: column;
@@ -1736,9 +1746,34 @@
     display: none !important;
   }
 
+  .workspace-header {
+    height: 48px;
+    min-height: 48px;
+    max-height: 48px;
+    position: sticky;
+    top: 0;
+    z-index: 100;
+    background-color: #FFFFFF;
+    border-bottom: 1px solid #E2E8F0;
+    overflow: hidden;
+  }
+
   .workspace-header-inner {
+    height: 48px;
     padding: 0 8px;
     gap: 6px;
+    flex-wrap: nowrap !important;
+    overflow: hidden;
+    align-items: center;
+  }
+
+  .header-left-group {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    min-width: 0;
+    flex: 1 1 auto;
+    overflow: hidden;
   }
 
   .ws-brand-title {
@@ -1755,11 +1790,20 @@
 
   .ws-problem-list-link {
     padding: 4px 6px;
+    flex-shrink: 0;
   }
 
-  .header-problem-title {
-    max-width: 110px;
-    font-size: 0.88rem;
+  .ws-seq-nav-group {
+    display: none !important; /* Hide prev/next in narrow mobile header so title fits on 1 line */
+  }
+
+  .header-problem-info {
+    min-width: 0;
+    flex: 1 1 auto;
+    display: flex;
+    align-items: center;
+    gap: 5px;
+    overflow: hidden;
   }
 
   .header-crumb-sep,
@@ -1767,32 +1811,46 @@
     display: none;
   }
 
-  .ws-search-text {
-    display: none;
+  .header-problem-title {
+    max-width: 125px;
+    font-size: 0.85rem;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
   }
 
-  .ws-nav-search-btn {
-    width: 28px;
-    height: 28px;
-    padding: 0;
-    justify-content: center;
-    border-radius: 6px;
+  .header-diff-badge {
+    padding: 1px 5px;
+    font-size: 9.5px;
+    flex-shrink: 0;
   }
 
-  .ws-header-status-select {
-    height: 26px;
-    font-size: 11px;
-    padding: 0 4px;
+  .header-right-actions {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    flex-shrink: 0;
   }
 
-  .ws-header-btn-save {
-    height: 26px;
-    padding: 0 8px;
-    font-size: 11px;
+  .ws-header-status-wrap {
+    display: none !important; /* Status dropdown is in the right panel and mobile drawer */
+  }
+
+  .ws-header-save-group {
+    display: flex;
+    align-items: center;
+    flex-shrink: 0;
   }
 
   .ws-saved-time-text {
     display: none;
+  }
+
+  .ws-header-btn-save {
+    height: 28px;
+    padding: 0 8px;
+    font-size: 11px;
+    flex-shrink: 0;
   }
 
   .ws-btn-layout-reset,
@@ -1802,6 +1860,11 @@
 
   .ws-mobile-hamburger-btn {
     display: flex;
+    width: 30px;
+    height: 30px;
+    align-items: center;
+    justify-content: center;
+    flex-shrink: 0;
   }
 
   .left-panel-tab-bar {
@@ -1832,7 +1895,36 @@
   }
 
   .problem-dashboard-footer {
-    display: none !important;
+    display: flex !important;
+    height: 42px;
+    min-height: 42px;
+    padding: 0 8px;
+    gap: 6px;
+    background-color: #FFFFFF;
+    border-top: 1px solid #E2E8F0;
+    flex-shrink: 0;
+  }
+
+  .pdf-status-label {
+    display: none;
+  }
+
+  .ws-status-dropdown {
+    height: 28px;
+    font-size: 11px;
+    padding: 0 4px;
+  }
+
+  .ws-btn-save {
+    height: 28px;
+    padding: 0 8px;
+    font-size: 11px;
+  }
+
+  .ws-btn-leetcode {
+    height: 28px;
+    padding: 0 6px;
+    font-size: 11px;
   }
 
   .approach-complexity-grid {

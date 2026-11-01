@@ -1158,76 +1158,6 @@ export const ProblemWorkspacePage: React.FC = () => {
                 </div>
               )}
             </div>
-
-            {/* ==============================================================
-                BOTTOM OF PROBLEM DASHBOARD: Status, Saved State, Save Progress
-                ============================================================== */}
-            <footer className="problem-dashboard-footer" aria-label="Problem Status and Progress Controls">
-              {/* Left: Problem Status Dropdown */}
-              <div className="pdf-status-group">
-                <span className="pdf-status-label">Status:</span>
-                <div className="ws-status-select-wrap">
-                  <select
-                    id="ws-status-select"
-                    className={`ws-status-dropdown ${problemStatus}`}
-                    value={problemStatus}
-                    onChange={(e) => handleStatusChange(e.target.value as ProblemStatus)}
-                    title="Change problem status"
-                  >
-                    <option value="not_started">⚪ Todo</option>
-                    <option value="attempted">🟡 Attempted</option>
-                    <option value="solved">🟢 Solved</option>
-                  </select>
-                </div>
-              </div>
-
-              {/* Right: Autosave status + Save button + LeetCode link */}
-              <div className="pdf-actions-group">
-                {isSaving ? (
-                  <span className="ws-save-indicator saving">
-                    <Loader2 size={12} className="spin-icon" /> Saving...
-                  </span>
-                ) : hasUnsavedChanges ? (
-                  <span className="ws-save-indicator unsaved">
-                    <span className="unsaved-dot"></span> Unsaved changes
-                  </span>
-                ) : lastSavedAt ? (
-                  <span className="ws-save-indicator saved">
-                    <Check size={12} /> Saved {formatSavedTime(lastSavedAt)}
-                  </span>
-                ) : null}
-
-                <button
-                  type="button"
-                  className="ws-btn ws-btn-save"
-                  onClick={() => handleSaveProgress(false)}
-                  disabled={isSaving}
-                  title="Save solution, notes, and complexity"
-                >
-                  <Save size={13} />
-                  <span>Save Progress</span>
-                </button>
-
-                {saveSuccessMsg && (
-                  <div className="ws-save-toast">
-                    <Check size={12} /> {saveSuccessMsg}
-                  </div>
-                )}
-
-                {problem.leetcode_url && (
-                  <a
-                    href={problem.leetcode_url}
-                    target="_blank"
-                    rel="noopener noreferrer"
-                    className="ws-btn ws-btn-leetcode"
-                    title="Open official challenge runner on LeetCode"
-                  >
-                    <span>LeetCode</span>
-                    <ExternalLink size={12} />
-                  </a>
-                )}
-              </div>
-            </footer>
           </section>
         )}
 
@@ -1255,7 +1185,7 @@ export const ProblemWorkspacePage: React.FC = () => {
         )}
 
         {/* ================================================================
-            B. RIGHT CODING WORKSPACE (Monaco Editor Card + Testcases Card)
+            B. RIGHT CODING WORKSPACE (Monaco Editor Card + Testcases Card + Action Footer)
             ================================================================ */}
         <section 
           className={`workspace-right-panel ${mobileActiveTab === 'code' ? 'mobile-visible' : 'mobile-hidden'}`}
@@ -1263,64 +1193,136 @@ export const ProblemWorkspacePage: React.FC = () => {
           ref={rightColumnRef}
           aria-label="Code Editor and Testcases Workspace"
         >
-          {/* Top Card: Monaco Code Editor */}
-          <div 
-            className="code-editor-card"
-            style={{ 
-              height: isCodeEditorMaximized 
-                ? '100%' 
-                : isTestcasesCollapsed 
-                  ? 'calc(100% - 38px)' 
-                  : `${vSplitPercent}%` 
-            }}
-          >
-            <MonacoCodeEditor
-              problemId={problem.id}
-              problemTitle={problem.title}
-              language={activeLanguage}
-              onLanguageChange={(newLang) => {
-                setActiveLanguage(newLang);
-                markDirtyAndDebounceSave();
-              }}
-              code={activeCode}
-              onChange={handleCodeChange}
-              onResetToTemplate={handleResetTemplate}
-              leetcodeUrl={problem.leetcode_url}
-              isMaximized={isCodeEditorMaximized}
-              onToggleMaximize={() => setIsCodeEditorMaximized(!isCodeEditorMaximized)}
-              savedTime={formatSavedTime(lastSavedAt)}
-            />
-          </div>
-
-          {/* Vertical Split Divider (Hidden when Editor is Maximized or Testcase Collapsed) */}
-          {!isCodeEditorMaximized && !isTestcasesCollapsed && (
+          <div className="right-panel-workspace-body">
+            {/* Top Card: Monaco Code Editor */}
             <div 
-              className={`workspace-v-resizer ${isDraggingV ? 'active' : ''}`}
-              onMouseDown={handleVMouseDown}
-              title="Drag vertically to resize Editor vs Testcases"
-            >
-              <div className="v-resizer-handle-pill"></div>
-            </div>
-          )}
-
-          {/* Bottom Card: Testcases Panel */}
-          {!isCodeEditorMaximized && (
-            <div 
-              className="testcases-card"
+              className="code-editor-card"
               style={{ 
-                height: isTestcasesCollapsed 
-                  ? '38px' 
-                  : `calc(${100 - vSplitPercent}% - 6px)` 
+                height: isCodeEditorMaximized 
+                  ? '100%' 
+                  : isTestcasesCollapsed 
+                    ? 'calc(100% - 38px)' 
+                    : `${vSplitPercent}%` 
               }}
             >
-              <TestcasesPanel
-                examples={problemExamples}
+              <MonacoCodeEditor
+                problemId={problem.id}
+                problemTitle={problem.title}
+                language={activeLanguage}
+                onLanguageChange={(newLang) => {
+                  setActiveLanguage(newLang);
+                  markDirtyAndDebounceSave();
+                }}
+                code={activeCode}
+                onChange={handleCodeChange}
+                onResetToTemplate={handleResetTemplate}
                 leetcodeUrl={problem.leetcode_url}
-                isCollapsed={isTestcasesCollapsed}
-                onToggleCollapse={() => setIsTestcasesCollapsed(!isTestcasesCollapsed)}
+                isMaximized={isCodeEditorMaximized}
+                onToggleMaximize={() => setIsCodeEditorMaximized(!isCodeEditorMaximized)}
+                savedTime={formatSavedTime(lastSavedAt)}
               />
             </div>
-          )}
+
+            {/* Vertical Split Divider (Hidden when Editor is Maximized or Testcase Collapsed) */}
+            {!isCodeEditorMaximized && !isTestcasesCollapsed && (
+              <div 
+                className={`workspace-v-resizer ${isDraggingV ? 'active' : ''}`}
+                onMouseDown={handleVMouseDown}
+                title="Drag vertically to resize Editor vs Testcases"
+              >
+                <div className="v-resizer-handle-pill"></div>
+              </div>
+            )}
+
+            {/* Bottom Card: Testcases Panel */}
+            {!isCodeEditorMaximized && (
+              <div 
+                className="testcases-card"
+                style={{ 
+                  height: isTestcasesCollapsed 
+                    ? '38px' 
+                    : `calc(${100 - vSplitPercent}% - 6px)` 
+                }}
+              >
+                <TestcasesPanel
+                  examples={problemExamples}
+                  leetcodeUrl={problem.leetcode_url}
+                  isCollapsed={isTestcasesCollapsed}
+                  onToggleCollapse={() => setIsTestcasesCollapsed(!isTestcasesCollapsed)}
+                />
+              </div>
+            )}
+          </div>
+
+          {/* ==============================================================
+              STATUS & SAVE PROGRESS CONTROLS (Moved to RIGHT SIDE)
+              ============================================================== */}
+          <footer className="problem-dashboard-footer" aria-label="Problem Status and Progress Controls">
+            {/* Left: Problem Status Dropdown */}
+            <div className="pdf-status-group">
+              <span className="pdf-status-label">Status:</span>
+              <div className="ws-status-select-wrap">
+                <select
+                  id="ws-status-select"
+                  className={`ws-status-dropdown ${problemStatus}`}
+                  value={problemStatus}
+                  onChange={(e) => handleStatusChange(e.target.value as ProblemStatus)}
+                  title="Change problem status"
+                >
+                  <option value="not_started">⚪ Todo</option>
+                  <option value="attempted">🟡 Attempted</option>
+                  <option value="solved">🟢 Solved</option>
+                </select>
+              </div>
+            </div>
+
+            {/* Right: Autosave status + Save button + LeetCode link */}
+            <div className="pdf-actions-group">
+              {isSaving ? (
+                <span className="ws-save-indicator saving">
+                  <Loader2 size={12} className="spin-icon" /> Saving...
+                </span>
+              ) : hasUnsavedChanges ? (
+                <span className="ws-save-indicator unsaved">
+                  <span className="unsaved-dot"></span> Unsaved changes
+                </span>
+              ) : lastSavedAt ? (
+                <span className="ws-save-indicator saved">
+                  <Check size={12} /> Saved {formatSavedTime(lastSavedAt)}
+                </span>
+              ) : null}
+
+              <button
+                type="button"
+                className="ws-btn ws-btn-save"
+                onClick={() => handleSaveProgress(false)}
+                disabled={isSaving}
+                title="Save solution, notes, and complexity"
+              >
+                <Save size={13} />
+                <span>Save Progress</span>
+              </button>
+
+              {saveSuccessMsg && (
+                <div className="ws-save-toast">
+                  <Check size={12} /> {saveSuccessMsg}
+                </div>
+              )}
+
+              {problem.leetcode_url && (
+                <a
+                  href={problem.leetcode_url}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="ws-btn ws-btn-leetcode"
+                  title="Open official challenge runner on LeetCode"
+                >
+                  <span>LeetCode</span>
+                  <ExternalLink size={12} />
+                </a>
+              )}
+            </div>
+          </footer>
         </section>
       </main>
     </div>
