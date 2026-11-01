@@ -13,7 +13,7 @@ import authRoutes from './routes/auth.routes.js';
 import problemsRoutes from './routes/problems.routes.js';
 import progressRoutes from './routes/progress.routes.js';
 import workspaceRoutes from './routes/workspace.routes.js';
-import submissionsRoutes from './routes/submissions.routes.js';
+import aiRoutes from './routes/ai.routes.js';
 
 export function createApp() {
   const app = express();
@@ -53,7 +53,7 @@ export function createApp() {
   app.use('/api/problems', problemsRoutes);
   app.use('/api/progress', progressRoutes);
   app.use('/api/workspace', workspaceRoutes);
-  app.use('/api/submissions', submissionsRoutes);
+  app.use('/api/ai', aiRoutes);
 
   // 4. 404 Route Catch-all
   app.use('*', (req: Request, _res: Response, next) => {
