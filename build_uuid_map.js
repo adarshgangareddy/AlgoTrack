@@ -22,3 +22,4 @@ rawList.forEach((item) => {
 
 fs.writeFileSync('src/data/problemUuidMap.json', JSON.stringify(map));
 console.log('Successfully wrote src/data/problemUuidMap.json with', Object.keys(map).length, 'entries');
+
