@@ -1,10 +1,12 @@
 // backend/src/services/groq.service.ts
 // Secure Groq AI Code Assistant Service with BYOK & Usage Resolution
 
+import crypto from 'crypto';
 import { Groq } from 'groq-sdk';
 import { env } from '../config/env.js';
 import { ApiError } from '../utils/ApiError.js';
 import { AiProviderService, type UserAiUsageSummary } from './aiProvider.service.js';
+import { AiDiagnosticService, type KeySource } from './aiDiagnostic.service.js';
 
 export interface ChatMessageContext {
   role: 'user' | 'assistant' | 'system';
@@ -24,6 +26,7 @@ export interface AiCodeAssistantRequest {
   hints?: string[];
   messages?: ChatMessageContext[];
   userId?: string;
+  requestId?: string;
 }
 
 export interface AiCodeAssistantResponse {
@@ -130,6 +133,8 @@ export class GroqService {
       userId,
     } = params;
 
+    const requestId = params.requestId || crypto.randomUUID();
+
     // 1. Check User AI Usage and Personal Key Configuration
     let usageSummary: UserAiUsageSummary | null = null;
     let userCustomKey: string | null = null;
@@ -147,6 +152,17 @@ export class GroqService {
 
     // Case 4: Free limit reached and user has no personal key
     if (!hasPersonalKey && !hasFreeRequestsRemaining) {
+      AiDiagnosticService.log({
+        requestId,
+        userId: userId || 'anonymous',
+        provider: 'Groq',
+        keySource: 'no_key',
+        model: this.defaultModel,
+        status: 'failed',
+        timestamp: new Date().toISOString(),
+        errorDetails: 'Free message limit reached (3/3) and user has no personal Groq key configured',
+      });
+
       throw ApiError.forbidden(
         'You have used all 3 free AI Tutor messages. Please configure your own Groq API key in AI Settings to continue unlimited practice.'
       );
@@ -278,11 +294,23 @@ STRICT MENTORING RULES & ABSOLUTE RESTRICTIONS (MANDATORY):
     // 5. Provider Execution & Automatic Fallback Hierarchy
     // =========================================================================
 
-    // CASE 1: User has personal Groq key configured -> use user key directly
+    // CASE 1: User has personal Groq key configured -> strictly use user key
     if (hasPersonalKey && userCustomKey) {
+      const keySource: KeySource = 'user_key';
       try {
         const userClient = new Groq({ apiKey: userCustomKey });
         const result = await this.executeGroqChat(userClient, this.defaultModel, groqMessages);
+
+        // Structured diagnostic log: Success with user key
+        AiDiagnosticService.log({
+          requestId,
+          userId: userId || 'anonymous',
+          provider: 'Groq',
+          keySource,
+          model: result.model,
+          status: 'success',
+          timestamp: new Date().toISOString(),
+        });
 
         // Usage is unlimited for BYOK; reload summary
         const currentSummary = userId ? await AiProviderService.getSummary(userId) : undefined;
@@ -294,10 +322,23 @@ STRICT MENTORING RULES & ABSOLUTE RESTRICTIONS (MANDATORY):
           usage: currentSummary,
         };
       } catch (err: any) {
+        // Structured diagnostic log: Failure with user key
+        AiDiagnosticService.log({
+          requestId,
+          userId: userId || 'anonymous',
+          provider: 'Groq',
+          keySource,
+          model: this.defaultModel,
+          status: 'failed',
+          timestamp: new Date().toISOString(),
+          errorDetails: `User personal key rejected: ${err.message || 'Unknown error'} (HTTP status: ${err.status})`,
+        });
+
         // Case 5: User key failed -> mark invalid, report user-friendly error
         if (userId) {
           await AiProviderService.markUserKeyInvalid(userId);
         }
+        // Strict requirement: Never silently switch to application key if user key fails!
         if (err.status === 401 || (err.message && err.message.includes('invalid_api_key'))) {
           throw ApiError.unauthorized('Your personal Groq API key is invalid. Please update it in AI Settings.');
         }
@@ -310,6 +351,17 @@ STRICT MENTORING RULES & ABSOLUTE RESTRICTIONS (MANDATORY):
 
     // CASE 2: No personal key, use Application Key
     if (!this.isConfigured()) {
+      AiDiagnosticService.log({
+        requestId,
+        userId: userId || 'anonymous',
+        provider: 'Groq',
+        keySource: 'no_key',
+        model: this.defaultModel,
+        status: 'failed',
+        timestamp: new Date().toISOString(),
+        errorDetails: 'Application GROQ_API_KEY is not configured in backend environment',
+      });
+
       return {
         reply: `⚠️ **Groq API is not configured yet.**\n\nTo enable live AI mentoring, configure your own **Groq API Key** in AI Settings or add \`GROQ_API_KEY\` in \`backend/.env\`.\n\n*(You can get a free, fast API key from https://console.groq.com/keys)*`,
         model: this.defaultModel,
@@ -319,9 +371,21 @@ STRICT MENTORING RULES & ABSOLUTE RESTRICTIONS (MANDATORY):
       };
     }
 
+    const keySource: KeySource = 'application_key';
     try {
       const appClient = new Groq({ apiKey: env.GROQ_API_KEY });
       const result = await this.executeGroqChat(appClient, this.defaultModel, groqMessages);
+
+      // Structured diagnostic log: Success with application key
+      AiDiagnosticService.log({
+        requestId,
+        userId: userId || 'anonymous',
+        provider: 'Groq',
+        keySource,
+        model: result.model,
+        status: 'success',
+        timestamp: new Date().toISOString(),
+      });
 
       // Increment free usage atomically ONLY after successful generation
       if (userId) {
@@ -337,31 +401,25 @@ STRICT MENTORING RULES & ABSOLUTE RESTRICTIONS (MANDATORY):
         usage: updatedSummary,
       };
     } catch (appErr: any) {
-      // CASE 3: Application key failed (401, 429, or unavailable) -> Fallback to user key if available
-      if (userCustomKey) {
-        try {
-          const userClient = new Groq({ apiKey: userCustomKey });
-          const result = await this.executeGroqChat(userClient, this.defaultModel, groqMessages);
-          const currentSummary = userId ? await AiProviderService.getSummary(userId) : undefined;
-          return {
-            reply: result.reply,
-            model: result.model,
-            action,
-            providerType: 'user',
-            usage: currentSummary,
-          };
-        } catch {
-          // If fallback user key also fails, throw classified error
-        }
-      }
+      // Structured diagnostic log: Failure with application key
+      AiDiagnosticService.log({
+        requestId,
+        userId: userId || 'anonymous',
+        provider: 'Groq',
+        keySource,
+        model: this.defaultModel,
+        status: 'failed',
+        timestamp: new Date().toISOString(),
+        errorDetails: `Application key request failed: ${appErr.message || 'Unknown error'} (HTTP status: ${appErr.status})`,
+      });
 
       // Handle classified errors from application key
       if (appErr.status === 429 || (appErr.message && appErr.message.includes('rate_limit'))) {
-        throw ApiError.tooManyRequests('AlgoTrack AI service is temporarily experiencing high traffic. Please wait a moment or configure your own Groq key for instant access.');
+        throw ApiError.tooManyRequests('AlgoTrack application AI service is temporarily experiencing high traffic (application key quota reached). Please configure your own free Groq key in AI Settings for instant, uninterrupted access.');
       }
 
       if (appErr.status === 401) {
-        throw ApiError.internal('AlgoTrack AI configuration is temporarily unavailable. Please configure your own Groq key in AI Settings to continue.');
+        throw ApiError.internal('AlgoTrack application AI configuration is temporarily unavailable. Please configure your own Groq key in AI Settings to continue.');
       }
 
       const errorMessage = appErr.message || 'An error occurred while communicating with the Groq AI service.';

@@ -26,4 +26,7 @@ router.delete('/key', requireAuth, AiController.deleteKey);
 // GET /api/ai/status (System AI status and default model)
 router.get('/status', AiController.status);
 
+// GET /api/ai/diagnostics/recent (Authenticated developer diagnostic query)
+router.get('/diagnostics/recent', requireAuth, AiController.getDiagnostics);
+
 export default router;

@@ -334,6 +334,9 @@ export const GroqApiSetupPage: React.FC = () => {
                   <span>Important: Groq displays this secret key only once for security. Copy it now before closing their modal!</span>
                 </div>
                 <div className="step-code-preview">
+                  <div style={{ fontSize: '11px', color: '#64748B', marginBottom: '4px', fontStyle: 'italic' }}>
+                    Visual format example (dummy placeholder — generate your real key above):
+                  </div>
                   <code>gsk_w4X9kLmP02qRsTuVwXyZ1234567890abcdefghijklmn</code>
                 </div>
               </div>

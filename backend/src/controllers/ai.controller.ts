@@ -1,9 +1,11 @@
 // backend/src/controllers/ai.controller.ts
 
+import crypto from 'crypto';
 import { Response, NextFunction } from 'express';
 import { AuthenticatedRequest } from '../types/express.types.js';
 import { GroqService } from '../services/groq.service.js';
 import { AiProviderService } from '../services/aiProvider.service.js';
+import { AiDiagnosticService } from '../services/aiDiagnostic.service.js';
 import { ApiResponse } from '../utils/ApiResponse.js';
 import { ApiError } from '../utils/ApiError.js';
 
@@ -31,6 +33,8 @@ export class AiController {
       } = req.body;
 
       const userId = req.user?.id;
+      const requestId = (req.headers['x-request-id'] as string) || crypto.randomUUID();
+      res.setHeader('X-Request-Id', requestId);
 
       const result = await groqService.generateCodeAssistance({
         problemTitle,
@@ -45,6 +49,7 @@ export class AiController {
         hints,
         messages,
         userId,
+        requestId,
       });
 
       res.status(200).json(ApiResponse.success(result, 'AI code assistance response generated'));
@@ -147,5 +152,24 @@ export class AiController {
         'AI status'
       )
     );
+  }
+
+  /**
+   * GET /api/ai/diagnostics/recent
+   * Development-only / Developer diagnostic query:
+   * Returns recent provider execution events for the authenticated user without exposing API keys.
+   */
+  static async getDiagnostics(req: AuthenticatedRequest, res: Response, next: NextFunction): Promise<void> {
+    try {
+      const userId = req.user?.id;
+      if (!userId) {
+        throw ApiError.unauthorized('Authentication required to inspect AI provider diagnostics');
+      }
+
+      const diagnostics = AiDiagnosticService.getRecentDiagnostics(userId);
+      res.status(200).json(ApiResponse.success(diagnostics, 'Recent AI provider diagnostics'));
+    } catch (error) {
+      next(error);
+    }
   }
 }
