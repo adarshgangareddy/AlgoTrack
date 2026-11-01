@@ -1,9 +1,8 @@
 import React, { useState, useEffect } from 'react';
-import { Link } from 'react-router-dom';
+import { Link, useNavigate } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
 import { 
   ArrowLeft, 
-  Settings, 
   Calendar, 
   Flame, 
   Trophy, 
@@ -13,24 +12,31 @@ import {
   TrendingUp, 
   Award, 
   Sparkles, 
-  ExternalLink,
-  ChevronRight,
-  Code2,
-  Loader2,
-  Mail,
-  ShieldCheck
+  ExternalLink, 
+  ChevronRight, 
+  Loader2, 
+  Mail, 
+  ShieldCheck, 
+  LogOut 
 } from 'lucide-react';
 import { 
   fetchUserProfileAnalytics, 
   type ProfileAnalyticsData 
 } from '../services/profileService';
+import { AppNavbar } from '../components/layout/AppNavbar';
 import './ProfilePage.css';
 
 export const ProfilePage: React.FC = () => {
-  const { user, profile } = useAuth();
+  const { user, profile, signOut } = useAuth();
+  const navigate = useNavigate();
 
   const [analytics, setAnalytics] = useState<ProfileAnalyticsData | null>(null);
   const [loading, setLoading] = useState(true);
+
+  const handleLogout = async () => {
+    await signOut();
+    navigate('/login');
+  };
 
   const displayName = profile?.full_name || user?.user_metadata?.full_name || 'Algo Developer';
   const displayEmail = profile?.email || user?.email || '';
@@ -89,30 +95,34 @@ export const ProfilePage: React.FC = () => {
 
   return (
     <div className="profile-page-root">
-      {/* 1. Header Toolbar */}
-      <header className="profile-navbar">
-        <div className="profile-container profile-navbar-inner">
-          <Link to="/dashboard" className="profile-back-btn" title="Back to Dashboard">
-            <ArrowLeft size={16} />
-            <span>Dashboard</span>
-          </Link>
+      {/* 1. Fixed Global Top Navigation Bar */}
+      <AppNavbar />
 
-          <div className="profile-navbar-actions">
-            <Link to="/problems" className="profile-nav-link">
-              <Code2 size={16} />
-              <span>Problems</span>
+      {/* Sub-header Breadcrumb Bar */}
+      <div className="profile-sub-navbar">
+        <div className="profile-container profile-sub-inner">
+          <div className="profile-sub-left">
+            <Link to="/dashboard" className="profile-back-btn" title="Back to Dashboard">
+              <ArrowLeft size={15} />
+              <span>Back to Dashboard</span>
             </Link>
-            <button 
-              type="button" 
-              className="profile-settings-btn"
-              onClick={() => alert('Profile settings: Username, avatar and target role are synced from Supabase.')}
+            <span className="profile-sub-sep">/</span>
+            <span className="profile-sub-crumb">Developer Profile & Analytics</span>
+          </div>
+
+          <div className="profile-sub-actions">
+            <button
+              type="button"
+              className="profile-logout-pill-btn"
+              onClick={handleLogout}
+              title="Sign out of your account"
             >
-              <Settings size={16} />
-              <span>Settings</span>
+              <LogOut size={14} />
+              <span>Log Out</span>
             </button>
           </div>
         </div>
-      </header>
+      </div>
 
       {/* 2. Main Content Grid */}
       <main className="profile-main-layout">

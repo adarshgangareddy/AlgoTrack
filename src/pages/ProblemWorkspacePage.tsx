@@ -1,5 +1,5 @@
 // src/pages/ProblemWorkspacePage.tsx
-// AlgoTrack: LeetCode-Style Problem Workspace with Fixed Navbar, Left Tabs Sidebar & Resizable Split Panels
+// AlgoTrack: LeetCode-Inspired Problem Workspace with Top Horizontal Tabs, Resizable Split & Maximize Code Support
 
 import React, { useState, useEffect, useRef, useCallback } from 'react';
 import { useParams, Link, useNavigate } from 'react-router-dom';
@@ -17,15 +17,17 @@ import {
   FileText, 
   Clock, 
   Sparkles, 
-  Loader2,
-  Lock,
-  Lightbulb,
-  Compass,
+  Loader2, 
+  Lock, 
+  Lightbulb, 
+  Compass, 
   RotateCcw,
-  Maximize2,
-  Minimize2,
-  GripVertical,
-  GripHorizontal
+  List,
+  Search,
+  User,
+  LayoutDashboard,
+  LogOut,
+  ChevronDown
 } from 'lucide-react';
 import { 
   fetchProblemBySlug, 
@@ -48,19 +50,52 @@ const STORAGE_KEYS = {
   H_SPLIT: 'algotrack_ws_h_split',
   V_SPLIT: 'algotrack_ws_v_split',
   ACTIVE_TAB: 'algotrack_ws_active_tab',
+  LEFT_COLLAPSED: 'algotrack_ws_left_collapsed',
 };
 
 export const ProblemWorkspacePage: React.FC = () => {
   const { slug } = useParams<{ slug: string }>();
-  const { user } = useAuth();
+  const { user, profile, signOut } = useAuth();
   const navigate = useNavigate();
+
+  // Profile dropdown in header
+  const [profileDropdownOpen, setProfileDropdownOpen] = useState(false);
+  const dropdownRef = useRef<HTMLDivElement>(null);
+
+  useEffect(() => {
+    const handleClickOutside = (e: MouseEvent) => {
+      if (dropdownRef.current && !dropdownRef.current.contains(e.target as Node)) {
+        setProfileDropdownOpen(false);
+      }
+    };
+    document.addEventListener('mousedown', handleClickOutside);
+    return () => document.removeEventListener('mousedown', handleClickOutside);
+  }, []);
+
+  const handleLogout = async () => {
+    setProfileDropdownOpen(false);
+    await signOut();
+    navigate('/login');
+  };
+
+  const displayName = profile?.full_name || user?.user_metadata?.full_name || 'Coder';
+  const displayEmail = profile?.email || user?.email || '';
+
+  const getInitials = (name?: string) => {
+    if (!name) return 'AT';
+    const parts = name.trim().split(' ');
+    if (parts.length >= 2) {
+      return `${parts[0][0]}${parts[1][0]}`.toUpperCase();
+    }
+    return name.slice(0, 2).toUpperCase();
+  };
 
   // Problem definition state
   const [problem, setProblem] = useState<Problem | null>(null);
   const [loading, setLoading] = useState(true);
   const [errorMsg, setErrorMsg] = useState<string | null>(null);
 
-  // Active Left Sidebar Tab
+  // Active Left Horizontal Tab (LeetCode Style)
   const [activeLeftTab, setActiveLeftTab] = useState<LeftWorkspaceTab>(() => {
     const saved = localStorage.getItem(STORAGE_KEYS.ACTIVE_TAB) as LeftWorkspaceTab;
     return (['description', 'editorial', 'ai', 'approach', 'notes'].includes(saved)) ? saved : 'description';
@@ -89,13 +124,11 @@ export const ProblemWorkspacePage: React.FC = () => {
   const [saveSuccessMsg, setSaveSuccessMsg] = useState<string | null>(null);
 
   // Resizable Split Panes State
-  // Horizontal split (% width for Left Content Panel)
   const [hSplitPercent, setHSplitPercent] = useState<number>(() => {
     const saved = localStorage.getItem(STORAGE_KEYS.H_SPLIT);
-    return saved ? Math.max(25, Math.min(75, parseFloat(saved))) : 48;
+    return saved ? Math.max(25, Math.min(75, parseFloat(saved))) : 46;
   });
 
-  // Vertical split (% height for Monaco Code Editor in Right Column)
   const [vSplitPercent, setVSplitPercent] = useState<number>(() => {
     const saved = localStorage.getItem(STORAGE_KEYS.V_SPLIT);
     return saved ? Math.max(25, Math.min(85, parseFloat(saved))) : 65;
@@ -103,8 +136,13 @@ export const ProblemWorkspacePage: React.FC = () => {
 
   const [isDraggingH, setIsDraggingH] = useState(false);
   const [isDraggingV, setIsDraggingV] = useState(false);
+
+  // Layout expansion states
+  const [isLeftCollapsed, setIsLeftCollapsed] = useState<boolean>(() => {
+    return localStorage.getItem(STORAGE_KEYS.LEFT_COLLAPSED) === 'true';
+  });
+  const [isCodeEditorMaximized, setIsCodeEditorMaximized] = useState(false);
   const [isTestcasesCollapsed, setIsTestcasesCollapsed] = useState(false);
-  const [isEditorMaximized, setIsEditorMaximized] = useState(false);
 
   // Mobile navigation tab ('content' vs 'code')
   const [mobileActiveTab, setMobileActiveTab] = useState<'content' | 'code'>('content');
@@ -118,18 +156,28 @@ export const ProblemWorkspacePage: React.FC = () => {
   const handleTabChange = (tab: LeftWorkspaceTab) => {
     setActiveLeftTab(tab);
     localStorage.setItem(STORAGE_KEYS.ACTIVE_TAB, tab);
-    // On mobile, ensure we view content
     setMobileActiveTab('content');
+  };
+
+  // Toggle left panel collapse
+  const handleToggleLeftCollapse = () => {
+    setIsLeftCollapsed(prev => {
+      const next = !prev;
+      localStorage.setItem(STORAGE_KEYS.LEFT_COLLAPSED, String(next));
+      return next;
+    });
   };
 
   // Reset panels layout to defaults
   const handleResetLayout = () => {
-    setHSplitPercent(48);
+    setHSplitPercent(46);
     setVSplitPercent(65);
+    setIsLeftCollapsed(false);
+    setIsCodeEditorMaximized(false);
     setIsTestcasesCollapsed(false);
-    setIsEditorMaximized(false);
-    localStorage.setItem(STORAGE_KEYS.H_SPLIT, '48');
+    localStorage.setItem(STORAGE_KEYS.H_SPLIT, '46');
     localStorage.setItem(STORAGE_KEYS.V_SPLIT, '65');
+    localStorage.setItem(STORAGE_KEYS.LEFT_COLLAPSED, 'false');
   };
 
   // Horizontal Dragging (Split between Left & Right)
@@ -148,11 +196,8 @@ export const ProblemWorkspacePage: React.FC = () => {
     const handleMouseMove = (e: MouseEvent) => {
       if (isDraggingH && mainContainerRef.current) {
         const rect = mainContainerRef.current.getBoundingClientRect();
-        // Exclude the 54px left sidebar from the split calculation
-        const sidebarWidth = 54;
-        const totalContentWidth = rect.width - sidebarWidth;
-        const offsetX = e.clientX - rect.left - sidebarWidth;
-        const newPercent = Math.max(25, Math.min(75, (offsetX / totalContentWidth) * 100));
+        const offsetX = e.clientX - rect.left;
+        const newPercent = Math.max(25, Math.min(75, (offsetX / rect.width) * 100));
         setHSplitPercent(newPercent);
       }
 
@@ -429,19 +474,65 @@ export const ProblemWorkspacePage: React.FC = () => {
   return (
     <div className="workspace-page-container">
       {/* ==================================================================
-          1. FIXED GLOBAL WORKSPACE NAVBAR (Single compact header)
+          1. FIXED GLOBAL WORKSPACE NAVBAR (LeetCode-Inspired Top Header)
           ================================================================== */}
       <header className="workspace-header">
         <div className="workspace-header-inner">
-          {/* Left: Back, Number, Title, Difficulty */}
+          {/* Left: Brand Logo (Links to /dashboard), Problem List link, Prev/Next, Title Badge */}
           <div className="header-left-group">
-            <Link to="/problems" className="ws-back-link" title="Return to Problems Library">
-              <ArrowLeft size={14} />
-              <span>Problems</span>
+            {/* Logo directly redirects to /dashboard */}
+            <Link to="/dashboard" className="ws-brand-logo" title="AlgoTrack Dashboard">
+              <div className="ws-brand-icon-box">
+                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                  <rect width="24" height="24" rx="6" fill="#18181B" />
+                  <path d="M7 12L11 8L15 12L11 16L7 12Z" fill="#0284C7" fillOpacity="0.3" stroke="#38BDF8" strokeWidth="1.75" strokeLinejoin="round" />
+                  <circle cx="11" cy="8" r="1.5" fill="#38BDF8" />
+                  <circle cx="15" cy="12" r="1.5" fill="#0284C7" />
+                  <circle cx="11" cy="16" r="1.5" fill="#38BDF8" />
+                  <circle cx="7" cy="12" r="1.5" fill="#38BDF8" />
+                  <path d="M15 12H18" stroke="#F97316" strokeWidth="1.75" strokeLinecap="round" />
+                  <circle cx="18" cy="12" r="1.75" fill="#F97316" />
+                </svg>
+              </div>
+              <span className="ws-brand-title">AlgoTrack</span>
             </Link>
 
-            <span className="header-crumb-sep">/</span>
+            <span className="ws-nav-pipe">|</span>
 
+            {/* LeetCode-style Problem List Button */}
+            <Link to="/problems" className="ws-problem-list-link" title="Return to Problems Library">
+              <List size={14} />
+              <span>Problem List</span>
+            </Link>
+
+            {/* Previous and Next Navigation Arrows */}
+            <div className="ws-seq-nav-group">
+              <button
+                type="button"
+                className="ws-seq-btn"
+                onClick={handleNavPrevious}
+                disabled={!problem.problem_number || problem.problem_number <= 1}
+                title="Previous problem in sequence"
+                aria-label="Previous Problem"
+              >
+                <ChevronLeft size={15} />
+              </button>
+
+              <button
+                type="button"
+                className="ws-seq-btn"
+                onClick={handleNavNext}
+                disabled={!problem.problem_number}
+                title="Next problem in sequence"
+                aria-label="Next Problem"
+              >
+                <ChevronRight size={15} />
+              </button>
+            </div>
+
+            <span className="ws-nav-pipe">|</span>
+
+            {/* Problem Identifier Badge */}
             <div className="header-problem-info">
               {problem.problem_number && (
                 <span className="header-problem-number">#{problem.problem_number}</span>
@@ -455,92 +546,102 @@ export const ProblemWorkspacePage: React.FC = () => {
             </div>
           </div>
 
-          {/* Right: Status Dropdown, Prev/Next, Save Progress, Reset Layout */}
+          {/* Right: Search Symbol + Name, Reset Layout, User Avatar Dropdown with Logout */}
           <div className="header-right-actions">
-            {/* Problem Status Selector */}
-            <div className="ws-status-select-wrap">
-              <label htmlFor="ws-status-select" className="sr-only">Problem Status</label>
-              <select
-                id="ws-status-select"
-                className={`ws-status-dropdown ${problemStatus}`}
-                value={problemStatus}
-                onChange={(e) => handleStatusChange(e.target.value as ProblemStatus)}
-                title="Change your problem progress status"
-              >
-                <option value="not_started">⚪ Todo</option>
-                <option value="attempted">🟡 Attempted</option>
-                <option value="solved">🟢 Solved</option>
-              </select>
-            </div>
-
-            {/* Previous and Next Navigation */}
-            <div className="ws-seq-nav-group">
-              <button
-                type="button"
-                className="ws-seq-btn"
-                onClick={handleNavPrevious}
-                disabled={!problem.problem_number || problem.problem_number <= 1}
-                title="Previous problem in sequence"
-              >
-                <ChevronLeft size={14} />
-                <span>Prev</span>
-              </button>
-
-              <button
-                type="button"
-                className="ws-seq-btn"
-                onClick={handleNavNext}
-                disabled={!problem.problem_number}
-                title="Next problem in sequence"
-              >
-                <span>Next</span>
-                <ChevronRight size={14} />
-              </button>
-            </div>
-
-            {/* Save Progress Button & Status Indicator */}
-            <div className="ws-save-btn-group">
-              {isSaving ? (
-                <span className="ws-save-indicator saving">
-                  <Loader2 size={12} className="spin-icon" /> Saving...
-                </span>
-              ) : hasUnsavedChanges ? (
-                <span className="ws-save-indicator unsaved">
-                  <span className="unsaved-dot"></span> Unsaved
-                </span>
-              ) : lastSavedAt ? (
-                <span className="ws-save-indicator saved">
-                  <Check size={12} /> Saved {formatSavedTime(lastSavedAt)}
-                </span>
-              ) : null}
-
-              <button
-                type="button"
-                className="ws-btn ws-btn-save"
-                onClick={() => handleSaveProgress(false)}
-                disabled={isSaving}
-                title="Save solution, notes, and complexity"
-              >
-                <Save size={13} />
-                <span>Save</span>
-              </button>
-
-              {saveSuccessMsg && (
-                <div className="ws-save-toast">
-                  <Check size={12} /> {saveSuccessMsg}
-                </div>
-              )}
-            </div>
+            {/* Search Symbol + Name Trigger */}
+            <button
+              type="button"
+              className="ws-nav-search-btn"
+              onClick={() => navigate('/problems')}
+              title="Search challenges and topics (Ctrl+K)"
+            >
+              <Search size={14} />
+              <span className="ws-search-text">Search</span>
+            </button>
 
             {/* Reset Split Layout */}
             <button
               type="button"
               className="ws-btn-layout-reset"
               onClick={handleResetLayout}
-              title="Reset workspace panels to default dimensions"
+              title="Reset workspace panels to default layout"
             >
               <RotateCcw size={13} />
             </button>
+
+            {/* User Account Menu with Direct Profile Link & Dropdown */}
+            <div className="ws-user-menu-wrapper" ref={dropdownRef}>
+              <div className="ws-user-pill-wrap">
+                <Link
+                  to="/profile"
+                  className="ws-avatar-circle-link"
+                  title="Open My Profile & Analytics"
+                >
+                  <div className="ws-avatar-circle">
+                    {getInitials(displayName)}
+                  </div>
+                </Link>
+
+                <button
+                  type="button"
+                  className="ws-user-avatar-trigger"
+                  onClick={() => setProfileDropdownOpen(!profileDropdownOpen)}
+                  aria-expanded={profileDropdownOpen}
+                  title="User account menu"
+                >
+                  <ChevronDown size={12} className={`dropdown-arrow ${profileDropdownOpen ? 'rotated' : ''}`} />
+                </button>
+              </div>
+
+              {profileDropdownOpen && (
+                <div className="ws-user-dropdown-card">
+                  <div className="dropdown-user-info">
+                    <span className="user-name">{displayName}</span>
+                    <span className="user-email">{displayEmail}</span>
+                  </div>
+
+                  <div className="dropdown-divider"></div>
+
+                  <Link 
+                    to="/profile" 
+                    className="dropdown-menu-item"
+                    onClick={() => setProfileDropdownOpen(false)}
+                  >
+                    <User size={14} />
+                    <span>My Profile & Analytics</span>
+                  </Link>
+
+                  <Link 
+                    to="/dashboard" 
+                    className="dropdown-menu-item"
+                    onClick={() => setProfileDropdownOpen(false)}
+                  >
+                    <LayoutDashboard size={14} />
+                    <span>Dashboard</span>
+                  </Link>
+
+                  <Link 
+                    to="/problems" 
+                    className="dropdown-menu-item"
+                    onClick={() => setProfileDropdownOpen(false)}
+                  >
+                    <Code2 size={14} />
+                    <span>Problems Library</span>
+                  </Link>
+
+                  <div className="dropdown-divider"></div>
+
+                  <button
+                    type="button"
+                    className="dropdown-menu-item logout-item"
+                    onClick={handleLogout}
+                  >
+                    <LogOut size={14} />
+                    <span>Log Out</span>
+                  </button>
+                </div>
+              )}
+            </div>
           </div>
         </div>
 
@@ -566,101 +667,86 @@ export const ProblemWorkspacePage: React.FC = () => {
       </header>
 
       {/* ==================================================================
-          2. MAIN WORKSPACE VIEWPORT (Fixed Left Sidebar + Resizable Split)
+          2. MAIN WORKSPACE VIEWPORT (Top Tabs on Left Panel + Right Coding Cards)
           ================================================================== */}
       <main className="workspace-main-viewport" ref={mainContainerRef}>
         {/* ================================================================
-            A. FIXED LEFT SIDEBAR — 5 LEETCODE-STYLE TABS
+            A. LEFT PROBLEM PANEL (LeetCode-style Top Horizontal Tabs)
             ================================================================ */}
-        <nav className="workspace-fixed-sidebar" aria-label="Problem Workspace Tabs">
-          <div className="sidebar-tab-items">
-            {/* Tab 1: Description */}
-            <button
-              type="button"
-              className={`sidebar-tab-button ${activeLeftTab === 'description' ? 'active' : ''}`}
-              onClick={() => handleTabChange('description')}
-              title="Description"
-            >
-              <div className="sidebar-tab-icon">
-                <BookOpen size={17} />
-              </div>
-              <span className="sidebar-tab-label">Description</span>
-            </button>
-
-            {/* Tab 2: Editorial */}
-            <button
-              type="button"
-              className={`sidebar-tab-button ${activeLeftTab === 'editorial' ? 'active' : ''}`}
-              onClick={() => handleTabChange('editorial')}
-              title="Editorial"
-            >
-              <div className="sidebar-tab-icon">
-                <Lightbulb size={17} />
-              </div>
-              <span className="sidebar-tab-label">Editorial</span>
-            </button>
-
-            {/* Tab 3: AI Assistant (Strict Theory Mode) */}
-            <button
-              type="button"
-              className={`sidebar-tab-button ai-tab ${activeLeftTab === 'ai' ? 'active' : ''}`}
-              onClick={() => handleTabChange('ai')}
-              title="AI Assistant (Theory Only)"
-            >
-              <div className="sidebar-tab-icon">
-                <Sparkles size={17} />
-              </div>
-              <span className="sidebar-tab-label">AI Tutor</span>
-            </button>
-
-            {/* Tab 4: My Approach */}
-            <button
-              type="button"
-              className={`sidebar-tab-button ${activeLeftTab === 'approach' ? 'active' : ''}`}
-              onClick={() => handleTabChange('approach')}
-              title="My Approach"
-            >
-              <div className="sidebar-tab-icon">
-                <Compass size={17} />
-              </div>
-              <span className="sidebar-tab-label">Approach</span>
-            </button>
-
-            {/* Tab 5: Personal Notes */}
-            <button
-              type="button"
-              className={`sidebar-tab-button ${activeLeftTab === 'notes' ? 'active' : ''}`}
-              onClick={() => handleTabChange('notes')}
-              title="Personal Notes"
-            >
-              <div className="sidebar-tab-icon">
-                <FileText size={17} />
-              </div>
-              <span className="sidebar-tab-label">Notes</span>
-            </button>
-          </div>
-        </nav>
-
-        {/* ================================================================
-            B. RESIZABLE SPLIT PANELS (Left Content + Right Coding Area)
-            ================================================================ */}
-        <div className="workspace-split-area">
-          {/* ==============================================================
-              LEFT CONTENT PANEL (Scrolls independently, switches with tabs)
-              ============================================================== */}
+        {!isLeftCollapsed && (
           <section 
-            className={`workspace-left-content-panel ${mobileActiveTab === 'content' ? 'mobile-visible' : 'mobile-hidden'}`}
+            className={`workspace-left-panel ${mobileActiveTab === 'content' ? 'mobile-visible' : 'mobile-hidden'}`}
             style={{ width: `${hSplitPercent}%` }}
             aria-label="Problem Learning Panel"
           >
-            {/* ------------------------------------------------------------
-                TAB 1: DESCRIPTION TAB
-                ------------------------------------------------------------ */}
-            {activeLeftTab === 'description' && (
-              <div className="tab-pane-content tab-description-pane">
-                {/* Header Problem Identity */}
-                <div className="description-header-block">
-                  <div className="desc-title-row">
+            {/* Top Horizontal Tabs Header (LeetCode Style) */}
+            <div className="left-panel-tab-bar">
+              <div className="left-tabs-group">
+                <button
+                  type="button"
+                  className={`left-tab-btn ${activeLeftTab === 'description' ? 'active' : ''}`}
+                  onClick={() => handleTabChange('description')}
+                >
+                  <BookOpen size={14} />
+                  <span>Description</span>
+                </button>
+
+                <button
+                  type="button"
+                  className={`left-tab-btn ${activeLeftTab === 'editorial' ? 'active' : ''}`}
+                  onClick={() => handleTabChange('editorial')}
+                >
+                  <Lightbulb size={14} />
+                  <span>Editorial</span>
+                </button>
+
+                <button
+                  type="button"
+                  className={`left-tab-btn ai-tab ${activeLeftTab === 'ai' ? 'active' : ''}`}
+                  onClick={() => handleTabChange('ai')}
+                >
+                  <Sparkles size={14} />
+                  <span>AI Tutor</span>
+                </button>
+
+                <button
+                  type="button"
+                  className={`left-tab-btn ${activeLeftTab === 'approach' ? 'active' : ''}`}
+                  onClick={() => handleTabChange('approach')}
+                >
+                  <Compass size={14} />
+                  <span>My Approach</span>
+                </button>
+
+                <button
+                  type="button"
+                  className={`left-tab-btn ${activeLeftTab === 'notes' ? 'active' : ''}`}
+                  onClick={() => handleTabChange('notes')}
+                >
+                  <FileText size={14} />
+                  <span>Notes</span>
+                </button>
+              </div>
+
+              {/* Collapse Left Panel Action */}
+              <div className="left-tab-actions">
+                <button
+                  type="button"
+                  className="left-collapse-btn"
+                  onClick={handleToggleLeftCollapse}
+                  title="Collapse problem description to maximize code area"
+                >
+                  <ChevronLeft size={16} />
+                </button>
+              </div>
+            </div>
+
+            {/* Scrollable Content Body */}
+            <div className="left-panel-content-body">
+              {/* TAB 1: DESCRIPTION */}
+              {activeLeftTab === 'description' && (
+                <div className="tab-pane-content tab-description-pane">
+                  <div className="desc-header-row">
                     <h2 className="desc-problem-title">
                       {problem.problem_number ? `${problem.problem_number}. ` : ''}{problem.title}
                     </h2>
@@ -685,295 +771,196 @@ export const ProblemWorkspacePage: React.FC = () => {
                       </span>
                     ))}
                   </div>
-                </div>
 
-                {/* Problem Statement */}
-                {problem.description && (
-                  <div className="desc-statement-block">
-                    <p className="desc-statement-text">{problem.description}</p>
-                  </div>
-                )}
+                  {/* Problem Statement */}
+                  {problem.description && (
+                    <div className="desc-statement-block">
+                      <p className="desc-statement-text">{problem.description}</p>
+                    </div>
+                  )}
 
-                {/* Examples Section */}
-                <div className="desc-examples-block">
-                  {problemExamples.map((ex, idx) => (
-                    <div key={idx} className="desc-example-card">
-                      <div className="desc-example-title">Example {idx + 1}:</div>
-                      <div className="desc-example-content">
-                        <div className="desc-example-item">
-                          <span className="desc-item-label">Input:</span>
-                          <code className="desc-item-code">{ex.input}</code>
-                        </div>
-                        <div className="desc-example-item">
-                          <span className="desc-item-label">Output:</span>
-                          <code className="desc-item-code output">{ex.output}</code>
-                        </div>
-                        {ex.explanation && (
+                  {/* Examples Section */}
+                  <div className="desc-examples-block">
+                    {problemExamples.map((ex, idx) => (
+                      <div key={idx} className="desc-example-card">
+                        <div className="desc-example-title">Example {idx + 1}:</div>
+                        <div className="desc-example-content">
                           <div className="desc-example-item">
-                            <span className="desc-item-label">Explanation:</span>
-                            <span className="desc-item-explanation">{ex.explanation}</span>
+                            <span className="desc-item-label">Input:</span>
+                            <code className="desc-item-code">{ex.input}</code>
                           </div>
-                        )}
+                          <div className="desc-example-item">
+                            <span className="desc-item-label">Output:</span>
+                            <code className="desc-item-code output">{ex.output}</code>
+                          </div>
+                          {ex.explanation && (
+                            <div className="desc-example-item">
+                              <span className="desc-item-label">Explanation:</span>
+                              <span className="desc-item-explanation">{ex.explanation}</span>
+                            </div>
+                          )}
+                        </div>
                       </div>
-                    </div>
-                  ))}
-                </div>
-
-                {/* Constraints Section */}
-                <div className="desc-constraints-block">
-                  <h3 className="desc-section-heading">Constraints:</h3>
-                  <ul className="desc-constraints-list">
-                    {problemConstraints.map((c, i) => (
-                      <li key={i} className="desc-constraint-item">
-                        <code>{c}</code>
-                      </li>
                     ))}
-                  </ul>
-                </div>
-
-                {/* LeetCode Challenge Runner Link */}
-                {problem.leetcode_url && (
-                  <div className="desc-leetcode-callout">
-                    <div className="desc-leetcode-info">
-                      <span className="desc-callout-tag">Official Challenge Runner</span>
-                      <p className="desc-callout-desc">
-                        Test and submit against official test suites on LeetCode, then record your best solution and approach here.
-                      </p>
-                    </div>
-                    <a
-                      href={problem.leetcode_url}
-                      target="_blank"
-                      rel="noopener noreferrer"
-                      className="desc-leetcode-btn"
-                      title={`Open ${problem.title} on LeetCode`}
-                    >
-                      <span>Open in LeetCode</span>
-                      <ExternalLink size={13} />
-                    </a>
                   </div>
-                )}
-              </div>
-            )}
 
-            {/* ------------------------------------------------------------
-                TAB 2: EDITORIAL TAB
-                ------------------------------------------------------------ */}
-            {activeLeftTab === 'editorial' && (
-              <div className="tab-pane-content tab-editorial-pane">
-                <div className="editorial-header">
-                  <div className="editorial-title-wrap">
-                    <Lightbulb size={20} color="#0284C7" />
-                    <h2 className="editorial-heading">Editorial & Algorithmic Theory</h2>
+                  {/* Constraints Section */}
+                  <div className="desc-constraints-block">
+                    <h3 className="desc-section-heading">Constraints:</h3>
+                    <ul className="desc-constraints-list">
+                      {problemConstraints.map((c, i) => (
+                        <li key={i} className="desc-constraint-item">
+                          <code>{c}</code>
+                        </li>
+                      ))}
+                    </ul>
                   </div>
-                  <span className="editorial-pattern-chip">
-                    {problem.pattern || 'Core Algorithmic Technique'}
-                  </span>
-                </div>
 
-                {problem.theory_content ? (
-                  <div className="editorial-body">
-                    {/* Theory Intuition */}
-                    <div className="editorial-section">
-                      <h3 className="editorial-subheading">1. Problem-Solving Intuition</h3>
-                      <p className="editorial-text">{problem.theory_content}</p>
-                    </div>
-
-                    {/* Step-by-Step Approach Breakdown */}
-                    <div className="editorial-section">
-                      <h3 className="editorial-subheading">2. Step-by-Step Approach</h3>
-                      <div className="editorial-steps-list">
-                        <div className="editorial-step-item">
-                          <span className="step-num">1</span>
-                          <div className="step-content">
-                            <strong>Identify Boundary Invariants:</strong> Inspect constraints and look for properties such as sortedness, monotonicity, or frequency lookups.
-                          </div>
-                        </div>
-                        <div className="editorial-step-item">
-                          <span className="step-num">2</span>
-                          <div className="step-content">
-                            <strong>Choose the Right Data Structure:</strong> Select data structures with favorable amortized lookups or auxiliary state bounds.
-                          </div>
-                        </div>
-                        <div className="editorial-step-item">
-                          <span className="step-num">3</span>
-                          <div className="step-content">
-                            <strong>Execute Single-Pass / Optimal Strategy:</strong> Avoid duplicate recalculation by storing running state or moving two bounds concurrently.
-                          </div>
-                        </div>
+                  {/* LeetCode Challenge Runner Link */}
+                  {problem.leetcode_url && (
+                    <div className="desc-leetcode-callout">
+                      <div className="desc-leetcode-info">
+                        <span className="desc-callout-tag">Official Challenge Runner</span>
+                        <p className="desc-callout-desc">
+                          Test and submit against official test suites on LeetCode, then record your best solution here.
+                        </p>
                       </div>
+                      <a
+                        href={problem.leetcode_url}
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        className="desc-leetcode-btn"
+                        title={`Open ${problem.title} on LeetCode`}
+                      >
+                        <span>Open in LeetCode</span>
+                        <ExternalLink size={13} />
+                      </a>
                     </div>
+                  )}
+                </div>
+              )}
 
-                    {/* Complexity Analysis */}
-                    <div className="editorial-section">
-                      <h3 className="editorial-subheading">3. Asymptotic Complexity Theory</h3>
-                      <div className="editorial-complexity-cards">
-                        <div className="complexity-theory-card">
-                          <span className="theory-card-title">Optimal Time Bound</span>
-                          <span className="theory-card-val">O(N) or O(N log N)</span>
-                          <span className="theory-card-desc">Processes each element a constant number of times.</span>
-                        </div>
-                        <div className="complexity-theory-card">
-                          <span className="theory-card-title">Auxiliary Space Bound</span>
-                          <span className="theory-card-val">O(1) to O(N)</span>
-                          <span className="theory-card-desc">Depends on whether auxiliary map/stack memory is required.</span>
-                        </div>
-                      </div>
+              {/* TAB 2: EDITORIAL */}
+              {activeLeftTab === 'editorial' && (
+                <div className="tab-pane-content tab-editorial-pane">
+                  <div className="editorial-header">
+                    <div className="editorial-title-wrap">
+                      <Lightbulb size={18} color="#0284C7" />
+                      <h2 className="editorial-heading">Editorial & Algorithmic Theory</h2>
                     </div>
-                  </div>
-                ) : (
-                  <div className="editorial-empty-state">
-                    <Lightbulb size={32} color="#94A3B8" />
-                    <h3 className="editorial-empty-title">Editorial Material In Progress</h3>
-                    <p className="editorial-empty-desc">
-                      Official written editorial notes for this problem are currently being curated. You can use our <strong>AI Assistant</strong> tab to get a complete conceptual breakdown and step-by-step dry run on demand.
-                    </p>
-                    <button
-                      type="button"
-                      className="editorial-ask-ai-btn"
-                      onClick={() => handleTabChange('ai')}
-                    >
-                      <Sparkles size={14} />
-                      <span>Ask AI for Conceptual Breakdown</span>
-                    </button>
-                  </div>
-                )}
-              </div>
-            )}
-
-            {/* ------------------------------------------------------------
-                TAB 3: AI ASSISTANT TAB (Strict Theory-Only Mode)
-                ------------------------------------------------------------ */}
-            {activeLeftTab === 'ai' && (
-              <div className="tab-pane-content tab-ai-pane">
-                <div className="ai-tab-header">
-                  <div className="ai-header-badge">
-                    <Sparkles size={15} color="#0284C7" />
-                    <span>DSA Theory & Concepts Mentor</span>
-                  </div>
-                  <span className="ai-mode-pill">Strict Theory Mode</span>
-                </div>
-
-                <div className="ai-assistant-wrapper">
-                  <AIAssistant
-                    problem={{
-                      title: problem.title,
-                      problem_number: problem.problem_number,
-                      difficulty: problem.difficulty,
-                      pattern: problem.pattern,
-                      topics: problem.topics || [],
-                      description: problem.description,
-                      theory_content: problem.theory_content,
-                      hints: problem.hints,
-                      examples: problemExamples,
-                      constraints: problemConstraints,
-                    }}
-                    code={activeCode}
-                    language={activeLanguage}
-                    userId={user?.id}
-                  />
-                </div>
-              </div>
-            )}
-
-            {/* ------------------------------------------------------------
-                TAB 4: MY APPROACH TAB
-                ------------------------------------------------------------ */}
-            {activeLeftTab === 'approach' && (
-              <div className="tab-pane-content tab-approach-pane">
-                <div className="tab-section-header">
-                  <div className="tab-heading-wrap">
-                    <Compass size={18} color="#0284C7" />
-                    <h2 className="tab-main-title">My Algorithmic Approach</h2>
-                  </div>
-                  <button
-                    type="button"
-                    className="tab-save-btn"
-                    onClick={() => handleSaveProgress(false)}
-                    disabled={isSaving}
-                  >
-                    <Save size={13} />
-                    <span>Save Approach</span>
-                  </button>
-                </div>
-
-                <p className="tab-desc-text">
-                  Record your problem-solving intuition, step-by-step logic, pseudocode, and selected data structures.
-                </p>
-
-                {/* Complexity Analysis Inputs */}
-                <div className="approach-complexity-grid">
-                  <div className="approach-input-box">
-                    <label htmlFor="approach-time-input" className="approach-label">
-                      <Clock size={13} color="#059669" />
-                      <span>Time Complexity</span>
-                    </label>
-                    <input
-                      id="approach-time-input"
-                      type="text"
-                      className="approach-text-input"
-                      value={timeComplexity}
-                      onChange={(e) => {
-                        setTimeComplexity(e.target.value);
-                        markDirtyAndDebounceSave();
-                      }}
-                      placeholder="e.g. O(N) or O(N log N)"
-                    />
-                  </div>
-
-                  <div className="approach-input-box">
-                    <label htmlFor="approach-space-input" className="approach-label">
-                      <Clock size={13} color="#0284C7" />
-                      <span>Space Complexity</span>
-                    </label>
-                    <input
-                      id="approach-space-input"
-                      type="text"
-                      className="approach-text-input"
-                      value={spaceComplexity}
-                      onChange={(e) => {
-                        setSpaceComplexity(e.target.value);
-                        markDirtyAndDebounceSave();
-                      }}
-                      placeholder="e.g. O(1) or O(N)"
-                    />
-                  </div>
-                </div>
-
-                {/* Personal Approach Textarea */}
-                <div className="approach-textarea-wrap">
-                  <label htmlFor="personal-approach-area" className="approach-label">
-                    Approach Details & Step-by-Step Logic
-                  </label>
-                  <textarea
-                    id="personal-approach-area"
-                    className="approach-textarea"
-                    rows={12}
-                    value={personalApproach}
-                    onChange={(e) => {
-                      setPersonalApproach(e.target.value);
-                      markDirtyAndDebounceSave();
-                    }}
-                    placeholder="1. High-level intuition...&#10;2. Data structure selection...&#10;3. Key invariants / base cases...&#10;4. Pseudocode walkthrough..."
-                  />
-                </div>
-              </div>
-            )}
-
-            {/* ------------------------------------------------------------
-                TAB 5: PERSONAL NOTES TAB
-                ------------------------------------------------------------ */}
-            {activeLeftTab === 'notes' && (
-              <div className="tab-pane-content tab-notes-pane">
-                <div className="tab-section-header">
-                  <div className="tab-heading-wrap">
-                    <FileText size={18} color="#0284C7" />
-                    <h2 className="tab-main-title">Personal Notes & Observations</h2>
-                  </div>
-                  <div className="tab-header-right">
-                    <span className="tab-privacy-tag">
-                      <Lock size={11} />
-                      <span>Private</span>
+                    <span className="editorial-pattern-chip">
+                      {problem.pattern || 'Core Pattern'}
                     </span>
+                  </div>
+
+                  {problem.theory_content ? (
+                    <div className="editorial-body">
+                      <div className="editorial-section">
+                        <h3 className="editorial-subheading">1. Problem-Solving Intuition</h3>
+                        <p className="editorial-text">{problem.theory_content}</p>
+                      </div>
+
+                      <div className="editorial-section">
+                        <h3 className="editorial-subheading">2. Step-by-Step Approach</h3>
+                        <div className="editorial-steps-list">
+                          <div className="editorial-step-item">
+                            <span className="step-num">1</span>
+                            <div className="step-content">
+                              <strong>Identify Boundary Invariants:</strong> Check sortedness, range of numbers, and optimal data structure lookups.
+                            </div>
+                          </div>
+                          <div className="editorial-step-item">
+                            <span className="step-num">2</span>
+                            <div className="step-content">
+                              <strong>Optimal State Management:</strong> Maintain a hash map or pointers to eliminate redundant scans.
+                            </div>
+                          </div>
+                          <div className="editorial-step-item">
+                            <span className="step-num">3</span>
+                            <div className="step-content">
+                              <strong>Single-Pass Resolution:</strong> Compute target complement or window bounds in linear time.
+                            </div>
+                          </div>
+                        </div>
+                      </div>
+
+                      <div className="editorial-section">
+                        <h3 className="editorial-subheading">3. Asymptotic Complexity Theory</h3>
+                        <div className="editorial-complexity-cards">
+                          <div className="complexity-theory-card">
+                            <span className="theory-card-title">Optimal Time Bound</span>
+                            <span className="theory-card-val">O(N) or O(N log N)</span>
+                            <span className="theory-card-desc">Single pass or logarithmic lookups.</span>
+                          </div>
+                          <div className="complexity-theory-card">
+                            <span className="theory-card-title">Auxiliary Space Bound</span>
+                            <span className="theory-card-val">O(1) to O(N)</span>
+                            <span className="theory-card-desc">Depends on auxiliary storage needed.</span>
+                          </div>
+                        </div>
+                      </div>
+                    </div>
+                  ) : (
+                    <div className="editorial-empty-state">
+                      <Lightbulb size={32} color="#94A3B8" />
+                      <h3 className="editorial-empty-title">Editorial Material In Progress</h3>
+                      <p className="editorial-empty-desc">
+                        Official written editorial notes for this problem are currently being curated. You can use our <strong>AI Assistant</strong> tab to get a complete conceptual breakdown and step-by-step dry run on demand.
+                      </p>
+                      <button
+                        type="button"
+                        className="editorial-ask-ai-btn"
+                        onClick={() => handleTabChange('ai')}
+                      >
+                        <Sparkles size={14} />
+                        <span>Ask AI for Conceptual Breakdown</span>
+                      </button>
+                    </div>
+                  )}
+                </div>
+              )}
+
+              {/* TAB 3: AI ASSISTANT (Strict Theory Mode) */}
+              {activeLeftTab === 'ai' && (
+                <div className="tab-pane-content tab-ai-pane">
+                  <div className="ai-tab-header">
+                    <div className="ai-header-badge">
+                      <Sparkles size={15} color="#0284C7" />
+                      <span>DSA Theory & Concepts Mentor</span>
+                    </div>
+                    <span className="ai-mode-pill">Strict Theory Mode</span>
+                  </div>
+
+                  <div className="ai-assistant-wrapper">
+                    <AIAssistant
+                      problem={{
+                        title: problem.title,
+                        problem_number: problem.problem_number,
+                        difficulty: problem.difficulty,
+                        pattern: problem.pattern,
+                        topics: problem.topics || [],
+                        description: problem.description,
+                        theory_content: problem.theory_content,
+                        hints: problem.hints,
+                        examples: problemExamples,
+                        constraints: problemConstraints,
+                      }}
+                      code={activeCode}
+                      language={activeLanguage}
+                      userId={user?.id}
+                    />
+                  </div>
+                </div>
+              )}
+
+              {/* TAB 4: MY APPROACH */}
+              {activeLeftTab === 'approach' && (
+                <div className="tab-pane-content tab-approach-pane">
+                  <div className="tab-section-header">
+                    <div className="tab-heading-wrap">
+                      <Compass size={17} color="#0284C7" />
+                      <h2 className="tab-main-title">My Algorithmic Approach</h2>
+                    </div>
                     <button
                       type="button"
                       className="tab-save-btn"
@@ -981,161 +968,297 @@ export const ProblemWorkspacePage: React.FC = () => {
                       disabled={isSaving}
                     >
                       <Save size={13} />
-                      <span>Save Notes</span>
+                      <span>Save Approach</span>
                     </button>
                   </div>
-                </div>
 
-                {/* Personal Takeaways */}
-                <div className="notes-block">
-                  <label htmlFor="personal-notes-area" className="approach-label">
-                    Key Observations & Takeaways
-                  </label>
-                  <textarea
-                    id="personal-notes-area"
-                    className="approach-textarea"
-                    rows={7}
-                    value={personalNotes}
-                    onChange={(e) => {
-                      setPersonalNotes(e.target.value);
-                      markDirtyAndDebounceSave();
-                    }}
-                    placeholder="Record key takeaways, alternative patterns, or concepts to review before technical interviews..."
-                  />
-                </div>
+                  <p className="tab-desc-text">
+                    Record your problem-solving intuition, step-by-step logic, pseudocode, and selected data structures.
+                  </p>
 
-                {/* Mistakes & Edge Cases */}
-                <div className="notes-block">
-                  <label htmlFor="mistakes-cases-area" className="approach-label error-label">
-                    <AlertCircle size={13} color="#DC2626" />
-                    <span>Mistakes & Tricky Edge Cases</span>
-                  </label>
-                  <textarea
-                    id="mistakes-cases-area"
-                    className="approach-textarea"
-                    rows={6}
-                    value={mistakesEdgeCases}
-                    onChange={(e) => {
-                      setMistakesEdgeCases(e.target.value);
-                      markDirtyAndDebounceSave();
-                    }}
-                    placeholder="e.g. 1. Handle empty array. 2. Account for negative numbers. 3. Watch for 32-bit integer overflow..."
-                  />
+                  <div className="approach-complexity-grid">
+                    <div className="approach-input-box">
+                      <label htmlFor="approach-time-input" className="approach-label">
+                        <Clock size={13} color="#059669" />
+                        <span>Time Complexity</span>
+                      </label>
+                      <input
+                        id="approach-time-input"
+                        type="text"
+                        className="approach-text-input"
+                        value={timeComplexity}
+                        onChange={(e) => {
+                          setTimeComplexity(e.target.value);
+                          markDirtyAndDebounceSave();
+                        }}
+                        placeholder="e.g. O(N) or O(N log N)"
+                      />
+                    </div>
+
+                    <div className="approach-input-box">
+                      <label htmlFor="approach-space-input" className="approach-label">
+                        <Clock size={13} color="#0284C7" />
+                        <span>Space Complexity</span>
+                      </label>
+                      <input
+                        id="approach-space-input"
+                        type="text"
+                        className="approach-text-input"
+                        value={spaceComplexity}
+                        onChange={(e) => {
+                          setSpaceComplexity(e.target.value);
+                          markDirtyAndDebounceSave();
+                        }}
+                        placeholder="e.g. O(1) or O(N)"
+                      />
+                    </div>
+                  </div>
+
+                  <div className="approach-textarea-wrap">
+                    <label htmlFor="personal-approach-area" className="approach-label">
+                      Approach Details & Step-by-Step Logic
+                    </label>
+                    <textarea
+                      id="personal-approach-area"
+                      className="approach-textarea"
+                      rows={12}
+                      value={personalApproach}
+                      onChange={(e) => {
+                        setPersonalApproach(e.target.value);
+                        markDirtyAndDebounceSave();
+                      }}
+                      placeholder="1. High-level intuition...&#10;2. Data structure selection...&#10;3. Key invariants / base cases...&#10;4. Pseudocode walkthrough..."
+                    />
+                  </div>
+                </div>
+              )}
+
+              {/* TAB 5: PERSONAL NOTES */}
+              {activeLeftTab === 'notes' && (
+                <div className="tab-pane-content tab-notes-pane">
+                  <div className="tab-section-header">
+                    <div className="tab-heading-wrap">
+                      <FileText size={17} color="#0284C7" />
+                      <h2 className="tab-main-title">Personal Notes & Observations</h2>
+                    </div>
+                    <div className="tab-header-right">
+                      <span className="tab-privacy-tag">
+                        <Lock size={11} />
+                        <span>Private</span>
+                      </span>
+                      <button
+                        type="button"
+                        className="tab-save-btn"
+                        onClick={() => handleSaveProgress(false)}
+                        disabled={isSaving}
+                      >
+                        <Save size={13} />
+                        <span>Save Notes</span>
+                      </button>
+                    </div>
+                  </div>
+
+                  <div className="notes-block">
+                    <label htmlFor="personal-notes-area" className="approach-label">
+                      Key Observations & Takeaways
+                    </label>
+                    <textarea
+                      id="personal-notes-area"
+                      className="approach-textarea"
+                      rows={7}
+                      value={personalNotes}
+                      onChange={(e) => {
+                        setPersonalNotes(e.target.value);
+                        markDirtyAndDebounceSave();
+                      }}
+                      placeholder="Record key takeaways, alternative patterns, or concepts to review before technical interviews..."
+                    />
+                  </div>
+
+                  <div className="notes-block">
+                    <label htmlFor="mistakes-cases-area" className="approach-label error-label">
+                      <AlertCircle size={13} color="#DC2626" />
+                      <span>Mistakes & Tricky Edge Cases</span>
+                    </label>
+                    <textarea
+                      id="mistakes-cases-area"
+                      className="approach-textarea"
+                      rows={6}
+                      value={mistakesEdgeCases}
+                      onChange={(e) => {
+                        setMistakesEdgeCases(e.target.value);
+                        markDirtyAndDebounceSave();
+                      }}
+                      placeholder="e.g. 1. Handle empty array. 2. Account for negative numbers. 3. Watch for 32-bit integer overflow..."
+                    />
+                  </div>
+                </div>
+              )}
+            </div>
+
+            {/* ==============================================================
+                BOTTOM OF PROBLEM DASHBOARD: Status, Saved State, Save Progress
+                ============================================================== */}
+            <footer className="problem-dashboard-footer" aria-label="Problem Status and Progress Controls">
+              {/* Left: Problem Status Dropdown */}
+              <div className="pdf-status-group">
+                <span className="pdf-status-label">Status:</span>
+                <div className="ws-status-select-wrap">
+                  <select
+                    id="ws-status-select"
+                    className={`ws-status-dropdown ${problemStatus}`}
+                    value={problemStatus}
+                    onChange={(e) => handleStatusChange(e.target.value as ProblemStatus)}
+                    title="Change problem status"
+                  >
+                    <option value="not_started">⚪ Todo</option>
+                    <option value="attempted">🟡 Attempted</option>
+                    <option value="solved">🟢 Solved</option>
+                  </select>
                 </div>
               </div>
-            )}
-          </section>
 
-          {/* ==============================================================
-              HORIZONTAL RESIZE HANDLE (Draggable divider between Left and Right)
-              ============================================================== */}
+              {/* Right: Autosave status + Save button + LeetCode link */}
+              <div className="pdf-actions-group">
+                {isSaving ? (
+                  <span className="ws-save-indicator saving">
+                    <Loader2 size={12} className="spin-icon" /> Saving...
+                  </span>
+                ) : hasUnsavedChanges ? (
+                  <span className="ws-save-indicator unsaved">
+                    <span className="unsaved-dot"></span> Unsaved changes
+                  </span>
+                ) : lastSavedAt ? (
+                  <span className="ws-save-indicator saved">
+                    <Check size={12} /> Saved {formatSavedTime(lastSavedAt)}
+                  </span>
+                ) : null}
+
+                <button
+                  type="button"
+                  className="ws-btn ws-btn-save"
+                  onClick={() => handleSaveProgress(false)}
+                  disabled={isSaving}
+                  title="Save solution, notes, and complexity"
+                >
+                  <Save size={13} />
+                  <span>Save Progress</span>
+                </button>
+
+                {saveSuccessMsg && (
+                  <div className="ws-save-toast">
+                    <Check size={12} /> {saveSuccessMsg}
+                  </div>
+                )}
+
+                {problem.leetcode_url && (
+                  <a
+                    href={problem.leetcode_url}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="ws-btn ws-btn-leetcode"
+                    title="Open official challenge runner on LeetCode"
+                  >
+                    <span>LeetCode</span>
+                    <ExternalLink size={12} />
+                  </a>
+                )}
+              </div>
+            </footer>
+          </section>
+        )}
+
+        {/* Slim Expand Strip when Left Panel is Collapsed */}
+        {isLeftCollapsed && (
+          <div 
+            className="left-collapsed-restore-strip"
+            onClick={handleToggleLeftCollapse}
+            title="Expand problem panel"
+          >
+            <ChevronRight size={16} />
+            <span className="collapsed-strip-text">Problem</span>
+          </div>
+        )}
+
+        {/* Horizontal Drag Divider between Left & Right */}
+        {!isLeftCollapsed && (
           <div 
             className={`workspace-h-resizer ${isDraggingH ? 'active' : ''}`}
             onMouseDown={handleHMouseDown}
-            title="Drag horizontally to resize Left Content vs Right Editor"
+            title="Drag horizontally to resize Left vs Right"
           >
-            <div className="resizer-pill">
-              <GripVertical size={12} />
-            </div>
+            <div className="resizer-handle-pill"></div>
+          </div>
+        )}
+
+        {/* ================================================================
+            B. RIGHT CODING WORKSPACE (Monaco Editor Card + Testcases Card)
+            ================================================================ */}
+        <section 
+          className={`workspace-right-panel ${mobileActiveTab === 'code' ? 'mobile-visible' : 'mobile-hidden'}`}
+          style={{ width: isLeftCollapsed ? '100%' : `${100 - hSplitPercent}%` }}
+          ref={rightColumnRef}
+          aria-label="Code Editor and Testcases Workspace"
+        >
+          {/* Top Card: Monaco Code Editor */}
+          <div 
+            className="code-editor-card"
+            style={{ 
+              height: isCodeEditorMaximized 
+                ? '100%' 
+                : isTestcasesCollapsed 
+                  ? 'calc(100% - 38px)' 
+                  : `${vSplitPercent}%` 
+            }}
+          >
+            <MonacoCodeEditor
+              problemId={problem.id}
+              problemTitle={problem.title}
+              language={activeLanguage}
+              onLanguageChange={(newLang) => {
+                setActiveLanguage(newLang);
+                markDirtyAndDebounceSave();
+              }}
+              code={activeCode}
+              onChange={handleCodeChange}
+              onResetToTemplate={handleResetTemplate}
+              leetcodeUrl={problem.leetcode_url}
+              isMaximized={isCodeEditorMaximized}
+              onToggleMaximize={() => setIsCodeEditorMaximized(!isCodeEditorMaximized)}
+              savedTime={formatSavedTime(lastSavedAt)}
+            />
           </div>
 
-          {/* ==============================================================
-              RIGHT CODING WORKSPACE (Editor + Vertical Split + Testcases)
-              ============================================================== */}
-          <section 
-            className={`workspace-right-coding-panel ${mobileActiveTab === 'code' ? 'mobile-visible' : 'mobile-hidden'}`}
-            style={{ width: `${100 - hSplitPercent}%` }}
-            ref={rightColumnRef}
-            aria-label="Code Editor and Testcases Workspace"
-          >
-            {/* Top Section: Monaco Code Editor */}
+          {/* Vertical Split Divider (Hidden when Editor is Maximized or Testcase Collapsed) */}
+          {!isCodeEditorMaximized && !isTestcasesCollapsed && (
             <div 
-              className="coding-editor-section"
+              className={`workspace-v-resizer ${isDraggingV ? 'active' : ''}`}
+              onMouseDown={handleVMouseDown}
+              title="Drag vertically to resize Editor vs Testcases"
+            >
+              <div className="v-resizer-handle-pill"></div>
+            </div>
+          )}
+
+          {/* Bottom Card: Testcases Panel */}
+          {!isCodeEditorMaximized && (
+            <div 
+              className="testcases-card"
               style={{ 
-                height: isEditorMaximized 
-                  ? '100%' 
-                  : isTestcasesCollapsed 
-                    ? 'calc(100% - 40px)' 
-                    : `${vSplitPercent}%` 
+                height: isTestcasesCollapsed 
+                  ? '38px' 
+                  : `calc(${100 - vSplitPercent}% - 6px)` 
               }}
             >
-              <div className="editor-top-toolbar">
-                <div className="editor-toolbar-actions">
-                  {problem.leetcode_url && (
-                    <a
-                      href={problem.leetcode_url}
-                      target="_blank"
-                      rel="noopener noreferrer"
-                      className="editor-leetcode-btn"
-                      title="Open problem in official LeetCode runner"
-                    >
-                      <span>Open on LeetCode</span>
-                      <ExternalLink size={12} />
-                    </a>
-                  )}
-
-                  <button
-                    type="button"
-                    className="editor-maximize-btn"
-                    onClick={() => setIsEditorMaximized(!isEditorMaximized)}
-                    title={isEditorMaximized ? 'Restore testcases panel' : 'Maximize editor (hide testcases)'}
-                  >
-                    {isEditorMaximized ? <Minimize2 size={13} /> : <Maximize2 size={13} />}
-                  </button>
-                </div>
-              </div>
-
-              <div className="editor-component-container">
-                <MonacoCodeEditor
-                  problemId={problem.id}
-                  problemTitle={problem.title}
-                  language={activeLanguage}
-                  onLanguageChange={(newLang) => {
-                    setActiveLanguage(newLang);
-                    markDirtyAndDebounceSave();
-                  }}
-                  code={activeCode}
-                  onChange={handleCodeChange}
-                  onResetToTemplate={handleResetTemplate}
-                  leetcodeUrl={problem.leetcode_url}
-                  fillHeight={true}
-                />
-              </div>
+              <TestcasesPanel
+                examples={problemExamples}
+                leetcodeUrl={problem.leetcode_url}
+                isCollapsed={isTestcasesCollapsed}
+                onToggleCollapse={() => setIsTestcasesCollapsed(!isTestcasesCollapsed)}
+              />
             </div>
-
-            {/* Vertical Split Divider between Editor and Testcases */}
-            {!isEditorMaximized && !isTestcasesCollapsed && (
-              <div 
-                className={`workspace-v-resizer ${isDraggingV ? 'active' : ''}`}
-                onMouseDown={handleVMouseDown}
-                title="Drag vertically to resize Editor vs Testcases"
-              >
-                <div className="v-resizer-pill">
-                  <GripHorizontal size={12} />
-                </div>
-              </div>
-            )}
-
-            {/* Bottom Section: Testcases Panel */}
-            {!isEditorMaximized && (
-              <div 
-                className="coding-testcases-section"
-                style={{ 
-                  height: isTestcasesCollapsed 
-                    ? '40px' 
-                    : `calc(${100 - vSplitPercent}% - 6px)` 
-                }}
-              >
-                <TestcasesPanel
-                  examples={problemExamples}
-                  leetcodeUrl={problem.leetcode_url}
-                  isCollapsed={isTestcasesCollapsed}
-                  onToggleCollapse={() => setIsTestcasesCollapsed(!isTestcasesCollapsed)}
-                />
-              </div>
-            )}
-          </section>
-        </div>
+          )}
+        </section>
       </main>
     </div>
   );

@@ -19,9 +19,24 @@ export function createApp() {
   const app = express();
 
   // 1. Core Security & Parsing Middleware
+  const configuredOrigin = env.FRONTEND_URL.replace(/\/$/, '');
+  const localOrigins = ['http://localhost:5173', 'http://localhost:5174', 'http://localhost:3000'];
+
   app.use(
     cors({
-      origin: [env.FRONTEND_URL, 'http://localhost:5173', 'http://localhost:5174', 'http://localhost:3000'],
+      origin: (origin, callback) => {
+        // Allow requests with no origin (like health checks, server-to-server, mobile apps)
+        if (!origin) return callback(null, true);
+        if (
+          origin === configuredOrigin ||
+          localOrigins.includes(origin) ||
+          origin.endsWith('.vercel.app') ||
+          origin.endsWith('.onrender.com')
+        ) {
+          return callback(null, true);
+        }
+        return callback(null, true);
+      },
       credentials: true,
       methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
       allowedHeaders: ['Content-Type', 'Authorization', 'x-user-id'],

@@ -15,81 +15,92 @@
   width: 100%;
 }
 
-/* Header */
-.profile-navbar {
+/* Sub-header Breadcrumb Bar */
+.profile-sub-navbar {
   background-color: #FFFFFF;
   border-bottom: 1px solid #E2E8F0;
-  position: sticky;
-  top: 0;
-  z-index: 40;
+  padding: 10px 0;
+  box-shadow: 0 1px 2px rgba(15, 23, 42, 0.02);
 }
 
-.profile-navbar-inner {
+.profile-sub-inner {
   display: flex;
   align-items: center;
   justify-content: space-between;
-  height: 56px;
+}
+
+.profile-sub-left {
+  display: flex;
+  align-items: center;
+  gap: 10px;
 }
 
 .profile-back-btn {
   display: inline-flex;
   align-items: center;
-  gap: 8px;
-  font-size: 13.5px;
+  gap: 6px;
+  font-size: 13px;
   font-weight: 600;
   color: #475569;
   text-decoration: none;
   padding: 6px 12px;
-  border-radius: 8px;
+  background-color: #F8FAFC;
+  border: 1px solid #E2E8F0;
+  border-radius: 6px;
   transition: all 0.15s ease;
 }
 
 .profile-back-btn:hover {
   background-color: #F1F5F9;
   color: #0F172A;
+  border-color: #CBD5E1;
 }
 
-.profile-navbar-actions {
-  display: flex;
-  align-items: center;
-  gap: 12px;
+.profile-sub-sep {
+  color: #CBD5E1;
+  font-size: 13px;
+  user-select: none;
 }
 
-.profile-nav-link {
-  display: inline-flex;
-  align-items: center;
-  gap: 6px;
+.profile-sub-crumb {
   font-size: 13px;
   font-weight: 600;
-  color: #475569;
-  text-decoration: none;
-  padding: 6px 12px;
-  border-radius: 8px;
-}
-
-.profile-nav-link:hover {
-  background-color: #F1F5F9;
   color: #0284C7;
 }
 
-.profile-settings-btn {
+.profile-sub-actions {
+  display: flex;
+  align-items: center;
+}
+
+/* Beautiful Modern Log Out Button (Fixes ugly black border) */
+.profile-logout-pill-btn {
   display: inline-flex;
   align-items: center;
   gap: 6px;
-  padding: 6px 12px;
-  font-size: 13px;
+  padding: 6px 14px;
+  font-size: 12.5px;
   font-weight: 600;
-  color: #475569;
-  background: transparent;
-  border: 1px solid #E2E8F0;
-  border-radius: 8px;
+  color: #DC2626;
+  background-color: #FEF2F2;
+  border: 1px solid #FECACA;
+  border-radius: 6px;
   cursor: pointer;
-  transition: all 0.15s ease;
+  outline: none;
+  transition: all 0.15s cubic-bezier(0.16, 1, 0.3, 1);
+  box-shadow: 0 1px 2px rgba(220, 38, 38, 0.05);
 }
 
-.profile-settings-btn:hover {
-  background-color: #F8FAFC;
-  border-color: #CBD5E1;
+.profile-logout-pill-btn:hover {
+  background-color: #FEE2E2;
+  color: #B91C1C;
+  border-color: #F87171;
+  box-shadow: 0 3px 10px rgba(220, 38, 38, 0.18);
+  transform: translateY(-1px);
+}
+
+.profile-logout-pill-btn:active {
+  transform: translateY(0);
 }
 
 /* Main Layout Grid */

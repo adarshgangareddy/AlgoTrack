@@ -1,277 +1,185 @@
-/* ==========================================================================
-   AlgoTrack Phase 6: Monaco Code Editor Styles (Copy-Only & Clean Workspace)
-   ========================================================================== */
+/* src/components/workspace/MonacoCodeEditor.css */
+/* LeetCode-Inspired Clean Code Editor Styles */
 
-.monaco-workspace-container {
+.monaco-leetcode-card {
   display: flex;
   flex-direction: column;
-  background-color: #FFFFFF;
-  border: 1px solid #E2E8F0;
-  border-radius: 12px;
+  height: 100%;
+  width: 100%;
+  background-color: #1E1E1E;
+  border-radius: 8px;
   overflow: hidden;
-  box-shadow: 0 1px 3px rgba(15, 23, 42, 0.04);
-  transition: all 0.2s ease;
-  position: relative;
+  box-sizing: border-box;
 }
 
-.monaco-workspace-container.is-fullscreen {
-  position: fixed;
-  top: 0;
-  left: 0;
-  width: 100vw;
-  height: 100vh;
-  z-index: 9999;
-  border-radius: 0;
-  border: none;
-}
-
-/* 1. Header Toolbar */
-.monaco-toolbar {
+/* Header */
+.monaco-leetcode-header {
+  height: 38px;
+  min-height: 38px;
+  background-color: #262626;
+  border-bottom: 1px solid #333333;
+  padding: 0 12px;
   display: flex;
   align-items: center;
   justify-content: space-between;
-  padding: 10px 16px;
-  background-color: #F8FAFC;
-  border-bottom: 1px solid #E2E8F0;
-  gap: 12px;
-  flex-wrap: wrap;
-}
-
-.monaco-toolbar-left {
-  display: flex;
-  align-items: center;
   gap: 10px;
+  user-select: none;
+  flex-shrink: 0;
 }
 
-.monaco-lang-label-group {
+.header-left-tools {
   display: flex;
   align-items: center;
-  gap: 8px;
+  gap: 12px;
 }
 
-.monaco-lang-dropdown {
-  padding: 6px 12px;
-  font-size: 13px;
-  font-weight: 700;
-  color: #0F172A;
-  background-color: #FFFFFF;
-  border: 1px solid #CBD5E1;
-  border-radius: 8px;
-  cursor: pointer;
-  transition: all 0.15s ease;
-}
-
-.monaco-lang-dropdown:hover {
-  border-color: #0284C7;
-}
-
-.monaco-lang-dropdown:focus {
-  outline: none;
-  border-color: #0284C7;
-  box-shadow: 0 0 0 2px rgba(2, 132, 199, 0.15);
-}
-
-.monaco-toolbar-right {
+.code-tag {
   display: flex;
   align-items: center;
-  gap: 8px;
-  flex-wrap: wrap;
+  gap: 5px;
 }
 
-/* Prominent Copy Code Button */
-.monaco-copy-btn {
-  display: inline-flex;
-  align-items: center;
-  gap: 6px;
-  padding: 6px 14px;
+.code-tag-title {
   font-size: 12.5px;
   font-weight: 700;
   color: #FFFFFF;
-  background-color: #0284C7;
-  border: 1px solid #0284C7;
-  border-radius: 8px;
-  cursor: pointer;
-  transition: all 0.15s ease;
-  box-shadow: 0 1px 3px rgba(2, 132, 199, 0.2);
+  letter-spacing: -0.01em;
 }
 
-.monaco-copy-btn:hover {
-  background-color: #0369A1;
-  border-color: #0369A1;
-  transform: translateY(-1px);
-  box-shadow: 0 3px 8px rgba(2, 132, 199, 0.3);
-}
-
-.monaco-copy-btn.is-copied {
-  background-color: #059669;
-  border-color: #059669;
-}
-
-/* Tool Buttons */
-.monaco-tool-btn {
-  display: inline-flex;
-  align-items: center;
-  gap: 5px;
-  padding: 6px 10px;
-  font-size: 12px;
-  font-weight: 600;
-  color: #475569;
-  background-color: #FFFFFF;
-  border: 1px solid #CBD5E1;
-  border-radius: 8px;
-  cursor: pointer;
-  transition: all 0.15s ease;
-}
-
-.monaco-tool-btn:hover {
-  background-color: #F1F5F9;
-  color: #0F172A;
-  border-color: #94A3B8;
-}
-
-.monaco-tool-btn.icon-only {
-  padding: 6px 8px;
-}
-
-/* Toast Notification */
-.monaco-copy-toast {
-  display: flex;
-  align-items: center;
-  gap: 8px;
-  padding: 8px 16px;
-  font-size: 12.5px;
-  font-weight: 600;
-  animation: fadeIn 0.2s ease-in-out;
-}
-
-.monaco-copy-toast.success {
-  background-color: #ECFDF5;
-  color: #065F46;
-  border-bottom: 1px solid #A7F3D0;
-}
-
-.monaco-copy-toast.warning {
-  background-color: #FFFBEB;
-  color: #92400E;
-  border-bottom: 1px solid #FDE68A;
-}
-
-@keyframes fadeIn {
-  from { opacity: 0; transform: translateY(-4px); }
-  to { opacity: 1; transform: translateY(0); }
-}
-
-/* 2. Monaco Editor Pane & Resizer */
-.monaco-editor-pane {
-  background-color: #1E1E1E;
+.lang-select-wrap {
   position: relative;
-  min-height: 260px;
-  overflow: hidden;
-  transition: height 0.05s ease-out;
 }
 
-.monaco-resize-handle {
-  height: 9px;
-  background-color: #F1F5F9;
-  border-top: 1px solid #E2E8F0;
-  border-bottom: 1px solid #E2E8F0;
-  cursor: row-resize;
+.monaco-lang-select {
+  height: 26px;
+  padding: 0 8px;
+  font-size: 11.5px;
+  font-weight: 600;
+  color: #E2E8F0;
+  background-color: #333333;
+  border: 1px solid #444444;
+  border-radius: 5px;
+  cursor: pointer;
+  outline: none;
+  transition: all 0.15s ease;
+}
+
+.monaco-lang-select:hover {
+  background-color: #3E3E3E;
+  border-color: #0284C7;
+}
+
+.header-right-tools {
   display: flex;
   align-items: center;
-  justify-content: center;
-  user-select: none;
-  transition: background-color 0.15s ease;
+  gap: 6px;
 }
 
-.monaco-resize-handle:hover {
-  background-color: #E2E8F0;
-}
-
-.monaco-resize-handle:active {
-  background-color: #0284C7;
-}
-
-.monaco-resize-bar {
-  width: 38px;
-  height: 3px;
-  background-color: #94A3B8;
-  border-radius: 999px;
-}
-
-.monaco-resize-handle:hover .monaco-resize-bar {
-  background-color: #64748B;
-}
-
-.monaco-resize-handle:active .monaco-resize-bar {
-  background-color: #FFFFFF;
-}
-
-.monaco-collapse-btn {
-  color: #0284C7;
-}
-
-.monaco-collapse-btn:hover {
-  background-color: #E0F2FE;
-  color: #0369A1;
-}
-
-.monaco-loading-box {
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  justify-content: center;
-  gap: 10px;
-  height: 460px;
-  color: #94A3B8;
-  font-size: 13px;
-}
-
-/* 3. Informational Footer Note */
-.monaco-info-footer {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  gap: 16px;
-  padding: 10px 16px;
-  background-color: #F0F9FF;
-  border-top: 1px solid #BAE6FD;
-  flex-wrap: wrap;
-}
-
-.info-footer-left {
-  display: flex;
-  align-items: center;
-  gap: 8px;
-  flex: 1;
-  min-width: 240px;
-}
-
-.info-footer-text {
-  font-size: 12.5px;
-  color: #0369A1;
-  font-weight: 500;
-  margin: 0;
-  line-height: 1.4;
-}
-
-.monaco-leetcode-link {
+.editor-action-btn {
   display: inline-flex;
   align-items: center;
-  gap: 5px;
-  font-size: 12px;
-  font-weight: 700;
-  color: #C2410C;
-  background-color: #FFF7ED;
-  border: 1px solid #FED7AA;
-  padding: 4px 10px;
-  border-radius: 6px;
+  gap: 4px;
+  height: 25px;
+  padding: 0 8px;
+  font-size: 11px;
+  font-weight: 600;
+  color: #CBD5E1;
+  background-color: #333333;
+  border: 1px solid #444444;
+  border-radius: 5px;
+  cursor: pointer;
   text-decoration: none;
   transition: all 0.15s ease;
   white-space: nowrap;
 }
 
-.monaco-leetcode-link:hover {
-  background-color: #FFEDD5;
-  border-color: #FDBA74;
-  color: #9A3412;
+.editor-action-btn:hover {
+  background-color: #3E3E3E;
+  color: #FFFFFF;
+}
+
+.editor-action-btn.icon-only {
+  padding: 0 6px;
+}
+
+.editor-action-btn.copied {
+  background-color: #065F46;
+  border-color: #059669;
+  color: #34D399;
+}
+
+.editor-action-btn.leetcode-btn {
+  color: #F59E0B;
+  background-color: #451A03;
+  border-color: #78350F;
+}
+
+.editor-action-btn.leetcode-btn:hover {
+  background-color: #78350F;
+  color: #FDE68A;
+}
+
+.editor-action-btn.theme-btn {
+  font-size: 12px;
+  padding: 0 6px;
+}
+
+.editor-action-btn.maximize-btn.active {
+  background-color: #0284C7;
+  color: #FFFFFF;
+  border-color: #0284C7;
+}
+
+/* Canvas Body */
+.monaco-canvas-container {
+  flex: 1 1 auto;
+  height: calc(100% - 66px);
+  width: 100%;
+  position: relative;
+  overflow: hidden;
+  background-color: #1E1E1E;
+}
+
+.monaco-loading-indicator {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  height: 100%;
+  color: #94A3B8;
+  gap: 8px;
+  font-size: 13px;
+}
+
+/* Footer Status Bar */
+.monaco-leetcode-footer {
+  height: 26px;
+  min-height: 26px;
+  background-color: #262626;
+  border-top: 1px solid #333333;
+  padding: 0 12px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  font-size: 11px;
+  color: #94A3B8;
+  user-select: none;
+  flex-shrink: 0;
+}
+
+.footer-status-left {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.status-dot {
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+  background-color: #10B981;
+}
+
+.footer-status-right {
+  font-family: var(--font-mono, monospace);
+  font-size: 10.5px;
 }

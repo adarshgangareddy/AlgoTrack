@@ -2,10 +2,9 @@
 // AlgoTrack — Problem Library UI Refinement
 
 import React, { useState, useEffect, useMemo } from 'react';
-import { Link, useNavigate } from 'react-router-dom';
+import { useNavigate } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
 import { 
-  ArrowLeft, 
   Search, 
   CheckCircle2, 
   Clock, 
@@ -26,6 +25,7 @@ import {
   type Problem, 
   type ProblemStatus 
 } from '../services/problemService';
+import { AppNavbar } from '../components/layout/AppNavbar';
 import './ProblemsPage.css';
 
 const PROBLEMS_PER_PAGE = 50;
@@ -156,17 +156,15 @@ export const ProblemsPage: React.FC = () => {
 
   return (
     <div className="problems-page-root">
+      {/* Fixed Global Top Navigation Bar */}
+      <AppNavbar />
+
       {/* 1. Header Section */}
       <header className="problems-header-bar">
         <div className="problems-container">
           <div className="problems-header-inner">
-            {/* Left: Back & Title */}
+            {/* Left: Title & Summary */}
             <div className="header-meta-group">
-              <Link to="/dashboard" className="header-back-link" title="Return to your dashboard">
-                <ArrowLeft size={15} />
-                <span>Dashboard</span>
-              </Link>
-
               <div className="header-titles">
                 <div className="header-title-row">
                   <h1 className="header-page-title">Problem Library</h1>

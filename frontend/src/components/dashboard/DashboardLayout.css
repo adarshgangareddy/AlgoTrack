@@ -28,6 +28,7 @@
 /* Master Layout Grid */
 .dashboard-app-container {
   display: flex;
+  flex-direction: column;
   min-height: 100vh;
   background-color: var(--color-surface-bg);
   color: var(--color-text-main);
@@ -290,17 +291,16 @@
 
 .dashboard-main-wrapper {
   flex: 1;
-  margin-left: var(--sidebar-width);
-  min-height: 100vh;
+  margin-left: 0;
+  min-height: calc(100vh - 56px);
   display: flex;
   flex-direction: column;
-  transition: margin-left 0.3s cubic-bezier(0.16, 1, 0.3, 1);
-  width: calc(100% - var(--sidebar-width));
+  width: 100%;
 }
 
 .dashboard-main-wrapper.is-collapsed {
-  margin-left: var(--sidebar-collapsed-width);
-  width: calc(100% - var(--sidebar-collapsed-width));
+  margin-left: 0;
+  width: 100%;
 }
 
 /* Top Navigation Bar */

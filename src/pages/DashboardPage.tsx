@@ -1,8 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { useAuth } from '../context/AuthContext';
 import { Sparkles, Loader2 } from 'lucide-react';
-import { DashboardSidebar } from '../components/dashboard/DashboardSidebar';
-import { DashboardHeader } from '../components/dashboard/DashboardHeader';
+import { AppNavbar } from '../components/layout/AppNavbar';
 import { SummaryCards } from '../components/dashboard/SummaryCards';
 import { ActivityOverview } from '../components/dashboard/ActivityOverview';
 import { DifficultyProgress } from '../components/dashboard/DifficultyProgress';
@@ -22,11 +21,8 @@ export const DashboardPage: React.FC = () => {
   const { user, profile } = useAuth();
   
   // Dashboard UI state
-  const [isSidebarCollapsed, setIsSidebarCollapsed] = useState(false);
-  const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
   const [searchModalOpen, setSearchModalOpen] = useState(false);
   const [profileModalOpen, setProfileModalOpen] = useState(false);
-  const [activeSection, setActiveSection] = useState('overview');
 
   // Dashboard Data State
   const [dashboardData, setDashboardData] = useState<DashboardData>(createEmptyDashboardData());
@@ -58,8 +54,20 @@ export const DashboardPage: React.FC = () => {
     };
   }, [user?.id]);
 
+  // Auto-scroll to hash section if present (e.g. #recent-activity from navbar Problems History)
+  useEffect(() => {
+    if (window.location.hash) {
+      const hashId = window.location.hash.replace('#', '');
+      setTimeout(() => {
+        const el = document.getElementById(hashId);
+        if (el) {
+          el.scrollIntoView({ behavior: 'smooth' });
+        }
+      }, 250);
+    }
+  }, []);
+
   const scrollToSection = (sectionId: string) => {
-    setActiveSection(sectionId);
     if (sectionId === 'profile') {
       setProfileModalOpen(true);
       return;
@@ -72,26 +80,11 @@ export const DashboardPage: React.FC = () => {
 
   return (
     <div className="dashboard-app-container">
-      {/* 1. Left Sidebar Navigation */}
-      <DashboardSidebar
-        isCollapsed={isSidebarCollapsed}
-        onToggleCollapse={() => setIsSidebarCollapsed(!isSidebarCollapsed)}
-        mobileOpen={mobileMenuOpen}
-        onCloseMobile={() => setMobileMenuOpen(false)}
-        activeSection={activeSection}
-        onSelectSection={(sec) => scrollToSection(sec)}
-        onOpenProfile={() => setProfileModalOpen(true)}
-      />
+      {/* 1. Fixed Global Top Navigation Bar */}
+      <AppNavbar onOpenSearch={() => setSearchModalOpen(true)} />
 
       {/* 2. Main Wrapper */}
-      <div className={`dashboard-main-wrapper ${isSidebarCollapsed ? 'is-collapsed' : ''}`}>
-        {/* Top Header */}
-        <DashboardHeader
-          onToggleMobileMenu={() => setMobileMenuOpen(!mobileMenuOpen)}
-          onOpenSearch={() => setSearchModalOpen(true)}
-          onOpenProfile={() => setProfileModalOpen(true)}
-        />
-
+      <div className="dashboard-main-wrapper">
         {/* Dashboard Content Body */}
         <main className="dashboard-content-body" id="overview">
           {/* Section 4: Welcome Banner Card */}

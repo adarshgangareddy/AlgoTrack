@@ -1,8 +1,9 @@
 // src/components/workspace/MonacoCodeEditor.tsx
-// AlgoTrack Phase 6: Code Editor with Language Selector & Clipboard Integration
+// AlgoTrack: LeetCode-Style Clean Code Editor with Language Selector & Clipboard Support
 
-import React, { useState, useRef } from 'react';
-import Editor from '@monaco-editor/react';
+import React, { useState, useRef, useEffect } from 'react';
+import Editor, { type OnMount } from '@monaco-editor/react';
+import type * as Monaco from 'monaco-editor';
 import { 
   RotateCcw, 
   Copy, 
@@ -11,10 +12,7 @@ import {
   Maximize2, 
   Minimize2, 
   ExternalLink, 
-  Code2, 
-  AlertCircle,
-  ChevronDown,
-  ChevronUp
+  Code2
 } from 'lucide-react';
 import { SUPPORTED_LANGUAGES, getLanguageConfig } from '../../config/languages';
 import './MonacoCodeEditor.css';
@@ -28,9 +26,9 @@ export interface MonacoCodeEditorProps {
   onChange: (val: string) => void;
   onResetToTemplate: () => void;
   leetcodeUrl?: string;
-  isExpanded?: boolean;
-  onToggleExpand?: () => void;
-  fillHeight?: boolean;
+  isMaximized?: boolean;
+  onToggleMaximize?: () => void;
+  savedTime?: string | null;
 }
 
 export const MonacoCodeEditor: React.FC<MonacoCodeEditorProps> = ({
@@ -40,53 +38,23 @@ export const MonacoCodeEditor: React.FC<MonacoCodeEditorProps> = ({
   onChange,
   onResetToTemplate,
   leetcodeUrl,
-  isExpanded = true,
-  onToggleExpand,
-  fillHeight = false,
+  isMaximized = false,
+  onToggleMaximize,
+  savedTime,
 }) => {
   const [copied, setCopied] = useState(false);
-  const [copyFeedback, setCopyFeedback] = useState<string | null>(null);
   const [editorTheme, setEditorTheme] = useState<'vs-dark' | 'light'>('vs-dark');
-  const [isFullscreen, setIsFullscreen] = useState(false);
-  const [editorHeight, setEditorHeight] = useState<number>(560);
-  const isResizingRef = useRef(false);
-  const startYRef = useRef(0);
-  const startHeightRef = useRef(0);
+  const [cursorPos, setCursorPos] = useState({ line: 1, col: 1 });
+  const editorRef = useRef<Monaco.editor.IStandaloneCodeEditor | null>(null);
 
-  const containerRef = useRef<HTMLDivElement>(null);
   const currentLangConfig = getLanguageConfig(language);
 
-  // Vertical resize handlers
-  const handleResizeStart = (e: React.MouseEvent) => {
-    e.preventDefault();
-    isResizingRef.current = true;
-    startYRef.current = e.clientY;
-    startHeightRef.current = editorHeight;
-
-    const onMouseMove = (moveEvent: MouseEvent) => {
-      if (!isResizingRef.current) return;
-      const deltaY = moveEvent.clientY - startYRef.current;
-      const newHeight = Math.max(260, Math.min(1200, startHeightRef.current + deltaY));
-      setEditorHeight(newHeight);
-    };
-
-    const onMouseUp = () => {
-      isResizingRef.current = false;
-      window.removeEventListener('mousemove', onMouseMove);
-      window.removeEventListener('mouseup', onMouseUp);
-    };
-
-    window.addEventListener('mousemove', onMouseMove);
-    window.addEventListener('mouseup', onMouseUp);
-  };
-
-  // Copy code to clipboard with graceful error fallback
+  // Copy code to clipboard with fallback
   const handleCopyCode = async () => {
     try {
       if (navigator.clipboard && window.isSecureContext) {
         await navigator.clipboard.writeText(code);
       } else {
-        // Fallback for older browsers or non-HTTPS
         const textArea = document.createElement('textarea');
         textArea.value = code;
         textArea.style.position = 'fixed';
@@ -100,35 +68,53 @@ export const MonacoCodeEditor: React.FC<MonacoCodeEditorProps> = ({
       }
 
       setCopied(true);
-      setCopyFeedback('Code copied successfully!');
-      setTimeout(() => {
-        setCopied(false);
-        setCopyFeedback(null);
-      }, 3000);
+      setTimeout(() => setCopied(false), 2000);
     } catch {
-      setCopyFeedback('Unable to copy automatically. Please select all code and copy manually.');
-      setTimeout(() => setCopyFeedback(null), 4000);
+      // Fallback ignore
     }
   };
 
-  const toggleFullscreen = () => {
-    setIsFullscreen(!isFullscreen);
+  const handleEditorDidMount: OnMount = (editor) => {
+    editorRef.current = editor;
+
+    // Track cursor position for LeetCode-style footer (Ln X, Col Y)
+    editor.onDidChangeCursorPosition((e) => {
+      setCursorPos({
+        line: e.position.lineNumber,
+        col: e.position.column,
+      });
+    });
+
+    // Initial layout
+    editor.layout();
   };
 
+  // Re-layout on resize/maximize
+  useEffect(() => {
+    const timer = setTimeout(() => {
+      editorRef.current?.layout();
+    }, 50);
+    return () => clearTimeout(timer);
+  }, [isMaximized]);
+
   return (
-    <div className={`monaco-workspace-container ${isFullscreen ? 'is-fullscreen' : ''}`} ref={containerRef}>
-      {/* 1. Header Toolbar */}
-      <div className="monaco-toolbar">
-        {/* Left: Language Selection */}
-        <div className="monaco-toolbar-left">
-          <div className="monaco-lang-label-group">
-            <Code2 size={16} color="#0284C7" />
-            <label htmlFor="monaco-lang-select" className="visually-hidden">
+    <div className="monaco-leetcode-card">
+      {/* 1. LeetCode-style Header Bar */}
+      <div className="monaco-leetcode-header">
+        {/* Left: Code Icon + Language Selector */}
+        <div className="header-left-tools">
+          <div className="code-tag">
+            <Code2 size={15} color="#0284C7" />
+            <span className="code-tag-title">Code</span>
+          </div>
+
+          <div className="lang-select-wrap">
+            <label htmlFor="monaco-lang-select" className="sr-only">
               Select Programming Language
             </label>
             <select
               id="monaco-lang-select"
-              className="monaco-lang-dropdown"
+              className="monaco-lang-select"
               value={currentLangConfig.id}
               onChange={(e) => onLanguageChange(e.target.value)}
               title="Select programming language"
@@ -142,148 +128,116 @@ export const MonacoCodeEditor: React.FC<MonacoCodeEditorProps> = ({
           </div>
         </div>
 
-        {/* Right: Actions (Copy Code, Reset, Theme, Fullscreen) */}
-        <div className="monaco-toolbar-right">
-          {/* Prominent Copy Code Button */}
+        {/* Right: Copy, Reset, Theme, LeetCode, Maximize */}
+        <div className="header-right-tools">
+          {/* Copy Code Button */}
           <button
             type="button"
-            className={`monaco-copy-btn ${copied ? 'is-copied' : ''}`}
+            className={`editor-action-btn ${copied ? 'copied' : ''}`}
             onClick={handleCopyCode}
-            title="Copy code to clipboard for LeetCode practice"
+            title="Copy code to clipboard"
           >
-            {copied ? <Check size={14} color="#059669" /> : <Copy size={14} />}
-            <span>{copied ? 'Copied to Clipboard!' : 'Copy Code'}</span>
+            {copied ? <Check size={13} color="#059669" /> : <Copy size={13} />}
+            <span>{copied ? 'Copied' : 'Copy'}</span>
           </button>
 
-          {/* Reset Template */}
+          {/* Reset to Starter Template */}
           <button
             type="button"
-            className="monaco-tool-btn"
+            className="editor-action-btn icon-only"
             onClick={onResetToTemplate}
-            title="Reset to starter code template"
+            title="Reset code to default template"
           >
             <RotateCcw size={13} />
-            <span>Reset</span>
           </button>
 
           {/* Theme Toggle */}
           <button
             type="button"
-            className="monaco-tool-btn"
+            className="editor-action-btn theme-btn"
             onClick={() => setEditorTheme(editorTheme === 'vs-dark' ? 'light' : 'vs-dark')}
-            title="Toggle editor theme (Light/Dark)"
+            title={`Switch to ${editorTheme === 'vs-dark' ? 'Light' : 'Dark'} theme`}
           >
-            {editorTheme === 'vs-dark' ? '☀️ Light' : '🌙 Dark'}
+            <span>{editorTheme === 'vs-dark' ? '🌙' : '☀️'}</span>
           </button>
 
-          {/* Fullscreen Toggle */}
-          <button
-            type="button"
-            className="monaco-tool-btn icon-only"
-            onClick={toggleFullscreen}
-            title={isFullscreen ? 'Exit Fullscreen' : 'Fullscreen Editor'}
-          >
-            {isFullscreen ? <Minimize2 size={14} /> : <Maximize2 size={14} />}
-          </button>
+          {/* Open on LeetCode Button */}
+          {leetcodeUrl && (
+            <a
+              href={leetcodeUrl}
+              target="_blank"
+              rel="noopener noreferrer"
+              className="editor-action-btn leetcode-btn"
+              title="Open problem on LeetCode"
+            >
+              <span>LeetCode</span>
+              <ExternalLink size={12} />
+            </a>
+          )}
 
-          {/* Expand / Collapse Section Toggle */}
-          {onToggleExpand && (
+          {/* Maximize / Restore Editor (Collapses/Expands Testcases) */}
+          {onToggleMaximize && (
             <button
               type="button"
-              className="monaco-tool-btn icon-only monaco-collapse-btn"
-              onClick={onToggleExpand}
-              title={isExpanded ? 'Collapse Code Editor' : 'Expand Code Editor'}
+              className={`editor-action-btn icon-only maximize-btn ${isMaximized ? 'active' : ''}`}
+              onClick={onToggleMaximize}
+              title={isMaximized ? 'Restore testcases panel' : 'Expand code editor (hide testcases)'}
             >
-              {isExpanded ? <ChevronUp size={15} /> : <ChevronDown size={15} />}
+              {isMaximized ? <Minimize2 size={13} /> : <Maximize2 size={13} />}
             </button>
           )}
         </div>
       </div>
 
-      {/* Copy Toast Feedback */}
-      {copyFeedback && (
-        <div className={`monaco-copy-toast ${copied ? 'success' : 'warning'}`}>
-          {copied ? <Check size={14} /> : <AlertCircle size={14} />}
-          <span>{copyFeedback}</span>
-        </div>
-      )}
-
-      {/* 2. Monaco Editor Container & Resizer */}
-      {isExpanded && (
-        <>
-          <div 
-            className="monaco-editor-pane" 
-            style={{ 
-              height: isFullscreen 
-                ? 'calc(100vh - 160px)' 
-                : fillHeight 
-                  ? '100%' 
-                  : `${editorHeight}px`,
-              flex: fillHeight ? '1 1 auto' : undefined
-            }}
-          >
-            <Editor
-              height="100%"
-              language={currentLangConfig.monacoLang}
-              value={code}
-              theme={editorTheme}
-              onChange={(val) => onChange(val || '')}
-              options={{
-                fontSize: 13.5,
-                lineHeight: 22,
-                fontFamily: "'Fira Code', 'JetBrains Mono', Consolas, monospace",
-                minimap: { enabled: false },
-                scrollBeyondLastLine: false,
-                automaticLayout: true,
-                tabSize: 4,
-                bracketPairColorization: { enabled: true },
-                wordWrap: 'on',
-                padding: { top: 12, bottom: 12 },
-                cursorBlinking: 'smooth',
-                smoothScrolling: true,
-              }}
-              loading={
-                <div className="monaco-loading-box">
-                  <Loader2 size={24} className="spin-icon" />
-                  <span>Loading Monaco Editor...</span>
-                </div>
-              }
-            />
-          </div>
-
-          {!isFullscreen && !fillHeight && (
-            <div 
-              className="monaco-resize-handle" 
-              onMouseDown={handleResizeStart} 
-              title="Drag up or down to resize code editor height"
-            >
-              <div className="monaco-resize-bar"></div>
+      {/* 2. Monaco Editor Canvas Body */}
+      <div 
+        className="monaco-canvas-container"
+        onClick={() => editorRef.current?.focus()}
+      >
+        <Editor
+          height="100%"
+          width="100%"
+          language={currentLangConfig.monacoLang}
+          value={code}
+          theme={editorTheme}
+          onChange={(val) => onChange(val || '')}
+          onMount={handleEditorDidMount}
+          options={{
+            fontSize: 13.5,
+            lineHeight: 22,
+            fontFamily: "'Fira Code', 'JetBrains Mono', Consolas, 'Courier New', monospace",
+            minimap: { enabled: false },
+            scrollBeyondLastLine: false,
+            automaticLayout: true,
+            tabSize: 4,
+            bracketPairColorization: { enabled: true },
+            wordWrap: 'on',
+            padding: { top: 10, bottom: 10 },
+            cursorBlinking: 'smooth',
+            smoothScrolling: true,
+            readOnly: false,
+            domReadOnly: false,
+            contextmenu: true,
+            pasteAs: { enabled: true },
+          }}
+          loading={
+            <div className="monaco-loading-indicator">
+              <Loader2 size={22} className="spin-icon" />
+              <span>Loading Editor...</span>
             </div>
-          )}
-        </>
-      )}
+          }
+        />
+      </div>
 
-      {/* 3. Informational Footer Note (AlgoTrack does not execute code) */}
-      <div className="monaco-info-footer">
-        <div className="info-footer-left">
-          <AlertCircle size={15} color="#0284C7" className="flex-shrink-0" />
-          <p className="info-footer-text">
-            Write your solution here, then copy it to practice on LeetCode. AlgoTrack does not execute code.
-          </p>
+      {/* 3. LeetCode-style Status Bar Footer */}
+      <div className="monaco-leetcode-footer">
+        <div className="footer-status-left">
+          <span className="status-dot"></span>
+          <span className="status-text">{savedTime ? `Saved ${savedTime}` : 'Ready to code'}</span>
         </div>
-
-        {leetcodeUrl && (
-          <a
-            href={leetcodeUrl}
-            target="_blank"
-            rel="noopener noreferrer"
-            className="monaco-leetcode-link"
-            title="Open problem on LeetCode to submit and run tests"
-          >
-            <span>Open on LeetCode</span>
-            <ExternalLink size={12} />
-          </a>
-        )}
+        <div className="footer-status-right">
+          <span className="cursor-pos">Ln {cursorPos.line}, Col {cursorPos.col}</span>
+        </div>
       </div>
     </div>
   );
