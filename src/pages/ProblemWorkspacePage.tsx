@@ -19,7 +19,6 @@ import {
   Sparkles, 
   Loader2, 
   Lock, 
-  Lightbulb, 
   Compass, 
   RotateCcw,
   Search,
@@ -47,7 +46,7 @@ import { TestcasesPanel } from '../components/workspace/TestcasesPanel';
 import { MarkdownRenderer } from '../components/common/MarkdownRenderer';
 import './ProblemWorkspacePage.css';
 
-export type LeftWorkspaceTab = 'description' | 'editorial' | 'ai' | 'approach' | 'notes';
+export type LeftWorkspaceTab = 'description' | 'ai' | 'approach' | 'notes';
 
 const STORAGE_KEYS = {
   H_SPLIT: 'algotrack_ws_h_split',
@@ -102,7 +101,7 @@ export const ProblemWorkspacePage: React.FC = () => {
   // Active Left Horizontal Tab (LeetCode Style)
   const [activeLeftTab, setActiveLeftTab] = useState<LeftWorkspaceTab>(() => {
     const saved = localStorage.getItem(STORAGE_KEYS.ACTIVE_TAB) as LeftWorkspaceTab;
-    return (['description', 'editorial', 'ai', 'approach', 'notes'].includes(saved)) ? saved : 'description';
+    return (['description', 'ai', 'approach', 'notes'].includes(saved)) ? saved : 'description';
   });
 
   // User personal workspace state
@@ -851,15 +850,6 @@ export const ProblemWorkspacePage: React.FC = () => {
 
                 <button
                   type="button"
-                  className={`left-tab-btn ${activeLeftTab === 'editorial' ? 'active' : ''}`}
-                  onClick={() => handleTabChange('editorial')}
-                >
-                  <Lightbulb size={14} />
-                  <span>Editorial</span>
-                </button>
-
-                <button
-                  type="button"
                   className={`left-tab-btn ai-tab ${activeLeftTab === 'ai' ? 'active' : ''}`}
                   onClick={() => handleTabChange('ai')}
                 >
@@ -998,46 +988,7 @@ export const ProblemWorkspacePage: React.FC = () => {
                 </div>
               )}
 
-              {/* TAB 2: EDITORIAL (Rendered with Markdown + LaTeX Math) */}
-              {activeLeftTab === 'editorial' && (
-                <div className="tab-pane-content tab-editorial-pane">
-                  <div className="editorial-header">
-                    <div className="editorial-title-wrap">
-                      <Lightbulb size={18} color="#0284C7" />
-                      <h2 className="editorial-heading">Editorial & Algorithmic Theory</h2>
-                    </div>
-                    {problem.pattern && (
-                      <span className="editorial-pattern-chip">
-                        {problem.pattern}
-                      </span>
-                    )}
-                  </div>
-
-                  {problem.theory_content ? (
-                    <div className="editorial-article-container">
-                      <MarkdownRenderer content={problem.theory_content} />
-                    </div>
-                  ) : (
-                    <div className="editorial-empty-state">
-                      <Lightbulb size={32} color="#94A3B8" />
-                      <h3 className="editorial-empty-title">Editorial Material In Progress</h3>
-                      <p className="editorial-empty-desc">
-                        Official written editorial notes for this problem are currently being curated. You can use our <strong>AI Tutor</strong> tab to get a complete conceptual breakdown and step-by-step dry run on demand.
-                      </p>
-                      <button
-                        type="button"
-                        className="editorial-ask-ai-btn"
-                        onClick={() => handleTabChange('ai')}
-                      >
-                        <Sparkles size={14} />
-                        <span>Ask AI Tutor for Conceptual Breakdown</span>
-                      </button>
-                    </div>
-                  )}
-                </div>
-              )}
-
-              {/* TAB 3: AI TUTOR (Kept mounted to preserve conversation state across tab switches) */}
+              {/* TAB 2: AI TUTOR (Kept mounted to preserve conversation state across tab switches) */}
               <div 
                 className="tab-pane-content tab-ai-pane"
                 style={{ 

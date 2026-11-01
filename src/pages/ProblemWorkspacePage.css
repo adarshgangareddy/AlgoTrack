@@ -1333,9 +1333,9 @@
   margin-top: 6px;
 }
 
-/* AI Tab Header */
+/* AI Tab Pane */
 .tab-ai-pane {
-  padding: 12px 16px;
+  padding: 0 !important;
   height: 100%;
 }
 
@@ -1605,8 +1605,27 @@
    ========================================================================== */
 
 @media (max-width: 1024px) {
+  /* Allow window to scroll naturally on mobile so browser address bar collapses */
+  .workspace-page-container {
+    height: auto !important;
+    min-height: 100dvh;
+    overflow-x: hidden;
+    overflow-y: visible !important;
+  }
+
+  /* Layer 1: Main Global Header Sticky */
+  .workspace-header {
+    position: sticky;
+    top: 0;
+    z-index: 100;
+  }
+
+  /* Mode Switcher: Problem & Tabs vs Code & Testcases Sticky beneath Header */
   .workspace-mobile-bar {
     display: flex;
+    position: sticky;
+    top: 48px;
+    z-index: 95;
     background-color: #F8FAFC;
     border-bottom: 1px solid #E2E8F0;
     padding: 6px 10px;
@@ -1638,10 +1657,21 @@
     box-shadow: 0 2px 6px rgba(2, 132, 199, 0.25);
   }
 
+  /* Layer 2: Problem Content Tabs Sticky beneath Mode Switcher */
+  .left-panel-tab-bar {
+    position: sticky;
+    top: 92px;
+    z-index: 90;
+    background-color: #FFFFFF;
+    border-bottom: 1px solid #E2E8F0;
+  }
+
   .workspace-main-viewport {
     flex-direction: column;
-    padding: 6px;
-    height: calc(100vh - 48px - 48px);
+    padding: 0;
+    height: auto !important;
+    min-height: calc(100dvh - 92px);
+    overflow: visible !important;
   }
 
   .workspace-h-resizer,
@@ -1649,10 +1679,25 @@
     display: none !important;
   }
 
-  .workspace-left-panel,
-  .workspace-right-panel {
+  .workspace-left-panel {
     width: 100% !important;
-    height: 100% !important;
+    height: auto !important;
+    min-height: calc(100dvh - 92px);
+    overflow: visible !important;
+    border: none !important;
+    border-radius: 0 !important;
+    box-shadow: none !important;
+  }
+
+  .left-panel-content-body {
+    height: auto !important;
+    overflow: visible !important;
+  }
+
+  .tab-pane-content {
+    height: auto !important;
+    min-height: calc(100dvh - 132px);
+    overflow: visible !important;
   }
 
   .workspace-left-panel.mobile-hidden,
@@ -1660,17 +1705,29 @@
     display: none !important;
   }
 
-  .workspace-left-panel.mobile-visible,
+  .workspace-left-panel.mobile-visible {
+    display: flex !important;
+    flex-direction: column;
+  }
+
   .workspace-right-panel.mobile-visible {
     display: flex !important;
+    flex-direction: column;
+    width: 100% !important;
+    height: calc(100dvh - 92px) !important;
+    overflow: hidden;
+    border: none !important;
+    border-radius: 0 !important;
   }
 
   .code-editor-card {
     height: 60% !important;
+    border-radius: 0 !important;
   }
 
   .testcases-card {
     height: 40% !important;
+    border-radius: 0 !important;
   }
 }
 

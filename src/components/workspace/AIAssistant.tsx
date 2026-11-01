@@ -12,9 +12,7 @@ import {
   AlertTriangle,
   Lightbulb,
   Compass,
-  ArrowUp,
-  Bot,
-  User as UserIcon
+  ArrowUp
 } from 'lucide-react';
 import { 
   askGroqAI, 
@@ -230,12 +228,6 @@ export const AIAssistant: React.FC<AIAssistantProps> = ({
               key={msg.id} 
               className={`chatgpt-message-row ${msg.sender === 'user' ? 'user-row' : 'assistant-row'}`}
             >
-              {msg.sender === 'ai' && (
-                <div className="message-avatar-ai" aria-hidden="true">
-                  <Bot size={16} />
-                </div>
-              )}
-
               <div className={`message-bubble ${msg.sender === 'user' ? 'user-bubble' : 'assistant-bubble'} ${msg.isError ? 'error-bubble' : ''}`}>
                 {msg.sender === 'user' ? (
                   <p className="user-text-content">{msg.text}</p>
@@ -244,22 +236,13 @@ export const AIAssistant: React.FC<AIAssistantProps> = ({
                 )}
                 <span className="message-timestamp">{msg.timestamp}</span>
               </div>
-
-              {msg.sender === 'user' && (
-                <div className="message-avatar-user" aria-hidden="true">
-                  <UserIcon size={14} />
-                </div>
-              )}
             </div>
           ))}
 
           {/* AI Thinking Animation */}
           {isLoading && (
             <div className="chatgpt-message-row assistant-row">
-              <div className="message-avatar-ai thinking" aria-hidden="true">
-                <Loader2 size={16} className="spin-icon" />
-              </div>
-              <div className="message-bubble assistant-bubble thinking-bubble">
+              <div className="chatgpt-thinking-state">
                 <div className="chatgpt-typing-dots">
                   <span></span>
                   <span></span>
