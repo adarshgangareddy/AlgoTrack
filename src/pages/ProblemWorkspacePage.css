@@ -821,8 +821,92 @@
   background-color: #F8FAFC;
   border: 1px dashed #CBD5E1;
   border-radius: 8px;
-  padding: 16px;
+  padding: 24px 20px;
   text-align: center;
+}
+
+.ws-concept-empty-state {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 10px;
+  max-width: 480px;
+  margin: 0 auto;
+}
+
+.ws-concept-empty-title {
+  font-size: 15px;
+  font-weight: 700;
+  color: #0F172A;
+  margin: 4px 0 0 0;
+}
+
+.ws-btn-explain-ai-large {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 8px 18px;
+  font-size: 13px;
+  font-weight: 600;
+  color: #FFFFFF;
+  background-color: #0284C7;
+  border: none;
+  border-radius: 8px;
+  cursor: pointer;
+  margin-top: 6px;
+  transition: all 0.15s ease;
+  box-shadow: 0 1px 3px rgba(2, 132, 199, 0.2);
+}
+
+.ws-btn-explain-ai-large:hover {
+  background-color: #0369A1;
+  transform: translateY(-1px);
+}
+
+.ws-ai-loading-container {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 12px;
+  padding: 32px 20px;
+  color: #0284C7;
+  font-size: 13.5px;
+  font-weight: 500;
+  text-align: center;
+}
+
+.ws-ai-explanation-box {
+  background-color: #F8FAFC;
+  border: 1px solid #E2E8F0;
+  border-radius: 8px;
+  padding: 18px 20px;
+}
+
+.ws-ai-explaining-banner {
+  display: flex;
+  align-items: center;
+  gap: 7px;
+  font-size: 11.5px;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.03em;
+  color: #0284C7;
+  padding-bottom: 12px;
+  margin-bottom: 14px;
+  border-bottom: 1px solid #E2E8F0;
+}
+
+.ws-markdown-content p {
+  margin: 0 0 12px 0;
+  line-height: 1.65;
+  color: #1E293B;
+  font-size: 13.5px;
+}
+
+.ws-markdown-content p:last-child {
+  margin-bottom: 0;
 }
 
 .ws-theory-placeholder-text {

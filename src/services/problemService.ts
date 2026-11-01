@@ -663,9 +663,6 @@ export async function saveUserWorkspaceAndProgress(params: SaveWorkspaceParams):
   } catch {
     // LocalStorage full or disabled
   }
-  } catch {
-    // LocalStorage full or disabled
-  }
 
   return { success: true, updated_at: now };
 }

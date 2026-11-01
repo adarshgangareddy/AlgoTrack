@@ -1,5 +1,26 @@
 import { supabase, isSupabaseConfigured } from '../lib/supabase';
 import leetcodeIndexData from '../data/leetcodeIndex.json';
+import problemUuidMapData from '../data/problemUuidMap.json';
+
+const problemUuidMap: Record<string, string> = problemUuidMapData as Record<string, string>;
+
+/**
+ * Returns the standardized Supabase UUID for a problem slug or identifier
+ */
+export function getProblemUuid(slugOrId: string): string {
+  const normalized = slugOrId.toLowerCase().trim().replace(/^p\d+-/, '');
+  if (problemUuidMap[normalized]) {
+    return problemUuidMap[normalized];
+  }
+  if (problemUuidMap[slugOrId]) {
+    return problemUuidMap[slugOrId];
+  }
+  // If already a valid UUID format, return it
+  if (/^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i.test(slugOrId)) {
+    return slugOrId;
+  }
+  return slugOrId;
+}
 
 export interface Problem {
   id: string;
@@ -201,7 +222,12 @@ export const CURATED_PROBLEMS: Problem[] = [
 // Combine index problems with curated data
 function buildAllProblemsList(): Problem[] {
   const curatedMap = new Map<string, Problem>();
-  CURATED_PROBLEMS.forEach((p) => curatedMap.set(p.slug, p));
+  CURATED_PROBLEMS.forEach((p) => {
+    curatedMap.set(p.slug, {
+      ...p,
+      id: getProblemUuid(p.slug)
+    });
+  });
 
   const list: Problem[] = [];
 
@@ -220,8 +246,9 @@ function buildAllProblemsList(): Problem[] {
       curatedMap.delete(item.slug);
     } else {
       const difficulty = (item.diff === 'Hard' || item.diff === 'Medium' ? item.diff : 'Easy') as 'Easy' | 'Medium' | 'Hard';
+      const uuid = getProblemUuid(item.slug);
       list.push({
-        id: `p${item.num}-${item.slug}`,
+        id: uuid,
         problem_number: item.num,
         title: item.title,
         slug: item.slug,
@@ -276,8 +303,12 @@ export async function fetchProblemBySlug(slug: string): Promise<Problem | null> 
   // 1. Check curated list
   const curated = CURATED_PROBLEMS.find((p) => p.slug === normalizedSlug);
   if (curated) {
-    problemDetailsCache.set(normalizedSlug, curated);
-    return curated;
+    const enrichedCurated = {
+      ...curated,
+      id: getProblemUuid(curated.slug)
+    };
+    problemDetailsCache.set(normalizedSlug, enrichedCurated);
+    return enrichedCurated;
   }
 
   // 2. Search in all indexed problems
@@ -337,6 +368,7 @@ export async function fetchProblemBySlug(slug: string): Promise<Problem | null> 
  */
 export async function fetchUserProblemProgress(userId: string, problemId: string): Promise<ProblemStatus> {
   if (!userId || !problemId) return 'not_started';
+  const canonicalId = getProblemUuid(problemId);
 
   if (isSupabaseConfigured()) {
     try {
@@ -344,7 +376,7 @@ export async function fetchUserProblemProgress(userId: string, problemId: string
         .from('user_problem_progress')
         .select('status')
         .eq('user_id', userId)
-        .eq('problem_id', problemId)
+        .eq('problem_id', canonicalId)
         .single();
 
       if (!error && data?.status) {
@@ -355,8 +387,8 @@ export async function fetchUserProblemProgress(userId: string, problemId: string
     }
   }
 
-  const localKey = `algotrack_prog_${userId}_${problemId}`;
-  const stored = localStorage.getItem(localKey);
+  const localKey = `algotrack_prog_${userId}_${canonicalId}`;
+  const stored = localStorage.getItem(localKey) || localStorage.getItem(`algotrack_prog_${userId}_${problemId}`);
   if (stored === 'attempted' || stored === 'solved') {
     return stored;
   }
@@ -391,10 +423,12 @@ export async function fetchUserProblemProgressBatch(userId: string): Promise<Rec
     for (let i = 0; i < localStorage.length; i++) {
       const key = localStorage.key(i);
       if (key && key.startsWith(`algotrack_prog_${userId}_`)) {
-        const probId = key.replace(`algotrack_prog_${userId}_`, '');
+        const rawProbId = key.replace(`algotrack_prog_${userId}_`, '');
+        const canonicalId = getProblemUuid(rawProbId);
         const val = localStorage.getItem(key);
         if (val === 'attempted' || val === 'solved') {
-          map[probId] = val as ProblemStatus;
+          map[canonicalId] = val as ProblemStatus;
+          map[rawProbId] = val as ProblemStatus;
         }
       }
     }
@@ -410,6 +444,7 @@ export async function fetchUserProblemProgressBatch(userId: string): Promise<Rec
  */
 export async function fetchUserWorkspace(userId: string, problemId: string): Promise<UserWorkspaceData | null> {
   if (!userId || !problemId) return null;
+  const canonicalId = getProblemUuid(problemId);
 
   if (isSupabaseConfigured()) {
     try {
@@ -417,7 +452,7 @@ export async function fetchUserWorkspace(userId: string, problemId: string): Pro
         .from('user_problem_workspace')
         .select('*')
         .eq('user_id', userId)
-        .eq('problem_id', problemId)
+        .eq('problem_id', canonicalId)
         .single();
 
       if (!error && data) {
@@ -428,8 +463,8 @@ export async function fetchUserWorkspace(userId: string, problemId: string): Pro
     }
   }
 
-  const localKey = `algotrack_ws_${userId}_${problemId}`;
-  const stored = localStorage.getItem(localKey);
+  const localKey = `algotrack_ws_${userId}_${canonicalId}`;
+  const stored = localStorage.getItem(localKey) || localStorage.getItem(`algotrack_ws_${userId}_${problemId}`);
   if (stored) {
     try {
       return JSON.parse(stored) as UserWorkspaceData;
@@ -450,6 +485,7 @@ export async function fetchUserSolutions(
 ): Promise<Record<string, string>> {
   const solutionsMap: Record<string, string> = { ...STARTER_CODE_TEMPLATES };
   if (!userId || !problemId) return solutionsMap;
+  const canonicalId = getProblemUuid(problemId);
 
   if (isSupabaseConfigured()) {
     try {
@@ -457,7 +493,7 @@ export async function fetchUserSolutions(
         .from('user_problem_solutions')
         .select('language, source_code')
         .eq('user_id', userId)
-        .eq('problem_id', problemId);
+        .eq('problem_id', canonicalId);
 
       if (!error && data && data.length > 0) {
         data.forEach((row) => {
@@ -472,8 +508,8 @@ export async function fetchUserSolutions(
     }
   }
 
-  const localKey = `algotrack_sol_${userId}_${problemId}`;
-  const stored = localStorage.getItem(localKey);
+  const localKey = `algotrack_sol_${userId}_${canonicalId}`;
+  const stored = localStorage.getItem(localKey) || localStorage.getItem(`algotrack_sol_${userId}_${problemId}`);
   if (stored) {
     try {
       const parsed = JSON.parse(stored);
@@ -518,6 +554,8 @@ export async function saveUserWorkspaceAndProgress(params: SaveWorkspaceParams):
     return { success: false, error: 'User or Problem ID missing', updated_at: now };
   }
 
+  const canonicalId = getProblemUuid(problemId);
+
   if (isSupabaseConfigured()) {
     try {
       // 1. Upsert workspace data
@@ -526,7 +564,7 @@ export async function saveUserWorkspaceAndProgress(params: SaveWorkspaceParams):
         .upsert(
           {
             user_id: userId,
-            problem_id: problemId,
+            problem_id: canonicalId,
             personal_notes: workspace.personal_notes,
             personal_approach: workspace.personal_approach,
             time_complexity: workspace.time_complexity,
@@ -545,7 +583,7 @@ export async function saveUserWorkspaceAndProgress(params: SaveWorkspaceParams):
         .upsert(
           {
             user_id: userId,
-            problem_id: problemId,
+            problem_id: canonicalId,
             language: activeLanguage,
             source_code: sourceCode,
             updated_at: now
@@ -561,14 +599,14 @@ export async function saveUserWorkspaceAndProgress(params: SaveWorkspaceParams):
           .from('user_problem_progress')
           .delete()
           .eq('user_id', userId)
-          .eq('problem_id', problemId);
+          .eq('problem_id', canonicalId);
       } else {
         await supabase
           .from('user_problem_progress')
           .upsert(
             {
               user_id: userId,
-              problem_id: problemId,
+              problem_id: canonicalId,
               status: status,
               solved_at: status === 'solved' ? now : null,
               updated_at: now
@@ -579,7 +617,7 @@ export async function saveUserWorkspaceAndProgress(params: SaveWorkspaceParams):
         // 4. Log activity if attempted or solved
         await supabase.from('user_activity_logs').insert({
           user_id: userId,
-          problem_id: problemId,
+          problem_id: canonicalId,
           action_type: status,
           problem_title: problemTitle || 'Problem',
           difficulty: problemDifficulty || 'Medium',
@@ -593,25 +631,35 @@ export async function saveUserWorkspaceAndProgress(params: SaveWorkspaceParams):
 
   // Always keep user-isolated localStorage updated for offline/fallback continuity
   try {
-    const wsKey = `algotrack_ws_${userId}_${problemId}`;
+    const wsKey = `algotrack_ws_${userId}_${canonicalId}`;
     localStorage.setItem(
       wsKey,
       JSON.stringify({
         user_id: userId,
-        problem_id: problemId,
+        problem_id: canonicalId,
         ...workspace,
         updated_at: now
       })
     );
+    // Also save legacy key for compatibility
+    if (canonicalId !== problemId) {
+      localStorage.setItem(`algotrack_ws_${userId}_${problemId}`, localStorage.getItem(wsKey)!);
+    }
 
-    const solKey = `algotrack_sol_${userId}_${problemId}`;
+    const solKey = `algotrack_sol_${userId}_${canonicalId}`;
     const existingSols = localStorage.getItem(solKey);
     const solsMap = existingSols ? JSON.parse(existingSols) : {};
     solsMap[activeLanguage] = sourceCode;
     localStorage.setItem(solKey, JSON.stringify(solsMap));
+    if (canonicalId !== problemId) {
+      localStorage.setItem(`algotrack_sol_${userId}_${problemId}`, JSON.stringify(solsMap));
+    }
 
-    const progKey = `algotrack_prog_${userId}_${problemId}`;
+    const progKey = `algotrack_prog_${userId}_${canonicalId}`;
     localStorage.setItem(progKey, status);
+    if (canonicalId !== problemId) {
+      localStorage.setItem(`algotrack_prog_${userId}_${problemId}`, status);
+    }
   } catch {
     // LocalStorage full or disabled
   }
