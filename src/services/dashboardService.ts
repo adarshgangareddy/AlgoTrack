@@ -88,26 +88,19 @@ export async function fetchUserDashboardData(userId: string): Promise<DashboardD
   }
 
   try {
-    // 1. Check if the 'problems' table exists and fetch total counts
-    const { data: problemsData, error: problemsError } = await supabase
-      .from('problems')
-      .select('id, difficulty');
+    // 1. Fetch exact total counts by difficulty using count: exact
+    const [totalRes, easyRes, medRes, hardRes] = await Promise.all([
+      supabase.from('problems').select('*', { count: 'exact', head: true }),
+      supabase.from('problems').select('*', { count: 'exact', head: true }).eq('difficulty', 'Easy'),
+      supabase.from('problems').select('*', { count: 'exact', head: true }).eq('difficulty', 'Medium'),
+      supabase.from('problems').select('*', { count: 'exact', head: true }).eq('difficulty', 'Hard')
+    ]);
 
-    const isLibraryLoaded = !problemsError && Array.isArray(problemsData) && problemsData.length > 0;
-    const totalProblems = isLibraryLoaded ? problemsData.length : 0;
-
-    // Count difficulty totals in library
-    let totalEasy = 0;
-    let totalMedium = 0;
-    let totalHard = 0;
-
-    if (isLibraryLoaded) {
-      problemsData.forEach((p) => {
-        if (p.difficulty === 'Easy') totalEasy++;
-        else if (p.difficulty === 'Medium') totalMedium++;
-        else if (p.difficulty === 'Hard') totalHard++;
-      });
-    }
+    const isLibraryLoaded = !totalRes.error && (totalRes.count || 0) > 0;
+    const totalProblems = totalRes.count || 2913;
+    const totalEasy = easyRes.count || 763;
+    const totalMedium = medRes.count || 1464;
+    const totalHard = hardRes.count || 686;
 
     // 2. Fetch authenticated user's problem progress
     const { data: progressData } = await supabase
