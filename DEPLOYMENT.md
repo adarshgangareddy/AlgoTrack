@@ -74,3 +74,4 @@ This guide outlines the production deployment for AlgoTrack.
 1. Copy your live Vercel domain (e.g. `https://algotrack.vercel.app`).
 2. In **Render**, update `FRONTEND_URL` to match your Vercel domain.
 3. In **Vercel**, ensure `VITE_API_BASE_URL` matches your Render URL + `/api`.
+
