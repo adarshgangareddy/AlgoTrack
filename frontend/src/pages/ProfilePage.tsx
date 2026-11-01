@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { Link, useNavigate } from 'react-router-dom';
+import { Link } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
 import { 
   ArrowLeft, 
@@ -16,10 +16,8 @@ import {
   ExternalLink,
   ChevronRight,
   Code2,
-  BookOpen,
   Loader2,
   Mail,
-  User,
   ShieldCheck
 } from 'lucide-react';
 import { 
@@ -30,7 +28,6 @@ import './ProfilePage.css';
 
 export const ProfilePage: React.FC = () => {
   const { user, profile } = useAuth();
-  const navigate = useNavigate();
 
   const [analytics, setAnalytics] = useState<ProfileAnalyticsData | null>(null);
   const [loading, setLoading] = useState(true);

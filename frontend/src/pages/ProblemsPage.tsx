@@ -18,8 +18,7 @@ import {
   ChevronRight,
   LayoutList,
   LayoutGrid,
-  Check,
-  Sparkles
+  BookOpen
 } from 'lucide-react';
 import { 
   fetchAllProblems, 
@@ -68,7 +67,9 @@ export const ProblemsPage: React.FC = () => {
   const [selectedDifficulty, setSelectedDifficulty] = useState<string>('all');
   const [selectedStatus, setSelectedStatus] = useState<string>('all');
   const [selectedTopic, setSelectedTopic] = useState<string>('All Topics');
-  const [viewMode, setViewMode] = useState<'table' | 'grid'>('table');
+  const [viewMode, setViewMode] = useState<'table' | 'grid'>(() => {
+    return (localStorage.getItem(VIEW_MODE_KEY) as 'table' | 'grid') || 'table';
+  });
   const [currentPage, setCurrentPage] = useState(1);
 
   useEffect(() => {
@@ -295,7 +296,10 @@ export const ProblemsPage: React.FC = () => {
                 <button
                   type="button"
                   className={`view-mode-btn ${viewMode === 'table' ? 'active' : ''}`}
-                  onClick={() => setViewMode('table')}
+                  onClick={() => {
+                    setViewMode('table');
+                    localStorage.setItem(VIEW_MODE_KEY, 'table');
+                  }}
                   title="Compact Table List (LeetCode Style)"
                 >
                   <LayoutList size={16} />
@@ -303,7 +307,10 @@ export const ProblemsPage: React.FC = () => {
                 <button
                   type="button"
                   className={`view-mode-btn ${viewMode === 'grid' ? 'active' : ''}`}
-                  onClick={() => setViewMode('grid')}
+                  onClick={() => {
+                    setViewMode('grid');
+                    localStorage.setItem(VIEW_MODE_KEY, 'grid');
+                  }}
                   title="Card Grid View"
                 >
                   <LayoutGrid size={16} />
