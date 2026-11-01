@@ -161,65 +161,74 @@ export const ApiKeyModal: React.FC<ApiKeyModalProps> = ({
             )}
           </div>
 
-          <p className="byok-explanation">
-            To continue using the AI Tutor after your 3 free requests, create your own Groq API key and securely connect it to AlgoTrack. Your key is encrypted with AES-256-GCM and never shared.
-          </p>
-
-          {/* Quick Setup Dashboard Banner */}
-          <div className="byok-modal-guide-banner">
-            <button
-              type="button"
-              className="byok-modal-guide-btn"
-              onClick={() => window.open('/groq-api-setup', '_blank')}
-              title="Open Step-by-Step API Creation Dashboard"
-            >
-              <div className="byok-modal-guide-left">
-                <BookOpen size={15} color="#0284C7" />
-                <span>API Creation Documentation &amp; Setup Dashboard</span>
-              </div>
-              <ExternalLink size={13} color="#0284C7" />
-            </button>
-          </div>
-
-          {/* Quick Steps & Links */}
-          <div className="byok-links-card">
-            <div className="byok-links-title">How to get a free Groq API Key:</div>
-            <ol className="byok-steps-list">
-              <li>
-                <a
-                  href="/groq-api-setup"
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  className="byok-external-link"
-                >
-                  <strong>Open Step-by-Step Walkthrough Dashboard ↗</strong>
-                </a>
-              </li>
-              <li>
-                Sign in to the{' '}
-                <a
-                  href="https://console.groq.com/keys"
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  className="byok-external-link"
-                >
-                  Official Groq Console Keys <ExternalLink size={11} />
-                </a>
-              </li>
-              <li>Generate a new key and copy the key starting with <code>gsk_</code></li>
-              <li>Paste the key in the field below and click Save Key</li>
-            </ol>
-            <div className="byok-docs-row">
-              <a
-                href="https://console.groq.com/docs/quickstart"
-                target="_blank"
-                rel="noopener noreferrer"
-                className="byok-docs-link"
-              >
-                Read Groq Quickstart Documentation <ExternalLink size={11} />
-              </a>
+          {isConnected ? (
+            <div className="byok-modal-active-notice">
+              <ShieldCheck size={16} color="#059669" />
+              <span>Your personal Groq API key is verified and active. Paste a new key below only if you want to replace it.</span>
             </div>
-          </div>
+          ) : (
+            <>
+              <p className="byok-explanation">
+                To continue using the AI Tutor after your 3 free requests, create your own Groq API key and securely connect it to AlgoTrack. Your key is encrypted with AES-256-GCM and never shared.
+              </p>
+
+              {/* Quick Setup Dashboard Banner */}
+              <div className="byok-modal-guide-banner">
+                <button
+                  type="button"
+                  className="byok-modal-guide-btn"
+                  onClick={() => window.open('/groq-api-setup', '_blank')}
+                  title="Open Step-by-Step API Creation Dashboard"
+                >
+                  <div className="byok-modal-guide-left">
+                    <BookOpen size={15} color="#0284C7" />
+                    <span>API Creation Documentation &amp; Setup Dashboard</span>
+                  </div>
+                  <ExternalLink size={13} color="#0284C7" />
+                </button>
+              </div>
+
+              {/* Quick Steps & Links */}
+              <div className="byok-links-card">
+                <div className="byok-links-title">How to get a free Groq API Key:</div>
+                <ol className="byok-steps-list">
+                  <li>
+                    <a
+                      href="/groq-api-setup"
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="byok-external-link"
+                    >
+                      <strong>Open Step-by-Step Walkthrough Dashboard ↗</strong>
+                    </a>
+                  </li>
+                  <li>
+                    Sign in to the{' '}
+                    <a
+                      href="https://console.groq.com/keys"
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="byok-external-link"
+                    >
+                      Official Groq Console Keys <ExternalLink size={11} />
+                    </a>
+                  </li>
+                  <li>Generate a new key and copy the key starting with <code>gsk_</code></li>
+                  <li>Paste the key in the field below and click Save Key</li>
+                </ol>
+                <div className="byok-docs-row">
+                  <a
+                    href="https://console.groq.com/docs/quickstart"
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="byok-docs-link"
+                  >
+                    Read Groq Quickstart Documentation <ExternalLink size={11} />
+                  </a>
+                </div>
+              </div>
+            </>
+          )}
 
           {/* Key Input Form */}
           <form onSubmit={handleSave} className="byok-form">

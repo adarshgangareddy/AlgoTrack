@@ -1111,4 +1111,215 @@
   cursor: not-allowed;
 }
 
+/* =========================================================================
+   CONNECTED STATE STYLING & ANIMATIONS
+   ========================================================================= */
+
+.profile-byok-card.is-connected {
+  border-color: #A7F3D0;
+  box-shadow: 0 4px 16px rgba(16, 185, 129, 0.08);
+  transition: all 0.3s ease;
+}
+
+.byok-badge.connected {
+  background-color: #D1FAE5;
+  color: #065F46;
+  border: 1px solid #A7F3D0;
+  box-shadow: 0 0 10px rgba(16, 185, 129, 0.2);
+  animation: badge-subtle-glow 3s ease-in-out infinite alternate;
+}
+
+@keyframes badge-subtle-glow {
+  0% { box-shadow: 0 0 6px rgba(16, 185, 129, 0.15); }
+  100% { box-shadow: 0 0 14px rgba(16, 185, 129, 0.35); }
+}
+
+.byok-connected-view {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.byok-active-card {
+  background: linear-gradient(135deg, #FFFFFF 0%, #F0FDF4 100%);
+  border: 1px solid #A7F3D0;
+  border-radius: 10px;
+  padding: 14px 16px;
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  position: relative;
+}
+
+.byok-active-header {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.byok-beacon-wrap {
+  position: relative;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 14px;
+  height: 14px;
+  flex-shrink: 0;
+}
+
+.byok-live-ping {
+  position: absolute;
+  width: 100%;
+  height: 100%;
+  border-radius: 50%;
+  background-color: #10B981;
+  opacity: 0.75;
+  animation: beacon-ping 2s cubic-bezier(0, 0, 0.2, 1) infinite;
+}
+
+.byok-live-dot {
+  position: relative;
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  background-color: #059669;
+}
+
+@keyframes beacon-ping {
+  0% { transform: scale(0.9); opacity: 0.8; }
+  75%, 100% { transform: scale(2.3); opacity: 0; }
+}
+
+.byok-active-info {
+  flex: 1;
+  min-width: 0;
+}
+
+.byok-active-title {
+  display: block;
+  font-size: 13px;
+  font-weight: 700;
+  color: #065F46;
+  line-height: 1.25;
+}
+
+.byok-active-sub {
+  display: block;
+  font-size: 11px;
+  color: #047857;
+  margin-top: 2px;
+}
+
+.byok-active-verified-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  padding: 2px 8px;
+  background-color: #D1FAE5;
+  color: #065F46;
+  border-radius: 9999px;
+  font-size: 10.5px;
+  font-weight: 700;
+  flex-shrink: 0;
+}
+
+.byok-key-preview-row {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 8px 12px;
+  background-color: #FFFFFF;
+  border: 1px solid #E2E8F0;
+  border-radius: 6px;
+}
+
+.byok-key-label {
+  font-size: 11px;
+  font-weight: 600;
+  color: #64748B;
+}
+
+.byok-key-mono {
+  font-family: monospace;
+  font-size: 12px;
+  font-weight: 700;
+  color: #0F172A;
+  letter-spacing: 0.05em;
+}
+
+.byok-connected-actions-row {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.byok-btn-toggle-update {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  padding: 6px 12px;
+  background-color: #FFFFFF;
+  border: 1px solid #CBD5E1;
+  color: #334155;
+  border-radius: 6px;
+  font-size: 11.5px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.15s ease;
+}
+
+.byok-btn-toggle-update:hover {
+  background-color: #F1F5F9;
+  color: #0F172A;
+  border-color: #94A3B8;
+}
+
+.byok-btn-remove {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  padding: 6px 12px;
+  background-color: #FEE2E2;
+  border: 1px solid #FECACA;
+  color: #DC2626;
+  border-radius: 6px;
+  font-size: 11.5px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.15s ease;
+}
+
+.byok-btn-remove:hover:not(:disabled) {
+  background-color: #FCA5A5;
+}
+
+.byok-update-expanded {
+  padding: 12px;
+  background-color: #F8FAFC;
+  border: 1px solid #E2E8F0;
+  border-radius: 8px;
+  animation: expand-form 0.2s ease-out;
+}
+
+@keyframes expand-form {
+  from { opacity: 0; transform: translateY(-4px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+.byok-subtle-help-link {
+  text-align: center;
+  padding-top: 4px;
+}
+
+.byok-help-link {
+  font-size: 11px;
+  color: #64748B;
+  text-decoration: underline;
+  transition: color 0.15s ease;
+}
+
+.byok-help-link:hover {
+  color: #0284C7;
+}
+
 

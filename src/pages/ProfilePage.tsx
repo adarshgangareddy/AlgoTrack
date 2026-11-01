@@ -48,6 +48,7 @@ export const ProfilePage: React.FC = () => {
   // AI Provider Settings State
   const [aiUsage, setAiUsage] = useState<UserAiUsageSummary | null>(null);
   const [apiKeyInput, setApiKeyInput] = useState('');
+  const [showKeyUpdateForm, setShowKeyUpdateForm] = useState(false);
   const [isVerifying, setIsVerifying] = useState(false);
   const [isSaving, setIsSaving] = useState(false);
   const [isDeleting, setIsDeleting] = useState(false);
@@ -300,7 +301,7 @@ export const ProfilePage: React.FC = () => {
             </div>
 
             {/* 3. AI Provider Settings (BYOK) Card */}
-            <div className="profile-card profile-byok-card">
+            <div className={`profile-card profile-byok-card ${aiUsage?.hasCustomKey && aiUsage.customKeyStatus === 'connected' ? 'is-connected' : 'is-free'}`}>
               <div className="byok-card-header">
                 <div className="byok-card-title-group">
                   <KeyRound size={16} color="#0284C7" />
@@ -311,126 +312,218 @@ export const ProfilePage: React.FC = () => {
                 </span>
               </div>
 
-              <p className="byok-card-explanation">
-                To continue using the AI Tutor after your 3 free requests, create your own Groq API key and securely connect it to AlgoTrack.
-              </p>
+              {aiUsage?.hasCustomKey && aiUsage.customKeyStatus === 'connected' ? (
+                /* ==============================================================
+                   CONNECTED STATE: Sleek, compact active view without bulky docs
+                   ============================================================== */
+                <div className="byok-connected-view">
+                  <div className="byok-active-card">
+                    <div className="byok-active-header">
+                      <div className="byok-beacon-wrap">
+                        <span className="byok-live-ping"></span>
+                        <span className="byok-live-dot"></span>
+                      </div>
+                      <div className="byok-active-info">
+                        <span className="byok-active-title">Personal Groq Key Active</span>
+                        <span className="byok-active-sub">Unlimited DSA Theory Mentoring Unlocked</span>
+                      </div>
+                      <span className="byok-active-verified-badge">
+                        <ShieldCheck size={12} color="#059669" />
+                        <span>Verified</span>
+                      </span>
+                    </div>
 
-              {/* Usage & Status Row */}
-              <div className="byok-usage-stat-box">
-                <span className="byok-stat-label">AI Tutor Access:</span>
-                <span className="byok-stat-value">
-                  {aiUsage?.hasCustomKey && aiUsage.customKeyStatus === 'connected'
-                    ? `Personal Key (${aiUsage.customKeyMasked || 'gsk_••••••••••••••••'})`
-                    : `Free requests: ${aiUsage?.freeRequestsRemaining ?? 3} / ${aiUsage?.freeRequestsLimit ?? 3} remaining`}
-                </span>
-              </div>
+                    <div className="byok-key-preview-row">
+                      <span className="byok-key-label">Active Key:</span>
+                      <code className="byok-key-mono">{aiUsage.customKeyMasked || 'gsk_••••••••••••••••'}</code>
+                    </div>
 
-              {/* API Creation Documentation CTA Card */}
-              <div className="byok-docs-banner">
-                <button
-                  type="button"
-                  className="byok-docs-btn"
-                  onClick={() => window.open('/groq-api-setup', '_blank')}
-                  title="Open Step-by-Step API Creation Documentation & Setup Dashboard"
-                >
-                  <div className="byok-docs-btn-left">
-                    <BookOpen size={16} className="byok-docs-icon" />
-                    <div className="byok-docs-text">
-                      <span className="byok-docs-title">API Creation Documentation</span>
-                      <span className="byok-docs-sub">Open Step-by-Step Dashboard Guide</span>
+                    <div className="byok-connected-actions-row">
+                      <button
+                        type="button"
+                        className="byok-btn-toggle-update"
+                        onClick={() => setShowKeyUpdateForm(!showKeyUpdateForm)}
+                      >
+                        {showKeyUpdateForm ? 'Cancel' : 'Change Key'}
+                      </button>
+                      <button
+                        type="button"
+                        className="byok-btn-remove"
+                        onClick={handleDeleteKey}
+                        disabled={isDeleting}
+                      >
+                        {isDeleting ? <Loader2 size={12} className="spin-icon" /> : <Trash2 size={12} />}
+                        <span>Disconnect</span>
+                      </button>
                     </div>
                   </div>
-                  <ExternalLink size={14} className="byok-docs-arrow" />
-                </button>
-              </div>
 
-              {/* Official Links */}
-              <div className="byok-guide-box">
-                <span className="byok-guide-title">How to get your Groq API key:</span>
-                <ul className="byok-guide-steps">
-                  <li>
-                    <Link to="/groq-api-setup" target="_blank" className="byok-link">
-                      <strong>Open API Setup Dashboard ↗</strong>
-                    </Link>
-                  </li>
-                  <li>
-                    Visit{' '}
-                    <a href="https://console.groq.com/keys" target="_blank" rel="noopener noreferrer" className="byok-link">
-                      Official Groq Console Keys <ExternalLink size={10} />
-                    </a>
-                  </li>
-                  <li>Click "Create API Key" and copy the <code>gsk_...</code> key</li>
-                  <li>
-                    <a href="https://console.groq.com/docs/quickstart" target="_blank" rel="noopener noreferrer" className="byok-link">
-                      Groq Documentation <ExternalLink size={10} />
-                    </a>
-                  </li>
-                </ul>
-              </div>
+                  {/* Collapsible Key Update Form */}
+                  {showKeyUpdateForm && (
+                    <form onSubmit={handleSaveKey} className="byok-profile-form byok-update-expanded">
+                      <label htmlFor="profile-groq-key" className="byok-input-label">
+                        Enter New Groq API Key
+                      </label>
+                      <input
+                        id="profile-groq-key"
+                        type="password"
+                        className="byok-input-field"
+                        placeholder="gsk_..."
+                        value={apiKeyInput}
+                        onChange={(e) => setApiKeyInput(e.target.value)}
+                        autoComplete="off"
+                      />
 
-              {/* Key Form */}
-              <form onSubmit={handleSaveKey} className="byok-profile-form">
-                <label htmlFor="profile-groq-key" className="byok-input-label">
-                  {aiUsage?.hasCustomKey ? 'Update Groq API Key' : 'Connect Groq API Key'}
-                </label>
-                <input
-                  id="profile-groq-key"
-                  type="password"
-                  className="byok-input-field"
-                  placeholder="gsk_..."
-                  value={apiKeyInput}
-                  onChange={(e) => setApiKeyInput(e.target.value)}
-                  autoComplete="off"
-                />
+                      {keyError && (
+                        <div className="byok-alert error">
+                          <AlertCircle size={13} />
+                          <span>{keyError}</span>
+                        </div>
+                      )}
 
-                {keyError && (
-                  <div className="byok-alert error">
-                    <AlertCircle size={13} />
-                    <span>{keyError}</span>
-                  </div>
-                )}
+                      {keySuccess && (
+                        <div className="byok-alert success">
+                          <CheckCircle2 size={13} />
+                          <span>{keySuccess}</span>
+                        </div>
+                      )}
 
-                {keySuccess && (
-                  <div className="byok-alert success">
-                    <CheckCircle2 size={13} />
-                    <span>{keySuccess}</span>
-                  </div>
-                )}
+                      <div className="byok-btn-row">
+                        <button
+                          type="button"
+                          className="byok-action-btn verify"
+                          onClick={handleVerifyKey}
+                          disabled={!apiKeyInput.trim() || isVerifying || isSaving}
+                        >
+                          {isVerifying ? <Loader2 size={13} className="spin-icon" /> : null}
+                          <span>Verify</span>
+                        </button>
 
-                <div className="byok-btn-row">
-                  {aiUsage?.hasCustomKey && (
-                    <button
-                      type="button"
-                      className="byok-action-btn delete"
-                      onClick={handleDeleteKey}
-                      disabled={isDeleting}
-                      title="Remove stored key"
-                    >
-                      {isDeleting ? <Loader2 size={13} className="spin-icon" /> : <Trash2 size={13} />}
-                      <span>Remove</span>
-                    </button>
+                        <button
+                          type="submit"
+                          className="byok-action-btn save"
+                          disabled={!apiKeyInput.trim() || isSaving || isVerifying}
+                        >
+                          {isSaving ? <Loader2 size={13} className="spin-icon" /> : <Check size={13} />}
+                          <span>Save Key</span>
+                        </button>
+                      </div>
+                    </form>
                   )}
 
-                  <button
-                    type="button"
-                    className="byok-action-btn verify"
-                    onClick={handleVerifyKey}
-                    disabled={!apiKeyInput.trim() || isVerifying || isSaving}
-                  >
-                    {isVerifying ? <Loader2 size={13} className="spin-icon" /> : null}
-                    <span>Verify</span>
-                  </button>
-
-                  <button
-                    type="submit"
-                    className="byok-action-btn save"
-                    disabled={!apiKeyInput.trim() || isSaving || isVerifying}
-                  >
-                    {isSaving ? <Loader2 size={13} className="spin-icon" /> : <Check size={13} />}
-                    <span>Save Key</span>
-                  </button>
+                  <div className="byok-subtle-help-link">
+                    <Link to="/groq-api-setup" target="_blank" className="byok-help-link">
+                      <span>Need help or console links? Open Setup Guide ↗</span>
+                    </Link>
+                  </div>
                 </div>
-              </form>
+              ) : (
+                /* ==============================================================
+                   FREE TIER STATE: Guided onboarding with documentation & steps
+                   ============================================================== */
+                <div className="byok-unconnected-view">
+                  <p className="byok-card-explanation">
+                    To continue using the AI Tutor after your 3 free requests, connect your own free Groq API key to AlgoTrack.
+                  </p>
+
+                  {/* Usage & Status Row */}
+                  <div className="byok-usage-stat-box">
+                    <span className="byok-stat-label">AI Tutor Access:</span>
+                    <span className="byok-stat-value">
+                      Free requests: {aiUsage?.freeRequestsRemaining ?? 3} / {aiUsage?.freeRequestsLimit ?? 3} remaining
+                    </span>
+                  </div>
+
+                  {/* API Creation Documentation CTA Card */}
+                  <div className="byok-docs-banner">
+                    <button
+                      type="button"
+                      className="byok-docs-btn"
+                      onClick={() => window.open('/groq-api-setup', '_blank')}
+                      title="Open Step-by-Step API Creation Documentation & Setup Dashboard"
+                    >
+                      <div className="byok-docs-btn-left">
+                        <BookOpen size={16} className="byok-docs-icon" />
+                        <div className="byok-docs-text">
+                          <span className="byok-docs-title">API Creation Documentation</span>
+                          <span className="byok-docs-sub">Open Step-by-Step Dashboard Guide</span>
+                        </div>
+                      </div>
+                      <ExternalLink size={14} className="byok-docs-arrow" />
+                    </button>
+                  </div>
+
+                  {/* Official Links */}
+                  <div className="byok-guide-box">
+                    <span className="byok-guide-title">How to get your Groq API key:</span>
+                    <ul className="byok-guide-steps">
+                      <li>
+                        <Link to="/groq-api-setup" target="_blank" className="byok-link">
+                          <strong>Open API Setup Dashboard ↗</strong>
+                        </Link>
+                      </li>
+                      <li>
+                        Visit{' '}
+                        <a href="https://console.groq.com/keys" target="_blank" rel="noopener noreferrer" className="byok-link">
+                          Official Groq Console Keys <ExternalLink size={10} />
+                        </a>
+                      </li>
+                      <li>Click "Create API Key" and copy the <code>gsk_...</code> key</li>
+                    </ul>
+                  </div>
+
+                  {/* Key Form */}
+                  <form onSubmit={handleSaveKey} className="byok-profile-form">
+                    <label htmlFor="profile-groq-key" className="byok-input-label">
+                      Connect Groq API Key
+                    </label>
+                    <input
+                      id="profile-groq-key"
+                      type="password"
+                      className="byok-input-field"
+                      placeholder="gsk_..."
+                      value={apiKeyInput}
+                      onChange={(e) => setApiKeyInput(e.target.value)}
+                      autoComplete="off"
+                    />
+
+                    {keyError && (
+                      <div className="byok-alert error">
+                        <AlertCircle size={13} />
+                        <span>{keyError}</span>
+                      </div>
+                    )}
+
+                    {keySuccess && (
+                      <div className="byok-alert success">
+                        <CheckCircle2 size={13} />
+                        <span>{keySuccess}</span>
+                      </div>
+                    )}
+
+                    <div className="byok-btn-row">
+                      <button
+                        type="button"
+                        className="byok-action-btn verify"
+                        onClick={handleVerifyKey}
+                        disabled={!apiKeyInput.trim() || isVerifying || isSaving}
+                      >
+                        {isVerifying ? <Loader2 size={13} className="spin-icon" /> : null}
+                        <span>Verify</span>
+                      </button>
+
+                      <button
+                        type="submit"
+                        className="byok-action-btn save"
+                        disabled={!apiKeyInput.trim() || isSaving || isVerifying}
+                      >
+                        {isSaving ? <Loader2 size={13} className="spin-icon" /> : <Check size={13} />}
+                        <span>Save Key</span>
+                      </button>
+                    </div>
+                  </form>
+                </div>
+              )}
             </div>
           </aside>
 
