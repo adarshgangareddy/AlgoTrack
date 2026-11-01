@@ -1,5 +1,5 @@
 // src/pages/ProblemWorkspacePage.tsx
-// AlgoTrack — Problem Workspace UI Fix
+// AlgoTrack — LeetCode-Inspired Problem Workspace with Collapsible Nav Sidebar
 
 import React, { useState, useEffect, useRef, useCallback } from 'react';
 import { useParams, Link, useNavigate } from 'react-router-dom';
@@ -20,7 +20,13 @@ import {
   Loader2,
   Lock,
   ChevronDown,
-  ChevronUp
+  ChevronUp,
+  ListChecks,
+  Lightbulb,
+  Compass,
+  PanelLeftClose,
+  PanelLeftOpen,
+  Copy
 } from 'lucide-react';
 import { 
   fetchProblemBySlug, 
@@ -36,6 +42,25 @@ import { MonacoCodeEditor } from '../components/workspace/MonacoCodeEditor';
 import { AIAssistant } from '../components/workspace/AIAssistant';
 import { askGroqAI } from '../services/aiService';
 import './ProblemWorkspacePage.css';
+
+interface NavSectionItem {
+  id: string;
+  label: string;
+  shortLabel: string;
+  icon: React.ComponentType<{ size?: number; className?: string; color?: string }>;
+  isAiTab?: boolean;
+}
+
+const NAV_SECTIONS: NavSectionItem[] = [
+  { id: 'sec-description', label: 'Problem Description', shortLabel: 'Description', icon: BookOpen },
+  { id: 'sec-examples', label: 'Examples & Constraints', shortLabel: 'Examples', icon: ListChecks },
+  { id: 'sec-concept', label: 'Concepts / Theory', shortLabel: 'Theory', icon: Lightbulb },
+  { id: 'sec-approach', label: 'Approach', shortLabel: 'Approach', icon: Compass },
+  { id: 'sec-complexity', label: 'Complexity Analysis', shortLabel: 'Complexity', icon: Clock },
+  { id: 'sec-mistakes', label: 'Mistakes & Edge Cases', shortLabel: 'Mistakes', icon: AlertCircle },
+  { id: 'sec-notes', label: 'Personal Notes', shortLabel: 'Notes', icon: FileText },
+  { id: 'sec-ai', label: 'AI Code Assistant', shortLabel: 'AI Tutor', icon: Sparkles, isAiTab: true },
+];
 
 export const ProblemWorkspacePage: React.FC = () => {
   const { slug } = useParams<{ slug: string }>();
@@ -69,6 +94,14 @@ export const ProblemWorkspacePage: React.FC = () => {
   const [hasUnsavedChanges, setHasUnsavedChanges] = useState(false);
   const [saveSuccessMsg, setSaveSuccessMsg] = useState<string | null>(null);
 
+  // Left sidebar collapse state
+  const [isSidebarCollapsed, setIsSidebarCollapsed] = useState<boolean>(() => {
+    return localStorage.getItem('algotrack_ws_sidebar_collapsed') === 'true';
+  });
+
+  // Active section tracking for sidebar scrollspy
+  const [activeSection, setActiveSection] = useState<string>('sec-description');
+
   // Responsive / View modes
   const [mobileTab, setMobileTab] = useState<'learning' | 'workspace'>('learning');
   const [rightPanelTab, setRightPanelTab] = useState<'editor' | 'ai'>('editor');
@@ -78,13 +111,22 @@ export const ProblemWorkspacePage: React.FC = () => {
   // Expandable sections state
   const [expandedSections, setExpandedSections] = useState<Record<string, boolean>>({
     problemOverview: true,
+    examples: true,
     concept: true,
     approach: true,
     complexity: true,
     mistakes: true,
-    editor: true,
     notes: true,
+    editor: true,
   });
+
+  const toggleSidebar = () => {
+    setIsSidebarCollapsed(prev => {
+      const next = !prev;
+      localStorage.setItem('algotrack_ws_sidebar_collapsed', String(next));
+      return next;
+    });
+  };
 
   const toggleSection = (sectionKey: string) => {
     setExpandedSections((prev) => ({
@@ -281,7 +323,7 @@ export const ProblemWorkspacePage: React.FC = () => {
     markDirtyAndDebounceSave();
   };
 
-  // Status Change Handler
+  // Status Change Handler with immediate optimistic UI update
   const handleStatusChange = (newStatus: ProblemStatus) => {
     setProblemStatus(newStatus);
     markDirtyAndDebounceSave();
@@ -301,6 +343,81 @@ export const ProblemWorkspacePage: React.FC = () => {
     const nextNum = problem.problem_number + 1;
     navigate(`/problems/${nextNum}`);
   };
+
+  // Sidebar navigation click handler with smooth scroll and tab activation
+  const handleNavSectionClick = (section: NavSectionItem) => {
+    setActiveSection(section.id);
+
+    if (section.isAiTab) {
+      setRightPanelTab('ai');
+      setMobileTab('workspace');
+      return;
+    }
+
+    // Switch to learning tab on mobile
+    setMobileTab('learning');
+
+    // Expand section if collapsed
+    const sectionKeyMap: Record<string, string> = {
+      'sec-description': 'problemOverview',
+      'sec-examples': 'examples',
+      'sec-concept': 'concept',
+      'sec-approach': 'approach',
+      'sec-complexity': 'complexity',
+      'sec-mistakes': 'mistakes',
+      'sec-notes': 'notes',
+    };
+    const key = sectionKeyMap[section.id];
+    if (key && !expandedSections[key]) {
+      setExpandedSections(prev => ({ ...prev, [key]: true }));
+    }
+
+    // Smooth scroll into view
+    setTimeout(() => {
+      const el = document.getElementById(section.id);
+      if (el) {
+        el.scrollIntoView({ behavior: 'smooth', block: 'start' });
+      }
+    }, 50);
+  };
+
+  // Scrollspy observer for left column sections
+  useEffect(() => {
+    const container = document.getElementById('ws-left-scroll-pane');
+    if (!container) return;
+
+    const sectionIds = [
+      'sec-description',
+      'sec-examples',
+      'sec-concept',
+      'sec-approach',
+      'sec-complexity',
+      'sec-mistakes',
+      'sec-notes',
+    ];
+
+    const observer = new IntersectionObserver(
+      (entries) => {
+        const visible = entries.filter((e) => e.isIntersecting);
+        if (visible.length > 0) {
+          visible.sort((a, b) => a.boundingClientRect.top - b.boundingClientRect.top);
+          setActiveSection(visible[0].target.id);
+        }
+      },
+      {
+        root: container,
+        rootMargin: '-15% 0px -60% 0px',
+        threshold: 0,
+      }
+    );
+
+    sectionIds.forEach((id) => {
+      const el = document.getElementById(id);
+      if (el) observer.observe(el);
+    });
+
+    return () => observer.disconnect();
+  }, [expandedSections, problem]);
 
   // Format timestamp helper
   const formatSavedTime = (iso?: string | null) => {
@@ -339,10 +456,29 @@ export const ProblemWorkspacePage: React.FC = () => {
 
   const activeCode = solutionsByLang[activeLanguage] ?? (STARTER_CODE_TEMPLATES[activeLanguage] || '');
 
+  // Default examples if not explicitly present on the problem record
+  const problemExamples = problem.examples && problem.examples.length > 0 
+    ? problem.examples 
+    : [
+        {
+          input: 'nums = [2,7,11,15], target = 9',
+          output: '[0,1]',
+          explanation: 'The elements at index 0 and 1 sum to 9.'
+        }
+      ];
+
+  const problemConstraints = problem.constraints && problem.constraints.length > 0
+    ? problem.constraints
+    : [
+        `1 <= nums.length <= 10^5`,
+        `-10^9 <= nums[i] <= 10^9`,
+        `Optimal algorithmic time: O(N) or O(N log N)`,
+      ];
+
   return (
     <div className="workspace-page-container">
       {/* ==================================================================
-          1. TOP WORKSPACE HEADER
+          1. TOP WORKSPACE HEADER (Compact & LeetCode-Inspired)
           ================================================================== */}
       <header className="workspace-header">
         <div className="workspace-header-inner">
@@ -469,7 +605,7 @@ export const ProblemWorkspacePage: React.FC = () => {
             onClick={() => setMobileTab('learning')}
           >
             <BookOpen size={15} />
-            <span>Problem & Learning</span>
+            <span>Problem & Notes</span>
           </button>
           <button
             type="button"
@@ -477,25 +613,82 @@ export const ProblemWorkspacePage: React.FC = () => {
             onClick={() => setMobileTab('workspace')}
           >
             <Code2 size={15} />
-            <span>Code & Workspace</span>
+            <span>Code & AI</span>
           </button>
         </div>
       </header>
 
       {/* ==================================================================
-          2. MAIN TWO-COLUMN WORKSPACE BODY
+          2. MAIN BODY (Sidebar + Left Scroll Pane + Right Editor Pane)
           ================================================================== */}
       <main className="workspace-main-body">
-        <div className="workspace-grid-layout">
-          {/* ================================================================
-              LEFT COLUMN — Problem Description & Learning Materials
-              ================================================================ */}
+        {/* ================================================================
+            A. COLLAPSIBLE LEFT NAVIGATION SIDEBAR
+            ================================================================ */}
+        <aside 
+          className={`workspace-nav-sidebar ${isSidebarCollapsed ? 'collapsed' : 'expanded'}`}
+          aria-label="Workspace Section Navigation"
+        >
+          <div className="sidebar-nav-list">
+            {NAV_SECTIONS.map((sec) => {
+              const Icon = sec.icon;
+              const isActive = sec.isAiTab 
+                ? rightPanelTab === 'ai' 
+                : activeSection === sec.id;
+
+              return (
+                <button
+                  key={sec.id}
+                  type="button"
+                  className={`sidebar-nav-item ${isActive ? 'active' : ''} ${sec.isAiTab ? 'ai-item' : ''}`}
+                  onClick={() => handleNavSectionClick(sec)}
+                  title={sec.label}
+                >
+                  <span className="nav-icon-wrap">
+                    <Icon size={16} />
+                  </span>
+                  {!isSidebarCollapsed && (
+                    <span className="nav-item-label">{sec.label}</span>
+                  )}
+                </button>
+              );
+            })}
+          </div>
+
+          {/* Sidebar Collapse / Expand Toggle at Bottom */}
+          <div className="sidebar-footer">
+            <button
+              type="button"
+              className="sidebar-toggle-btn"
+              onClick={toggleSidebar}
+              title={isSidebarCollapsed ? "Expand section sidebar" : "Collapse section sidebar"}
+            >
+              {isSidebarCollapsed ? (
+                <PanelLeftOpen size={16} />
+              ) : (
+                <>
+                  <PanelLeftClose size={16} />
+                  <span className="toggle-label">Collapse Menu</span>
+                </>
+              )}
+            </button>
+          </div>
+        </aside>
+
+        {/* ================================================================
+            B. MAIN WORKSPACE SPLIT CONTAINER
+            ================================================================ */}
+        <div className="workspace-split-container">
+          {/* ==============================================================
+              LEFT COLUMN — Scrollable Problem Description & Notes
+              ============================================================== */}
           <section
+            id="ws-left-scroll-pane"
             className={`ws-column ws-left-column ${mobileTab === 'learning' ? 'mobile-show' : 'mobile-hide'}`}
             aria-label="Problem Description and Conceptual Learning"
           >
-            {/* Card 1: Problem Overview & LeetCode Callout */}
-            <div className={`ws-card ${!expandedSections.problemOverview ? 'is-collapsed' : ''}`}>
+            {/* Section 1: Problem Overview */}
+            <div id="sec-description" className={`ws-card ${!expandedSections.problemOverview ? 'is-collapsed' : ''}`}>
               <div 
                 className="ws-card-header-toggle"
                 onClick={() => toggleSection('problemOverview')}
@@ -578,8 +771,75 @@ export const ProblemWorkspacePage: React.FC = () => {
               )}
             </div>
 
-            {/* Card 2: Understand the Concept */}
-            <div className={`ws-card ws-card-concept ${!expandedSections.concept ? 'is-collapsed' : ''}`}>
+            {/* Section 2: Examples & Constraints */}
+            <div id="sec-examples" className={`ws-card ${!expandedSections.examples ? 'is-collapsed' : ''}`}>
+              <div 
+                className="ws-section-header ws-card-header-toggle"
+                onClick={() => toggleSection('examples')}
+                role="button"
+                tabIndex={0}
+                aria-expanded={expandedSections.examples}
+              >
+                <div className="ws-section-title-wrap">
+                  <ListChecks size={17} color="#0284C7" />
+                  <h3 className="ws-section-title">Examples & Constraints</h3>
+                </div>
+
+                <button
+                  type="button"
+                  className="ws-section-collapse-btn"
+                  onClick={(e) => {
+                    e.stopPropagation();
+                    toggleSection('examples');
+                  }}
+                  title={expandedSections.examples ? "Collapse examples" : "Expand examples"}
+                >
+                  {expandedSections.examples ? <ChevronUp size={16} /> : <ChevronDown size={16} />}
+                </button>
+              </div>
+
+              {expandedSections.examples && (
+                <div className="ws-card-content">
+                  {/* Examples List */}
+                  <div className="ws-examples-container">
+                    {problemExamples.map((ex, idx) => (
+                      <div key={idx} className="ws-example-box">
+                        <div className="ws-example-badge">Example {idx + 1}</div>
+                        <div className="ws-example-row">
+                          <span className="ws-example-key">Input:</span>
+                          <code className="ws-example-val">{ex.input}</code>
+                        </div>
+                        <div className="ws-example-row">
+                          <span className="ws-example-key">Output:</span>
+                          <code className="ws-example-val">{ex.output}</code>
+                        </div>
+                        {ex.explanation && (
+                          <div className="ws-example-row">
+                            <span className="ws-example-key">Explanation:</span>
+                            <span className="ws-example-exp">{ex.explanation}</span>
+                          </div>
+                        )}
+                      </div>
+                    ))}
+                  </div>
+
+                  {/* Constraints */}
+                  <div className="ws-constraints-container">
+                    <h4 className="ws-constraints-heading">Constraints:</h4>
+                    <ul className="ws-constraints-list">
+                      {problemConstraints.map((c, i) => (
+                        <li key={i} className="ws-constraint-item">
+                          <code>{c}</code>
+                        </li>
+                      ))}
+                    </ul>
+                  </div>
+                </div>
+              )}
+            </div>
+
+            {/* Section 3: Understand the Concept */}
+            <div id="sec-concept" className={`ws-card ws-card-concept ${!expandedSections.concept ? 'is-collapsed' : ''}`}>
               <div 
                 className="ws-section-header ws-card-header-toggle"
                 onClick={() => toggleSection('concept')}
@@ -588,8 +848,8 @@ export const ProblemWorkspacePage: React.FC = () => {
                 aria-expanded={expandedSections.concept}
               >
                 <div className="ws-section-title-wrap">
-                  <BookOpen size={17} color="#0284C7" />
-                  <h3 className="ws-section-title">Understand the Concept</h3>
+                  <Lightbulb size={17} color="#0284C7" />
+                  <h3 className="ws-section-title">Concepts / Theory</h3>
                 </div>
 
                 <div className="ws-header-actions-wrap" onClick={(e) => e.stopPropagation()}>
@@ -633,6 +893,10 @@ export const ProblemWorkspacePage: React.FC = () => {
                         ))}
                       </div>
                     </div>
+                  ) : problem.theory_content ? (
+                    <div className="ws-theory-content">
+                      <p className="ws-theory-text">{problem.theory_content}</p>
+                    </div>
                   ) : isAiExplaining ? (
                     <div className="ws-ai-loading-container">
                       <Loader2 size={24} className="spin-icon" />
@@ -661,8 +925,8 @@ export const ProblemWorkspacePage: React.FC = () => {
               )}
             </div>
 
-            {/* Card 3: Personal Approach */}
-            <div className={`ws-card ${!expandedSections.approach ? 'is-collapsed' : ''}`}>
+            {/* Section 4: Personal Approach */}
+            <div id="sec-approach" className={`ws-card ${!expandedSections.approach ? 'is-collapsed' : ''}`}>
               <div 
                 className="ws-section-header ws-card-header-toggle"
                 onClick={() => toggleSection('approach')}
@@ -671,8 +935,8 @@ export const ProblemWorkspacePage: React.FC = () => {
                 aria-expanded={expandedSections.approach}
               >
                 <div className="ws-section-title-wrap">
-                  <FileText size={17} color="#0284C7" />
-                  <h3 className="ws-section-title">My Approach</h3>
+                  <Compass size={17} color="#0284C7" />
+                  <h3 className="ws-section-title">Approach</h3>
                 </div>
 
                 <button
@@ -707,8 +971,8 @@ export const ProblemWorkspacePage: React.FC = () => {
               )}
             </div>
 
-            {/* Card 4: Time & Space Complexity */}
-            <div className={`ws-card ${!expandedSections.complexity ? 'is-collapsed' : ''}`}>
+            {/* Section 5: Time & Space Complexity */}
+            <div id="sec-complexity" className={`ws-card ${!expandedSections.complexity ? 'is-collapsed' : ''}`}>
               <div 
                 className="ws-section-header ws-card-header-toggle"
                 onClick={() => toggleSection('complexity')}
@@ -718,7 +982,7 @@ export const ProblemWorkspacePage: React.FC = () => {
               >
                 <div className="ws-section-title-wrap">
                   <Clock size={17} color="#059669" />
-                  <h3 className="ws-section-title">Time & Space Complexity</h3>
+                  <h3 className="ws-section-title">Complexity Analysis</h3>
                 </div>
 
                 <button
@@ -777,8 +1041,8 @@ export const ProblemWorkspacePage: React.FC = () => {
               )}
             </div>
 
-            {/* Card 5: Mistakes & Edge Cases */}
-            <div className={`ws-card ${!expandedSections.mistakes ? 'is-collapsed' : ''}`}>
+            {/* Section 6: Mistakes & Edge Cases */}
+            <div id="sec-mistakes" className={`ws-card ${!expandedSections.mistakes ? 'is-collapsed' : ''}`}>
               <div 
                 className="ws-section-header ws-card-header-toggle"
                 onClick={() => toggleSection('mistakes')}
@@ -822,16 +1086,65 @@ export const ProblemWorkspacePage: React.FC = () => {
                 </div>
               )}
             </div>
+
+            {/* Section 7: Personal Notes & Observations */}
+            <div id="sec-notes" className={`ws-card ${!expandedSections.notes ? 'is-collapsed' : ''}`}>
+              <div 
+                className="ws-section-header ws-card-header-toggle"
+                onClick={() => toggleSection('notes')}
+                role="button"
+                tabIndex={0}
+                aria-expanded={expandedSections.notes}
+              >
+                <div className="ws-section-title-wrap">
+                  <FileText size={17} color="#0284C7" />
+                  <h3 className="ws-section-title">Personal Notes & Observations</h3>
+                </div>
+                <div className="ws-header-actions-wrap" onClick={(e) => e.stopPropagation()}>
+                  <span className="ws-privacy-badge">
+                    <Lock size={11} />
+                    <span>Private to your account</span>
+                  </span>
+
+                  <button
+                    type="button"
+                    className="ws-section-collapse-btn"
+                    onClick={() => toggleSection('notes')}
+                    title={expandedSections.notes ? "Collapse notes section" : "Expand notes section"}
+                  >
+                    {expandedSections.notes ? <ChevronUp size={16} /> : <ChevronDown size={16} />}
+                  </button>
+                </div>
+              </div>
+
+              {expandedSections.notes && (
+                <div className="ws-card-content">
+                  <p className="ws-field-desc">
+                    Record insights, alternative algorithmic designs, or personal test observations here.
+                  </p>
+                  <textarea
+                    className="ws-textarea ws-notes-textarea"
+                    rows={6}
+                    value={personalNotes}
+                    onChange={(e) => {
+                      setPersonalNotes(e.target.value);
+                      markDirtyAndDebounceSave();
+                    }}
+                    placeholder="Record key takeaways, alternative patterns, edge-case observations, or interview prep thoughts..."
+                  />
+                </div>
+              )}
+            </div>
           </section>
 
-          {/* ================================================================
-              RIGHT COLUMN — Code Editor, AI Tutor, and Personal Notes
-              ================================================================ */}
+          {/* ==============================================================
+              RIGHT COLUMN — Monaco Code Editor & Groq AI Assistant
+              ============================================================== */}
           <section
             className={`ws-column ws-right-column ${mobileTab === 'workspace' ? 'mobile-show' : 'mobile-hide'}`}
-            aria-label="Code Editor, AI Assistant, and Personal Scratchpad"
+            aria-label="Code Editor and AI Assistant"
           >
-            {/* Panel View Switcher: Code vs AI Tutor */}
+            {/* Panel View Switcher: Code Editor vs AI Assistant */}
             <div className="ws-panel-tabs">
               <button
                 type="button"
@@ -839,7 +1152,7 @@ export const ProblemWorkspacePage: React.FC = () => {
                 onClick={() => setRightPanelTab('editor')}
               >
                 <Code2 size={15} />
-                <span>Solution Code & Notes</span>
+                <span>Solution Code</span>
               </button>
 
               <button
@@ -848,7 +1161,7 @@ export const ProblemWorkspacePage: React.FC = () => {
                 onClick={() => setRightPanelTab('ai')}
               >
                 <Sparkles size={15} color={rightPanelTab === 'ai' ? '#0284C7' : '#64748B'} />
-                <span>AI Tutor & Explainer</span>
+                <span>AI Code Assistant</span>
                 <span className="ws-ai-chip">Ask Questions</span>
               </button>
             </div>
@@ -871,8 +1184,34 @@ export const ProblemWorkspacePage: React.FC = () => {
                 userId={user?.id}
               />
             ) : (
-              /* Solution Code Editor & Personal Notes */
-              <>
+              /* Solution Code Editor with Quick Actions */
+              <div className="ws-editor-container-wrapper">
+                {/* Editor Quick Action Toolbar */}
+                <div className="ws-editor-top-actions">
+                  {problem.leetcode_url && (
+                    <a
+                      href={problem.leetcode_url}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="ws-quick-action-link"
+                      title="Open problem directly on LeetCode"
+                    >
+                      <span>Open on LeetCode</span>
+                      <ExternalLink size={13} />
+                    </a>
+                  )}
+
+                  <button
+                    type="button"
+                    className="ws-quick-action-ai-btn"
+                    onClick={() => setRightPanelTab('ai')}
+                    title="Ask AI to analyze, optimize, or review this code"
+                  >
+                    <Sparkles size={13} />
+                    <span>Analyze with AI</span>
+                  </button>
+                </div>
+
                 {/* Personal Solution Monaco Code Editor */}
                 <MonacoCodeEditor
                   problemId={problem.id}
@@ -889,56 +1228,7 @@ export const ProblemWorkspacePage: React.FC = () => {
                   isExpanded={expandedSections.editor}
                   onToggleExpand={() => toggleSection('editor')}
                 />
-
-                {/* Personal Notes & Observations Card */}
-                <div className={`ws-card ${!expandedSections.notes ? 'is-collapsed' : ''}`}>
-                  <div 
-                    className="ws-section-header ws-card-header-toggle"
-                    onClick={() => toggleSection('notes')}
-                    role="button"
-                    tabIndex={0}
-                    aria-expanded={expandedSections.notes}
-                  >
-                    <div className="ws-section-title-wrap">
-                      <FileText size={17} color="#0284C7" />
-                      <h3 className="ws-section-title">Personal Notes & Observations</h3>
-                    </div>
-                    <div className="ws-header-actions-wrap" onClick={(e) => e.stopPropagation()}>
-                      <span className="ws-privacy-badge">
-                        <Lock size={11} />
-                        <span>Private to your account</span>
-                      </span>
-
-                      <button
-                        type="button"
-                        className="ws-section-collapse-btn"
-                        onClick={() => toggleSection('notes')}
-                        title={expandedSections.notes ? "Collapse notes section" : "Expand notes section"}
-                      >
-                        {expandedSections.notes ? <ChevronUp size={16} /> : <ChevronDown size={16} />}
-                      </button>
-                    </div>
-                  </div>
-
-                  {expandedSections.notes && (
-                    <div className="ws-card-content">
-                      <p className="ws-field-desc">
-                        Record insights, alternative algorithmic designs, or personal test observations here.
-                      </p>
-                      <textarea
-                        className="ws-textarea ws-notes-textarea"
-                        rows={6}
-                        value={personalNotes}
-                        onChange={(e) => {
-                          setPersonalNotes(e.target.value);
-                          markDirtyAndDebounceSave();
-                        }}
-                        placeholder="Record key takeaways, alternative patterns, edge-case observations, or interview prep thoughts..."
-                      />
-                    </div>
-                  )}
-                </div>
-              </>
+              </div>
             )}
           </section>
         </div>
