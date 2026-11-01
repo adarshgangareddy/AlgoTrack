@@ -1,5 +1,26 @@
 import { supabase, isSupabaseConfigured } from '../lib/supabase';
 import leetcodeIndexData from '../data/leetcodeIndex.json';
+import problemUuidMapData from '../data/problemUuidMap.json';
+
+const problemUuidMap: Record<string, string> = problemUuidMapData as Record<string, string>;
+
+/**
+ * Returns the standardized Supabase UUID for a problem slug or identifier
+ */
+export function getProblemUuid(slugOrId: string): string {
+  const normalized = slugOrId.toLowerCase().trim().replace(/^p\d+-/, '');
+  if (problemUuidMap[normalized]) {
+    return problemUuidMap[normalized];
+  }
+  if (problemUuidMap[slugOrId]) {
+    return problemUuidMap[slugOrId];
+  }
+  // If already a valid UUID format, return it
+  if (/^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i.test(slugOrId)) {
+    return slugOrId;
+  }
+  return slugOrId;
+}
 
 export interface Problem {
   id: string;
@@ -201,7 +222,12 @@ export const CURATED_PROBLEMS: Problem[] = [
 // Combine index problems with curated data
 function buildAllProblemsList(): Problem[] {
   const curatedMap = new Map<string, Problem>();
-  CURATED_PROBLEMS.forEach((p) => curatedMap.set(p.slug, p));
+  CURATED_PROBLEMS.forEach((p) => {
+    curatedMap.set(p.slug, {
+      ...p,
+      id: getProblemUuid(p.slug)
+    });
+  });
 
   const list: Problem[] = [];
 
@@ -220,8 +246,9 @@ function buildAllProblemsList(): Problem[] {
       curatedMap.delete(item.slug);
     } else {
       const difficulty = (item.diff === 'Hard' || item.diff === 'Medium' ? item.diff : 'Easy') as 'Easy' | 'Medium' | 'Hard';
+      const uuid = getProblemUuid(item.slug);
       list.push({
-        id: `p${item.num}-${item.slug}`,
+        id: uuid,
         problem_number: item.num,
         title: item.title,
         slug: item.slug,
@@ -276,8 +303,12 @@ export async function fetchProblemBySlug(slug: string): Promise<Problem | null> 
   // 1. Check curated list
   const curated = CURATED_PROBLEMS.find((p) => p.slug === normalizedSlug);
   if (curated) {
-    problemDetailsCache.set(normalizedSlug, curated);
-    return curated;
+    const enrichedCurated = {
+      ...curated,
+      id: getProblemUuid(curated.slug)
+    };
+    problemDetailsCache.set(normalizedSlug, enrichedCurated);
+    return enrichedCurated;
   }
 
   // 2. Search in all indexed problems
