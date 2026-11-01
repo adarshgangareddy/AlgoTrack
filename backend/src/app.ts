@@ -1,6 +1,6 @@
 // backend/src/app.ts
 
-import express, { Request, Response } from 'express';
+import express, { Request, Response, NextFunction } from 'express';
 import cors from 'cors';
 import { env } from './config/env.js';
 import { rateLimit } from './middleware/rateLimit.middleware.js';
@@ -24,7 +24,7 @@ export function createApp() {
 
   app.use(
     cors({
-      origin: (origin, callback) => {
+      origin: (origin: string | undefined, callback: (err: Error | null, allow?: boolean) => void) => {
         // Allow requests with no origin (like health checks, server-to-server, mobile apps)
         if (!origin) return callback(null, true);
         if (
@@ -71,7 +71,7 @@ export function createApp() {
   app.use('/api/ai', aiRoutes);
 
   // 4. 404 Route Catch-all
-  app.use('*', (req: Request, _res: Response, next) => {
+  app.use('*', (req: Request, _res: Response, next: NextFunction) => {
     next(ApiError.notFound(`Endpoint "${req.originalUrl}" does not exist on this server.`));
   });
 

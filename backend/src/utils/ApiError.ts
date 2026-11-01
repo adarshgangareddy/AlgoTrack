@@ -11,7 +11,9 @@ export class ApiError extends Error {
     this.isOperational = isOperational;
     this.errors = errors;
     Object.setPrototypeOf(this, ApiError.prototype);
-    Error.captureStackTrace(this, this.constructor);
+    if ('captureStackTrace' in Error && typeof (Error as unknown as { captureStackTrace?: (target: object, constructorOpt?: Function) => void }).captureStackTrace === 'function') {
+      (Error as unknown as { captureStackTrace: (target: object, constructorOpt?: Function) => void }).captureStackTrace(this, this.constructor);
+    }
   }
 
   static badRequest(message: string, errors?: unknown): ApiError {
