@@ -18,11 +18,17 @@
     "@monaco-editor/react": "^4.7.0",
     "@supabase/ssr": "^0.12.7",
     "@supabase/supabase-js": "^2.118.0",
+    "@types/katex": "^0.16.8",
     "@uiw/react-codemirror": "^4.25.12",
+    "katex": "^0.19.1",
     "lucide-react": "^1.65.0",
     "react": "^19.3.1",
     "react-dom": "^19.3.1",
-    "react-router-dom": "^7.18.5"
+    "react-markdown": "^10.1.0",
+    "react-router-dom": "^7.18.5",
+    "rehype-katex": "^7.0.1",
+    "remark-gfm": "^4.0.1",
+    "remark-math": "^6.0.0"
   },
   "devDependencies": {
     "@types/node": "^24.19.2",

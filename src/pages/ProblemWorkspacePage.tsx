@@ -22,7 +22,6 @@ import {
   Lightbulb, 
   Compass, 
   RotateCcw,
-  List,
   Search,
   User,
   LayoutDashboard,
@@ -45,6 +44,7 @@ import {
 import { MonacoCodeEditor } from '../components/workspace/MonacoCodeEditor';
 import { AIAssistant } from '../components/workspace/AIAssistant';
 import { TestcasesPanel } from '../components/workspace/TestcasesPanel';
+import { MarkdownRenderer } from '../components/common/MarkdownRenderer';
 import './ProblemWorkspacePage.css';
 
 export type LeftWorkspaceTab = 'description' | 'editorial' | 'ai' | 'approach' | 'notes';
@@ -503,10 +503,10 @@ export const ProblemWorkspacePage: React.FC = () => {
 
             <span className="ws-nav-pipe">|</span>
 
-            {/* LeetCode-style Problem List Button */}
+            {/* Back to Problems Button */}
             <Link to="/problems" className="ws-problem-list-link" title="Return to Problems Library">
-              <List size={14} />
-              <span>Problem List</span>
+              <ChevronLeft size={14} />
+              <span>Problems</span>
             </Link>
 
             {/* Previous and Next Navigation Arrows */}
@@ -550,12 +550,49 @@ export const ProblemWorkspacePage: React.FC = () => {
             </div>
           </div>
 
-          {/* Right: Search Symbol + Name, Reset Layout, User Avatar Dropdown with Logout */}
+          {/* Right: Status Selector, Save Progress, Search, Reset Layout, User Dropdown, Mobile Menu */}
           <div className="header-right-actions">
+            {/* Problem Status Selector in Global Navbar */}
+            <div className="ws-header-status-wrap">
+              <select
+                className={`ws-header-status-select ${problemStatus}`}
+                value={problemStatus}
+                onChange={(e) => handleStatusChange(e.target.value as ProblemStatus)}
+                title="Update problem status"
+                aria-label="Problem Status"
+              >
+                <option value="not_started">Todo</option>
+                <option value="attempted">Attempted</option>
+                <option value="solved">Solved</option>
+              </select>
+            </div>
+
+            {/* Save Progress Button in Global Navbar */}
+            <div className="ws-header-save-group">
+              {lastSavedAt && (
+                <span className="ws-header-saved-tag" title={`Saved at ${formatSavedTime(lastSavedAt)}`}>
+                  <Check size={11} color="#10B981" />
+                  <span className="ws-saved-time-text">{formatSavedTime(lastSavedAt)}</span>
+                </span>
+              )}
+              <button
+                type="button"
+                className="ws-header-btn-save"
+                onClick={() => handleSaveProgress(false)}
+                disabled={isSaving}
+                title="Save solution and notes (Ctrl+S)"
+              >
+                {isSaving ? <Loader2 size={13} className="spin-icon" /> : <Save size={13} />}
+                <span className="ws-header-save-label">{isSaving ? 'Saving' : 'Save'}</span>
+              </button>
+            </div>
+
+            <span className="ws-nav-pipe desktop-only">|</span>
+
             {/* Search Symbol + Name Trigger */}
             <button
               type="button"
-              className="ws-nav-search-btn"
+              className="ws-nav-search-btn desktop-only"
               onClick={() => navigate('/problems')}
               title="Search challenges and topics (Ctrl+K)"
             >
@@ -566,7 +603,7 @@ export const ProblemWorkspacePage: React.FC = () => {
             {/* Reset Split Layout */}
             <button
               type="button"
-              className="ws-btn-layout-reset"
+              className="ws-btn-layout-reset desktop-only"
               onClick={handleResetLayout}
               title="Reset workspace panels to default layout"
             >
@@ -646,6 +683,7 @@ export const ProblemWorkspacePage: React.FC = () => {
                 </div>
               )}
             </div>
+
             {/* Mobile 3-Lines Hamburger Button */}
             <button
               type="button"
@@ -844,7 +882,7 @@ export const ProblemWorkspacePage: React.FC = () => {
                   onClick={() => handleTabChange('notes')}
                 >
                   <FileText size={14} />
-                  <span>Notes</span>
+                  <span>Personal Notes</span>
                 </button>
               </div>
 
@@ -895,7 +933,7 @@ export const ProblemWorkspacePage: React.FC = () => {
                   {/* Problem Statement */}
                   {problem.description && (
                     <div className="desc-statement-block">
-                      <p className="desc-statement-text">{problem.description}</p>
+                      <MarkdownRenderer content={problem.description} />
                     </div>
                   )}
 
@@ -960,7 +998,7 @@ export const ProblemWorkspacePage: React.FC = () => {
                 </div>
               )}
 
-              {/* TAB 2: EDITORIAL */}
+              {/* TAB 2: EDITORIAL (Rendered with Markdown + LaTeX Math) */}
               {activeLeftTab === 'editorial' && (
                 <div className="tab-pane-content tab-editorial-pane">
                   <div className="editorial-header">
@@ -968,64 +1006,23 @@ export const ProblemWorkspacePage: React.FC = () => {
                       <Lightbulb size={18} color="#0284C7" />
                       <h2 className="editorial-heading">Editorial & Algorithmic Theory</h2>
                     </div>
-                    <span className="editorial-pattern-chip">
-                      {problem.pattern || 'Core Pattern'}
-                    </span>
+                    {problem.pattern && (
+                      <span className="editorial-pattern-chip">
+                        {problem.pattern}
+                      </span>
+                    )}
                   </div>
 
                   {problem.theory_content ? (
-                    <div className="editorial-body">
-                      <div className="editorial-section">
-                        <h3 className="editorial-subheading">1. Problem-Solving Intuition</h3>
-                        <p className="editorial-text">{problem.theory_content}</p>
-                      </div>
-
-                      <div className="editorial-section">
-                        <h3 className="editorial-subheading">2. Step-by-Step Approach</h3>
-                        <div className="editorial-steps-list">
-                          <div className="editorial-step-item">
-                            <span className="step-num">1</span>
-                            <div className="step-content">
-                              <strong>Identify Boundary Invariants:</strong> Check sortedness, range of numbers, and optimal data structure lookups.
-                            </div>
-                          </div>
-                          <div className="editorial-step-item">
-                            <span className="step-num">2</span>
-                            <div className="step-content">
-                              <strong>Optimal State Management:</strong> Maintain a hash map or pointers to eliminate redundant scans.
-                            </div>
-                          </div>
-                          <div className="editorial-step-item">
-                            <span className="step-num">3</span>
-                            <div className="step-content">
-                              <strong>Single-Pass Resolution:</strong> Compute target complement or window bounds in linear time.
-                            </div>
-                          </div>
-                        </div>
-                      </div>
-
-                      <div className="editorial-section">
-                        <h3 className="editorial-subheading">3. Asymptotic Complexity Theory</h3>
-                        <div className="editorial-complexity-cards">
-                          <div className="complexity-theory-card">
-                            <span className="theory-card-title">Optimal Time Bound</span>
-                            <span className="theory-card-val">O(N) or O(N log N)</span>
-                            <span className="theory-card-desc">Single pass or logarithmic lookups.</span>
-                          </div>
-                          <div className="complexity-theory-card">
-                            <span className="theory-card-title">Auxiliary Space Bound</span>
-                            <span className="theory-card-val">O(1) to O(N)</span>
-                            <span className="theory-card-desc">Depends on auxiliary storage needed.</span>
-                          </div>
-                        </div>
-                      </div>
+                    <div className="editorial-article-container">
+                      <MarkdownRenderer content={problem.theory_content} />
                     </div>
                   ) : (
                     <div className="editorial-empty-state">
                       <Lightbulb size={32} color="#94A3B8" />
                       <h3 className="editorial-empty-title">Editorial Material In Progress</h3>
                       <p className="editorial-empty-desc">
-                        Official written editorial notes for this problem are currently being curated. You can use our <strong>AI Assistant</strong> tab to get a complete conceptual breakdown and step-by-step dry run on demand.
+                        Official written editorial notes for this problem are currently being curated. You can use our <strong>AI Tutor</strong> tab to get a complete conceptual breakdown and step-by-step dry run on demand.
                       </p>
                       <button
                         type="button"
@@ -1033,45 +1030,40 @@ export const ProblemWorkspacePage: React.FC = () => {
                         onClick={() => handleTabChange('ai')}
                       >
                         <Sparkles size={14} />
-                        <span>Ask AI for Conceptual Breakdown</span>
+                        <span>Ask AI Tutor for Conceptual Breakdown</span>
                       </button>
                     </div>
                   )}
                 </div>
               )}
 
-              {/* TAB 3: AI ASSISTANT (Strict Theory Mode) */}
-              {activeLeftTab === 'ai' && (
-                <div className="tab-pane-content tab-ai-pane">
-                  <div className="ai-tab-header">
-                    <div className="ai-header-badge">
-                      <Sparkles size={15} color="#0284C7" />
-                      <span>DSA Theory & Concepts Mentor</span>
-                    </div>
-                    <span className="ai-mode-pill">Strict Theory Mode</span>
-                  </div>
-
-                  <div className="ai-assistant-wrapper">
-                    <AIAssistant
-                      problem={{
-                        title: problem.title,
-                        problem_number: problem.problem_number,
-                        difficulty: problem.difficulty,
-                        pattern: problem.pattern,
-                        topics: problem.topics || [],
-                        description: problem.description,
-                        theory_content: problem.theory_content,
-                        hints: problem.hints,
-                        examples: problemExamples,
-                        constraints: problemConstraints,
-                      }}
-                      code={activeCode}
-                      language={activeLanguage}
-                      userId={user?.id}
-                    />
-                  </div>
-                </div>
-              )}
+              {/* TAB 3: AI TUTOR (Kept mounted to preserve conversation state across tab switches) */}
+              <div 
+                className="tab-pane-content tab-ai-pane"
+                style={{ 
+                  display: activeLeftTab === 'ai' ? 'flex' : 'none',
+                  flexDirection: 'column',
+                  height: '100%'
+                }}
+              >
+                <AIAssistant
+                  problem={{
+                    title: problem.title,
+                    problem_number: problem.problem_number,
+                    difficulty: problem.difficulty,
+                    pattern: problem.pattern,
+                    topics: problem.topics || [],
+                    description: problem.description,
+                    theory_content: problem.theory_content,
+                    hints: problem.hints,
+                    examples: problemExamples,
+                    constraints: problemConstraints,
+                  }}
+                  code={activeCode}
+                  language={activeLanguage}
+                  userId={user?.id}
+                />
+              </div>
 
               {/* TAB 4: MY APPROACH */}
               {activeLeftTab === 'approach' && (

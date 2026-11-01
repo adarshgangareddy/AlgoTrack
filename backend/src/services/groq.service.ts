@@ -144,6 +144,12 @@ STRICT MENTORING RULES & ABSOLUTE RESTRICTIONS (MANDATORY):
         case 'explain':
           promptContent = `Please explain the core conceptual theory, problem intuition, and underlying algorithmic pattern behind "${problemTitle}". Focus on teaching the logic, input/output meaning, and high-level strategy without writing the solution code.`;
           break;
+        case 'pattern':
+          promptContent = `Please teach the primary algorithmic pattern behind "${problemTitle}" (e.g., Two Pointers, Sliding Window, Dynamic Programming, etc.). Explain how to recognize when this pattern applies and why it's optimal, without writing solution code.`;
+          break;
+        case 'intuition':
+          promptContent = `Explain the core problem intuition for "${problemTitle}". What key observation unlocks the optimal approach? Explain clearly in intuitive conceptual terms.`;
+          break;
         case 'dry_run':
           promptContent = `Please demonstrate a step-by-step example dry run for "${problemTitle}" tracing the variables and state changes for sample input. Explain each state transition clearly without writing the full code.`;
           break;
