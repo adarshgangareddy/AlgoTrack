@@ -92,3 +92,4 @@ flowchart LR
 - **Code Editing**: Full Monaco Editor with multi-language syntax highlighting (Python, JavaScript, TypeScript, Java, C++).
 - **Execution & Validation**: Delegated to official coding platforms (LeetCode). Users copy their code with one click and run it against LeetCode's comprehensive test suite.
 - **Learning & Revision**: AlgoTrack persists personal approaches, time & space complexities, edge cases, and personal notes per problem in Supabase PostgreSQL, creating an enduring interview prep knowledge base.
+

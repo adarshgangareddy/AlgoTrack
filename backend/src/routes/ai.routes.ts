@@ -15,3 +15,4 @@ router.post('/chat', optionalAuth, validateBody(aiChatSchema), AiController.chat
 router.get('/status', AiController.status);
 
 export default router;
+

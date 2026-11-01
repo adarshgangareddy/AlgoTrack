@@ -19,3 +19,4 @@ export const aiChatSchema = z.object({
     .max(50)
     .optional(),
 });
+
