@@ -50,3 +50,4 @@ export function isSafeImageUrl(url?: string): boolean {
   }
   return trimmed.startsWith('https://') || trimmed.startsWith('http://') || trimmed.startsWith('data:image/');
 }
+

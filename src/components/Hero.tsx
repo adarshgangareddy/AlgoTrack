@@ -69,31 +69,27 @@ export const Hero: React.FC<HeroProps> = ({ onStartJourneyClick, isNightMode = t
               <div className="celestial-stars-grid" />
             </div>
 
-            {/* Clouds floating inside / across the card */}
+            {/* Clouds floating inside / across the stage */}
             <PuffyCloud className="cloud-pos-mid-left" tint="white" />
             <PuffyCloud className="cloud-pos-bottom-left" tint="white" />
             <PuffyCloud className="cloud-pos-bottom-right" tint="sunset" />
 
             {/* Stadium Card Central Typography Content */}
             <div className="stadium-inner-content">
-              <h1 className="visually-hidden">Hello! Welcome to AlgoTrack</h1>
-              <div className="stadium-greetings">
-                <div className="greeting-hello">Hello!</div>
-                <div className="greeting-weare">Welcome to</div>
-              </div>
+              {/* 1. Main Heading */}
+              <h1 className="hero-main-heading">
+                Your Coding Journey, Organized.
+              </h1>
 
-              {/* Massive 3D Puffy Balloon Typography: AlgoTrack */}
+              {/* 2. 3D AlgoTrack Logo as Centerpiece */}
               <AlgoTrackBalloon />
 
-              {/* Subheading */}
-              <h2 className="stadium-subheading">Your Coding Journey, Organized.</h2>
-
-              {/* Subtitle Statement */}
-              <p className="stadium-statement">
-                Practice smarter, master algorithms, and track every step of your coding journey. One platform to organize your problems, understand concepts, and grow as a problem solver.
+              {/* 3. Short Description */}
+              <p className="hero-description">
+                Practice smarter, master DSA, and track your progress — all in one place.
               </p>
 
-              {/* Call to Actions inside Card */}
+              {/* 4. Call to Action Buttons */}
               <div className="stadium-cta-row">
                 <button
                   type="button"

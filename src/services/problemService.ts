@@ -553,8 +553,8 @@ export async function fetchProblemBySlug(slug: string): Promise<Problem | null> 
     return problemDetailsCache.get(normalizedSlug)!;
   }
 
-  // 1. Check curated list
-  const curated = CURATED_PROBLEMS.find((p) => p.slug === normalizedSlug);
+  // 1. Check curated list (by slug or problem number)
+  const curated = CURATED_PROBLEMS.find((p) => p.slug === normalizedSlug || p.problem_number?.toString() === normalizedSlug);
   if (curated) {
     const enrichedCurated = {
       ...curated,
@@ -729,14 +729,20 @@ export async function fetchUserWorkspace(userId: string, problemId: string): Pro
   return null;
 }
 
+import { getAllStarterTemplatesForProblem } from './codeTemplates';
+
 /**
  * Fetch saved code solutions across languages for a user and problem
  */
 export async function fetchUserSolutions(
   userId: string,
-  problemId: string
+  problemId: string,
+  problem?: Problem
 ): Promise<Record<string, string>> {
-  const solutionsMap: Record<string, string> = { ...STARTER_CODE_TEMPLATES };
+  const defaultTemplates = problem 
+    ? getAllStarterTemplatesForProblem(problem)
+    : { ...STARTER_CODE_TEMPLATES };
+  const solutionsMap: Record<string, string> = { ...defaultTemplates };
   if (!userId || !problemId) return solutionsMap;
   const canonicalId = getProblemUuid(problemId);
 
@@ -750,7 +756,7 @@ export async function fetchUserSolutions(
 
       if (!error && data && data.length > 0) {
         data.forEach((row) => {
-          if (row.language && row.source_code) {
+          if (row.language && row.source_code && row.source_code.trim()) {
             solutionsMap[row.language] = row.source_code;
           }
         });

@@ -12,7 +12,8 @@ import {
   AlertTriangle,
   Lightbulb,
   Compass,
-  ArrowUp
+  ArrowUp,
+  ArrowDown
 } from 'lucide-react';
 import { 
   askGroqAI, 
@@ -62,9 +63,11 @@ export const AIAssistant: React.FC<AIAssistantProps> = ({
   const [modelName, setModelName] = useState('llama-3.3-70b-versatile');
 
   const messagesEndRef = useRef<HTMLDivElement>(null);
+  const viewportRef = useRef<HTMLDivElement>(null);
   const textareaRef = useRef<HTMLTextAreaElement>(null);
   const lastUserPromptIdRef = useRef<string | null>(null);
   const shouldScrollToPromptRef = useRef<boolean>(false);
+  const [showScrollBottom, setShowScrollBottom] = useState(false);
 
   // Check backend configuration
   useEffect(() => {
@@ -77,6 +80,17 @@ export const AIAssistant: React.FC<AIAssistantProps> = ({
     return () => { isMounted = false; };
   }, []);
 
+  const handleScroll = () => {
+    if (!viewportRef.current) return;
+    const { scrollTop, scrollHeight, clientHeight } = viewportRef.current;
+    const isScrolledUp = scrollHeight - scrollTop - clientHeight > 100;
+    setShowScrollBottom(isScrolledUp);
+  };
+
+  const scrollToBottom = () => {
+    messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' });
+  };
+
   // Scroll to the active user prompt so the user stays anchored at the start of the explanation,
   // rather than jarringly jumping to the bottom sentence!
   useEffect(() => {
@@ -84,9 +98,7 @@ export const AIAssistant: React.FC<AIAssistantProps> = ({
       const el = document.getElementById(`chat-msg-${lastUserPromptIdRef.current}`);
       if (el) {
         el.scrollIntoView({ behavior: 'smooth', block: 'start' });
-        if (!isLoading) {
-          shouldScrollToPromptRef.current = false;
-        }
+        shouldScrollToPromptRef.current = false;
       }
     }
   }, [messages, isLoading]);
@@ -236,7 +248,11 @@ export const AIAssistant: React.FC<AIAssistantProps> = ({
       </div>
 
       {/* 2. Scrollable Messages Area */}
-      <div className="chatgpt-messages-viewport">
+      <div 
+        className="chatgpt-messages-viewport" 
+        ref={viewportRef}
+        onScroll={handleScroll}
+      >
         <div className="chatgpt-messages-thread">
           {messages.map((msg) => (
             <div 
@@ -287,6 +303,19 @@ export const AIAssistant: React.FC<AIAssistantProps> = ({
           <div ref={messagesEndRef} />
         </div>
       </div>
+
+      {/* Floating Scroll-to-Bottom Button (ChatGPT Style) */}
+      {showScrollBottom && (
+        <button
+          type="button"
+          className="chatgpt-scroll-bottom-btn"
+          onClick={scrollToBottom}
+          aria-label="Scroll to newest message"
+          title="Scroll to bottom"
+        >
+          <ArrowDown size={15} />
+        </button>
+      )}
 
       {/* 3. Bottom Pinned Composer Area */}
       <div className="chatgpt-composer-pinned">

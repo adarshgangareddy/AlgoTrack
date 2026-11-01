@@ -1,6 +1,19 @@
 /* src/components/workspace/MonacoCodeEditor.css */
 /* LeetCode-Inspired Clean Code Editor Styles */
 
+.sr-only,
+.monaco-leetcode-header .sr-only {
+  position: absolute !important;
+  width: 1px !important;
+  height: 1px !important;
+  padding: 0 !important;
+  margin: -1px !important;
+  overflow: hidden !important;
+  clip: rect(0, 0, 0, 0) !important;
+  white-space: nowrap !important;
+  border-width: 0 !important;
+}
+
 .monaco-leetcode-card {
   display: flex;
   flex-direction: column;

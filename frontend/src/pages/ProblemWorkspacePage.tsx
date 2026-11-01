@@ -28,7 +28,8 @@ import {
   ChevronDown,
   Menu,
   X,
-  History
+  History,
+  Play
 } from 'lucide-react';
 import { 
   fetchProblemBySlug, 
@@ -40,6 +41,10 @@ import {
   type Problem, 
   type ProblemStatus 
 } from '../services/problemService';
+import { 
+  getProblemStarterTemplate, 
+  getAllStarterTemplatesForProblem 
+} from '../services/codeTemplates';
 import { MonacoCodeEditor } from '../components/workspace/MonacoCodeEditor';
 import { AIAssistant } from '../components/workspace/AIAssistant';
 import { TestcasesPanel } from '../components/workspace/TestcasesPanel';
@@ -268,7 +273,7 @@ export const ProblemWorkspacePage: React.FC = () => {
         if (user?.id) {
           const [savedWs, savedSols, savedStatus] = await Promise.all([
             fetchUserWorkspace(user.id, currentProblem.id),
-            fetchUserSolutions(user.id, currentProblem.id),
+            fetchUserSolutions(user.id, currentProblem.id, currentProblem),
             fetchUserProblemProgress(user.id, currentProblem.id)
           ]);
 
@@ -292,6 +297,9 @@ export const ProblemWorkspacePage: React.FC = () => {
 
           setSolutionsByLang(savedSols);
           setProblemStatus(savedStatus);
+        } else {
+          // Unauthenticated/guest mode: load authentic LeetCode starter templates for this problem
+          setSolutionsByLang(getAllStarterTemplatesForProblem(currentProblem));
         }
 
         setHasUnsavedChanges(false);
@@ -387,9 +395,10 @@ export const ProblemWorkspacePage: React.FC = () => {
     markDirtyAndDebounceSave();
   };
 
-  // Reset current language template
+  // Reset current language template to authentic LeetCode template
   const handleResetTemplate = () => {
-    const template = STARTER_CODE_TEMPLATES[activeLanguage] || '';
+    if (!problem) return;
+    const template = getProblemStarterTemplate(problem, activeLanguage);
     setSolutionsByLang((prev) => ({
       ...prev,
       [activeLanguage]: template,
@@ -453,7 +462,8 @@ export const ProblemWorkspacePage: React.FC = () => {
     );
   }
 
-  const activeCode = solutionsByLang[activeLanguage] ?? (STARTER_CODE_TEMPLATES[activeLanguage] || '');
+  const activeCode = solutionsByLang[activeLanguage] ?? 
+    (problem ? getProblemStarterTemplate(problem, activeLanguage) : (STARTER_CODE_TEMPLATES[activeLanguage] || ''));
 
   // Authentic problem examples and constraints - mapped strictly per problem without Two Sum fallbacks
   const problemExamples = problem.examples || [];
@@ -1267,8 +1277,28 @@ export const ProblemWorkspacePage: React.FC = () => {
               </div>
             </div>
 
-            {/* Right: Autosave status + Save button + LeetCode link */}
+            {/* Right: Run / Submit Placeholders + Autosave status + Save button + LeetCode link */}
             <div className="pdf-actions-group">
+              <button
+                type="button"
+                className="ws-btn ws-btn-run"
+                disabled
+                title="Run code against sample test cases (coming soon)"
+              >
+                <Play size={12} fill="currentColor" />
+                <span>Run</span>
+              </button>
+
+              <button
+                type="button"
+                className="ws-btn ws-btn-submit"
+                disabled
+                title="Submit solution (coming soon)"
+              >
+                <Check size={13} />
+                <span>Submit</span>
+              </button>
+
               {isSaving ? (
                 <span className="ws-save-indicator saving">
                   <Loader2 size={12} className="spin-icon" /> Saving...

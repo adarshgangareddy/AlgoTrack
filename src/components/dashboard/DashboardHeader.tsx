@@ -119,7 +119,11 @@ export const DashboardHeader: React.FC<DashboardHeaderProps> = ({
                   className="dropdown-menu-item"
                   onClick={() => {
                     setProfileDropdownOpen(false);
-                    navigate('/profile');
+                    if (onOpenProfile) {
+                      onOpenProfile();
+                    } else {
+                      navigate('/profile');
+                    }
                   }}
                 >
                   <User size={15} />

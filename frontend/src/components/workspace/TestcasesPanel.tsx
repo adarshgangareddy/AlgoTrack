@@ -65,6 +65,11 @@ export const TestcasesPanel: React.FC<TestcasesPanelProps> = ({
     setCustomInputValue('');
   };
 
+  const handleRemoveCustomCase = (indexToRemove: number) => {
+    setCustomTestcases(prev => prev.filter((_, i) => i !== indexToRemove));
+    setActiveCaseIdx(0);
+  };
+
   const isCustomActive = activeCaseIdx >= sampleCases.length;
   const currentSample = !isCustomActive ? sampleCases[activeCaseIdx] : null;
   const currentCustom = isCustomActive ? customTestcases[activeCaseIdx - sampleCases.length] : null;
@@ -140,7 +145,7 @@ export const TestcasesPanel: React.FC<TestcasesPanelProps> = ({
             /* Custom Case Creator */
             <div className="testcase-custom-creator">
               <label htmlFor="custom-case-input" className="testcase-field-label">
-                Add Custom Input Arguments:
+                Custom Testcase Arguments:
               </label>
               <textarea
                 id="custom-case-input"
@@ -150,15 +155,25 @@ export const TestcasesPanel: React.FC<TestcasesPanelProps> = ({
                 onChange={(e) => setCustomInputValue(e.target.value)}
                 placeholder="e.g. nums = [1,2,3,4,5], target = 8"
               />
-              <button
-                type="button"
-                className="testcase-add-submit-btn"
-                onClick={handleAddCustomCase}
-                disabled={!customInputValue.trim()}
-              >
-                <Plus size={13} />
-                <span>Add Testcase</span>
-              </button>
+              <div className="custom-actions-row">
+                <button
+                  type="button"
+                  className="testcase-add-submit-btn"
+                  onClick={handleAddCustomCase}
+                  disabled={!customInputValue.trim()}
+                >
+                  <Plus size={13} />
+                  <span>Save Custom Case</span>
+                </button>
+                <button
+                  type="button"
+                  className="testcase-clear-btn"
+                  onClick={() => setCustomInputValue('')}
+                  disabled={!customInputValue}
+                >
+                  <span>Clear</span>
+                </button>
+              </div>
             </div>
           ) : currentCustom !== null ? (
             /* Custom Case Display */
@@ -166,24 +181,34 @@ export const TestcasesPanel: React.FC<TestcasesPanelProps> = ({
               <div className="testcase-view-row">
                 <div className="testcase-row-header">
                   <span className="testcase-field-label">Custom Input:</span>
-                  <button
-                    type="button"
-                    className="testcase-copy-btn"
-                    onClick={() => handleCopyInput(currentCustom, activeCaseIdx)}
-                    title="Copy input values"
-                  >
-                    {copiedIdx === activeCaseIdx ? (
-                      <>
-                        <Check size={12} color="#059669" />
-                        <span>Copied</span>
-                      </>
-                    ) : (
-                      <>
-                        <Copy size={12} />
-                        <span>Copy Input</span>
-                      </>
-                    )}
-                  </button>
+                  <div className="testcase-row-actions">
+                    <button
+                      type="button"
+                      className="testcase-copy-btn"
+                      onClick={() => handleCopyInput(currentCustom, activeCaseIdx)}
+                      title="Copy input values"
+                    >
+                      {copiedIdx === activeCaseIdx ? (
+                        <>
+                          <Check size={12} color="#059669" />
+                          <span>Copied</span>
+                        </>
+                      ) : (
+                        <>
+                          <Copy size={12} />
+                          <span>Copy Input</span>
+                        </>
+                      )}
+                    </button>
+                    <button
+                      type="button"
+                      className="testcase-delete-btn"
+                      onClick={() => handleRemoveCustomCase(activeCaseIdx - sampleCases.length)}
+                      title="Delete this custom testcase"
+                    >
+                      <span>Delete</span>
+                    </button>
+                  </div>
                 </div>
                 <pre className="testcase-code-box">{currentCustom}</pre>
               </div>
