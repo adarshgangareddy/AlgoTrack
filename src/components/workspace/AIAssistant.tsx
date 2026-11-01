@@ -5,7 +5,6 @@ import React, { useState, useEffect, useRef, useCallback } from 'react';
 import { 
   Sparkles, 
   Send, 
-  ShieldAlert, 
   Clock, 
   HelpCircle, 
   Loader2,
@@ -13,10 +12,9 @@ import {
   RotateCcw,
   Copy,
   Check,
-  Zap,
   AlertTriangle,
-  FileCode,
-  ArrowUpRight
+  Lightbulb,
+  Compass
 } from 'lucide-react';
 import { 
   askGroqAI, 
@@ -35,13 +33,12 @@ interface AIAssistantProps {
 }
 
 const QUICK_ACTIONS = [
-  { id: 'analyze', label: 'Analyze My Code', icon: Zap, color: '#0284C7' },
-  { id: 'explain', label: 'Explain My Code', icon: FileCode, color: '#059669' },
-  { id: 'errors', label: 'Find Logical Errors', icon: AlertTriangle, color: '#DC2626' },
-  { id: 'edge_cases', label: 'Review Edge Cases', icon: ShieldAlert, color: '#D97706' },
-  { id: 'complexity', label: 'Time & Space Complexity', icon: Clock, color: '#7C3AED' },
+  { id: 'explain_concept', label: 'Explain Concept & Patterns', icon: Lightbulb, color: '#0284C7' },
+  { id: 'dry_run', label: 'Step-by-Step Dry Run', icon: RotateCcw, color: '#059669' },
   { id: 'hint', label: 'Give Me a Hint', icon: HelpCircle, color: '#10B981' },
-  { id: 'optimize', label: 'Optimize My Approach', icon: ArrowUpRight, color: '#EA580C' },
+  { id: 'common_mistakes', label: 'Common Mistakes & Edge Cases', icon: AlertTriangle, color: '#DC2626' },
+  { id: 'complexity', label: 'Time & Space Complexity', icon: Clock, color: '#7C3AED' },
+  { id: 'analyze', label: 'Review My Conceptual Approach', icon: Compass, color: '#EA580C' },
 ];
 
 export const AIAssistant: React.FC<AIAssistantProps> = ({ 
@@ -55,7 +52,7 @@ export const AIAssistant: React.FC<AIAssistantProps> = ({
     {
       id: 'greeting',
       sender: 'ai',
-      text: `👋 **Welcome! I'm your Groq AI Code Mentor on AlgoTrack.**\n\nI can analyze your code, identify logical bugs, verify tricky edge cases, compute exact asymptotic complexities, or offer step-by-step guidance.\n\n*Click any quick action below or ask custom questions in the chat!*`,
+      text: `👋 **Welcome! I'm your DSA Theory & Concepts Mentor on AlgoTrack.**\n\nI can explain the core intuition, algorithmic patterns, step-by-step dry runs, and Big-O complexity for **${problem.title}**.\n\n*To ensure true problem-solving mastery, I guide your intuition without giving away complete code solutions.*\n\nClick any quick topic below or ask your own question!`,
       timestamp: new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }),
     },
   ]);
@@ -125,6 +122,10 @@ export const AIAssistant: React.FC<AIAssistantProps> = ({
           code,
           action,
           question,
+          examples: problem.examples,
+          constraints: problem.constraints,
+          theoryContent: problem.theory_content,
+          hints: problem.hints,
           messages: chatHistory,
           userId,
           token: userToken,

@@ -21,6 +21,8 @@ export interface ProblemContext {
   description?: string;
   theory_content?: string;
   hints?: string[];
+  examples?: Array<{ input: string; output: string; explanation?: string }>;
+  constraints?: string[];
 }
 
 export interface AskAiParams {
@@ -30,6 +32,10 @@ export interface AskAiParams {
   code?: string;
   action?: string;
   question?: string;
+  examples?: Array<{ input: string; output: string; explanation?: string }>;
+  constraints?: string[];
+  theoryContent?: string;
+  hints?: string[];
   messages?: Array<{ role: 'user' | 'assistant'; content: string }>;
   token?: string | null;
   userId?: string | null;
@@ -42,7 +48,7 @@ export interface AiResponse {
 }
 
 /**
- * Sends code and question to backend Groq AI Assistant
+ * Sends problem context and question to backend Groq AI Assistant
  */
 export async function askGroqAI(params: AskAiParams): Promise<AiResponse> {
   const headers: Record<string, string> = {
@@ -67,6 +73,10 @@ export async function askGroqAI(params: AskAiParams): Promise<AiResponse> {
         code: params.code || '',
         action: params.action,
         question: params.question,
+        examples: params.examples,
+        constraints: params.constraints,
+        theoryContent: params.theoryContent,
+        hints: params.hints,
         messages: params.messages || [],
       }),
     });

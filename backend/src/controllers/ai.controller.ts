@@ -10,7 +10,19 @@ const groqService = new GroqService();
 export class AiController {
   static async chat(req: AuthenticatedRequest, res: Response, next: NextFunction): Promise<void> {
     try {
-      const { problemTitle, problemDescription, language, code, action, question, messages } = req.body;
+      const {
+        problemTitle,
+        problemDescription,
+        language,
+        code,
+        action,
+        question,
+        examples,
+        constraints,
+        theoryContent,
+        hints,
+        messages
+      } = req.body;
 
       const result = await groqService.generateCodeAssistance({
         problemTitle,
@@ -19,6 +31,10 @@ export class AiController {
         code,
         action,
         question,
+        examples,
+        constraints,
+        theoryContent,
+        hints,
         messages,
       });
 

@@ -13,10 +13,14 @@ export interface ChatMessageContext {
 export interface AiCodeAssistantRequest {
   problemTitle: string;
   problemDescription?: string;
-  language: string;
+  language?: string;
   code?: string;
   action?: string;
   question?: string;
+  examples?: Array<{ input: string; output: string; explanation?: string }>;
+  constraints?: string[];
+  theoryContent?: string;
+  hints?: string[];
   messages?: ChatMessageContext[];
 }
 
@@ -50,7 +54,7 @@ export class GroqService {
   }
 
   /**
-   * Generates AI coding assistance, review, or custom answer using Groq
+   * Generates AI DSA theory assistance and conceptual mentoring using Groq
    */
   async generateCodeAssistance(params: AiCodeAssistantRequest): Promise<AiCodeAssistantResponse> {
     const {
@@ -60,68 +64,107 @@ export class GroqService {
       code = '',
       action,
       question,
+      examples = [],
+      constraints = [],
+      theoryContent = '',
+      hints = [],
       messages = [],
     } = params;
 
     if (!this.isConfigured() || !this.groqClient) {
       return {
-        reply: `⚠️ **Groq API is not configured yet.**\n\nTo enable live AI code analysis and mentoring, please add your **GROQ_API_KEY** in \`backend/.env\`:\n\n\`\`\`env\nGROQ_API_KEY=gsk_your_groq_api_key_here\nGROQ_MODEL=${this.model}\n\`\`\`\n\n*(You can get a free, ultra-fast API key from https://console.groq.com/keys)*`,
+        reply: `⚠️ **Groq API is not configured yet.**\n\nTo enable live AI DSA mentoring, please add your **GROQ_API_KEY** in \`backend/.env\`:\n\n\`\`\`env\nGROQ_API_KEY=gsk_your_groq_api_key_here\nGROQ_MODEL=${this.model}\n\`\`\`\n\n*(You can get a free, ultra-fast API key from https://console.groq.com/keys)*`,
         model: this.model,
         action,
       };
     }
 
-    // 1. Build authoritative mentor system prompt
-    const systemPrompt = `You are an expert programming mentor and senior software engineer on AlgoTrack.
-Your role is to guide, review, analyze, and teach coding interview algorithms.
+    // 1. Build strict DSA Teacher & Programming Mentor system prompt (THEORY-ONLY MODE)
+    const examplesText = examples.length > 0
+      ? examples.map((ex, i) => `Example ${i + 1}:\n  Input: ${ex.input}\n  Output: ${ex.output}${ex.explanation ? `\n  Explanation: ${ex.explanation}` : ''}`).join('\n')
+      : '';
 
-Current Context:
+    const constraintsText = constraints.length > 0 ? constraints.join('\n- ') : '';
+    const hintsText = hints.length > 0 ? hints.join('\n- ') : '';
+
+    const systemPrompt = `You are an expert DSA (Data Structures & Algorithms) Teacher and Programming Mentor on AlgoTrack.
+Your core mission is to help students learn, understand, and master algorithmic problem solving through deep conceptual understanding and guided intuition.
+
+CURRENT PROBLEM CONTEXT:
 - Target Problem: "${problemTitle}"
-${problemDescription ? `- Problem Description: ${problemDescription.slice(0, 800)}...` : ''}
-- Active Language: ${language}
+${problemDescription ? `- Problem Statement: ${problemDescription}` : ''}
+${examplesText ? `- Examples:\n${examplesText}` : ''}
+${constraintsText ? `- Constraints:\n- ${constraintsText}` : ''}
+${theoryContent ? `- Editorial & Background Theory: ${theoryContent}` : ''}
+${hintsText ? `- Curated Hints:\n- ${hintsText}` : ''}
+- Active Language Context: ${language}
 
-Mentoring Principles:
-1. NEVER claim the user's code was executed, compiled, or tested in a runtime sandbox. AlgoTrack is a code-analysis and learning platform; all feedback is theoretical static analysis and mental execution.
-2. Be encouraging, precise, and educational. Help the user build problem-solving intuition.
-3. If the user asks for a hint or asks "Give Me a Hint", offer progressive hints first without immediately revealing the full answer.
-4. When reviewing code, highlight logical errors, edge cases (e.g. empty inputs, single elements, negative numbers, overflow), and asymptotic complexity (Big-O Time & Space).
-5. If the user explicitly asks for code improvements or a complete solution, write clean, idiomatic code in ${language} with clear line-by-line explanations.
-6. Use clear GitHub-flavored markdown with code blocks (\`\`\`${language}) for readability.`;
+================================================================================
+STRICT MENTORING RULES & ABSOLUTE RESTRICTIONS (MANDATORY):
+================================================================================
+1. STRICT THEORY-ONLY & CONCEPTUAL TEACHING:
+   - Teach the underlying concepts, mathematical intuition, and core algorithmic patterns (e.g. Two Pointers, Sliding Window, Fast & Slow Pointers, Monotonic Stack, Dynamic Programming, Graph Traversals, Binary Search, Heaps, Greedy).
+   - Explain what the problem is asking in simple terms.
+   - Clarify how to understand inputs and expected outputs.
+   - Explain which data structures apply and WHY they are chosen over alternatives.
+   - Break the problem down into logical, intuitive steps.
+   - Walk through step-by-step example dry runs (tracing variables step by step).
+   - Analyze time and space complexity theory (Big-O analysis).
+   - Point out common traps, pitfalls, off-by-one errors, and subtle edge cases.
+   - Provide progressive, incremental hints that empower the user to code it themselves.
+
+2. ABSOLUTE PROHIBITION ON COMPLETE SOLUTION CODE:
+   - You MUST NOT provide complete C, C++, Java, Python, JavaScript, or TypeScript solutions.
+   - You MUST NOT provide copy-paste-ready implementations or complete function bodies.
+   - You MUST NOT provide the exact final code, even if the user explicitly demands it.
+   - You MUST NOT provide full pseudocode that effectively reveals the entire implementation line-by-line.
+   - If the user asks:
+     * "Solve this problem."
+     * "Give me the code."
+     * "Write the complete solution."
+     * "Tell me the answer."
+     * "Show me the implementation."
+   You MUST politely and encouragingly redirect them toward understanding the theory, concepts, and guided approach.
+   Example refusal & redirection:
+   "I can help you master this problem, but I won't provide the complete solution code. Let's first understand the key concept behind it. This problem can be approached using [Concept/Data Structure] because..."
+
+3. CODE USAGE PERMISSION:
+   - You may show at most 1 to 3 isolated lines of syntax illustrating a standard library method or language primitive (e.g., how to push to a heap or instantiate a map in ${language}), but NEVER the full algorithmic logic or problem solution.
+
+4. PLATFORM INTEGRITY:
+   - NEVER claim the user's code was executed or run in a sandbox. Feedback is based on theoretical static reasoning.
+   - Format responses using clear, readable GitHub-flavored markdown with clean bullet points and bold headings.`;
 
     // 2. Prepare user prompt based on action or question
     let promptContent = '';
 
     if (action) {
       switch (action) {
-        case 'analyze':
-          promptContent = `Please perform a comprehensive code analysis of my ${language} solution for "${problemTitle}".\n\n\`\`\`${language}\n${code || '# No code written yet'}\n\`\`\`\n\nProvide:\n1. Algorithmic Approach Summary\n2. Correctness & Logical Analysis\n3. Time & Space Complexity\n4. Recommended Next Steps`;
-          break;
+        case 'explain_concept':
         case 'explain':
-          promptContent = `Please explain how my current ${language} code works step by step for "${problemTitle}".\n\n\`\`\`${language}\n${code || '# No code written yet'}\n\`\`\``;
+          promptContent = `Please explain the core conceptual theory, problem intuition, and underlying algorithmic pattern behind "${problemTitle}". Focus on teaching the logic, input/output meaning, and high-level strategy without writing the solution code.`;
           break;
-        case 'errors':
-          promptContent = `Please inspect my ${language} code for any bugs, logical errors, or infinite loops for "${problemTitle}".\n\n\`\`\`${language}\n${code || '# No code written yet'}\n\`\`\``;
-          break;
-        case 'edge_cases':
-          promptContent = `What edge cases should I be careful of for "${problemTitle}"? How does my current code handle them?\n\n\`\`\`${language}\n${code || '# No code written yet'}\n\`\`\``;
-          break;
-        case 'complexity':
-          promptContent = `Analyze the exact Time and Space Complexity (Big-O) of this ${language} implementation for "${problemTitle}". Explain why each bound holds:\n\n\`\`\`${language}\n${code || '# No code written yet'}\n\`\`\``;
+        case 'dry_run':
+          promptContent = `Please demonstrate a step-by-step example dry run for "${problemTitle}" tracing the variables and state changes for sample input. Explain each state transition clearly without writing the full code.`;
           break;
         case 'hint':
-          promptContent = `Give me a conceptual hint for solving "${problemTitle}". Do not give away the whole solution—just guide me in the right direction.`;
+          promptContent = `Give me a progressive conceptual hint for solving "${problemTitle}". Do not give away the whole solution—just guide my intuition toward the optimal approach.`;
           break;
-        case 'optimize':
-          promptContent = `How can I optimize this ${language} solution for "${problemTitle}" in terms of runtime and memory consumption?\n\n\`\`\`${language}\n${code || '# No code written yet'}\n\`\`\``;
+        case 'common_mistakes':
+        case 'edge_cases':
+          promptContent = `What are the most common mistakes, pitfalls, off-by-one errors, and tricky edge cases candidates encounter when tackling "${problemTitle}"?`;
+          break;
+        case 'complexity':
+          promptContent = `Explain the theoretical Time and Space Complexity bounds (optimal Big-O) for "${problemTitle}". Why is this the theoretical lower bound?`;
+          break;
+        case 'analyze':
+          promptContent = `Please review my conceptual approach to "${problemTitle}". Provide feedback on correctness, edge cases, and algorithmic efficiency without writing the complete solution code for me:\n\n\`\`\`${language}\n${code || '# No code written yet'}\n\`\`\``;
           break;
         default:
           promptContent = `Regarding "${problemTitle}": ${question || action}`;
       }
     } else {
-      promptContent = question || 'Can you review my approach?';
-      if (code && code.trim()) {
-        promptContent += `\n\nHere is my current ${language} code:\n\`\`\`${language}\n${code}\n\`\`\``;
-      }
+      promptContent = question || `How should I approach "${problemTitle}"?`;
     }
 
     // 3. Assemble chat history payload

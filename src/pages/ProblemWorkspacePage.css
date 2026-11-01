@@ -1,32 +1,36 @@
 /* ==========================================================================
-   AlgoTrack — LeetCode-Inspired Problem Workspace Styles
+   AlgoTrack — LeetCode-Style Problem Workspace Styles
    ========================================================================== */
 
-/* Full Viewport App Container */
+/* Full Viewport App Root */
 .workspace-page-container {
   height: 100vh;
   max-height: 100vh;
+  width: 100vw;
+  max-width: 100vw;
   overflow: hidden;
-  background-color: #F8FAFC;
+  background-color: #FFFFFF;
   color: #0F172A;
   display: flex;
   flex-direction: column;
 }
 
 /* ==========================================================================
-   1. Compact Top Workspace Header
+   1. FIXED GLOBAL WORKSPACE NAVBAR (Compact & Stationary)
    ========================================================================== */
 
 .workspace-header {
-  flex: 0 0 auto;
-  height: 52px;
+  height: 48px;
+  min-height: 48px;
   background-color: #FFFFFF;
   border-bottom: 1px solid #E2E8F0;
-  box-shadow: 0 1px 2px rgba(15, 23, 42, 0.04);
   display: flex;
-  align-items: center;
+  flex-direction: column;
+  justify-content: center;
   position: relative;
-  z-index: 40;
+  z-index: 50;
+  flex-shrink: 0;
+  box-shadow: 0 1px 2px rgba(15, 23, 42, 0.03);
 }
 
 .workspace-header-inner {
@@ -34,11 +38,12 @@
   align-items: center;
   justify-content: space-between;
   width: 100%;
-  padding: 0 16px;
+  padding: 0 14px;
   gap: 12px;
+  box-sizing: border-box;
 }
 
-/* Left: Back & Problem Identity */
+/* Left Group */
 .header-left-group {
   display: flex;
   align-items: center;
@@ -50,14 +55,14 @@
 .ws-back-link {
   display: inline-flex;
   align-items: center;
-  gap: 6px;
-  padding: 5px 10px;
-  font-size: 12.5px;
+  gap: 5px;
+  padding: 4px 9px;
+  font-size: 12px;
   font-weight: 600;
   color: #475569;
   background-color: #F1F5F9;
   border: 1px solid #CBD5E1;
-  border-radius: 7px;
+  border-radius: 6px;
   text-decoration: none;
   transition: all 0.15s ease;
   white-space: nowrap;
@@ -72,7 +77,7 @@
 
 .header-crumb-sep {
   color: #CBD5E1;
-  font-size: 14px;
+  font-size: 13px;
   user-select: none;
   flex-shrink: 0;
 }
@@ -91,14 +96,14 @@
   font-weight: 700;
   color: #0284C7;
   background-color: #E0F2FE;
-  padding: 2px 7px;
-  border-radius: 6px;
+  padding: 2px 6px;
+  border-radius: 5px;
   border: 1px solid #BAE6FD;
   flex-shrink: 0;
 }
 
 .header-problem-title {
-  font-size: 1.05rem;
+  font-size: 0.98rem;
   font-weight: 700;
   letter-spacing: -0.01em;
   color: #0F172A;
@@ -109,12 +114,12 @@
 }
 
 .header-diff-badge {
-  font-size: 10.5px;
+  font-size: 10px;
   font-weight: 700;
   text-transform: uppercase;
-  padding: 2px 8px;
+  padding: 2px 7px;
   border-radius: 999px;
-  letter-spacing: 0.02em;
+  letter-spacing: 0.03em;
   flex-shrink: 0;
 }
 
@@ -136,7 +141,7 @@
   border: 1px solid #FECACA;
 }
 
-/* Right Actions Toolbar */
+/* Right Actions */
 .header-right-actions {
   display: flex;
   align-items: center;
@@ -144,17 +149,16 @@
   flex-shrink: 0;
 }
 
-/* Status Dropdown */
 .ws-status-select-wrap {
   position: relative;
 }
 
 .ws-status-dropdown {
-  height: 32px;
-  padding: 0 10px;
-  font-size: 12px;
+  height: 30px;
+  padding: 0 8px;
+  font-size: 11.5px;
   font-weight: 600;
-  border-radius: 7px;
+  border-radius: 6px;
   border: 1px solid #CBD5E1;
   background-color: #FFFFFF;
   color: #0F172A;
@@ -180,54 +184,28 @@
   color: #065F46;
 }
 
-/* Ask AI Button in Header */
-.ws-ai-toggle-btn {
-  display: inline-flex;
-  align-items: center;
-  gap: 6px;
-  height: 32px;
-  padding: 0 11px;
-  font-size: 12px;
-  font-weight: 600;
-  color: #0284C7;
-  background-color: #F0F9FF;
-  border: 1px solid #BAE6FD;
-  border-radius: 7px;
-  cursor: pointer;
-  transition: all 0.15s ease;
-  white-space: nowrap;
-}
-
-.ws-ai-toggle-btn:hover,
-.ws-ai-toggle-btn.active {
-  background-color: #0284C7;
-  color: #FFFFFF;
-  border-color: #0284C7;
-}
-
-/* Previous / Next Navigation Group */
 .ws-seq-nav-group {
   display: flex;
   align-items: center;
   background-color: #F1F5F9;
   border: 1px solid #CBD5E1;
-  border-radius: 7px;
+  border-radius: 6px;
   overflow: hidden;
 }
 
 .ws-seq-btn {
   display: inline-flex;
   align-items: center;
-  gap: 4px;
-  height: 30px;
-  padding: 0 9px;
-  font-size: 12px;
+  gap: 3px;
+  height: 28px;
+  padding: 0 8px;
+  font-size: 11.5px;
   font-weight: 600;
   color: #475569;
   background: transparent;
   border: none;
   cursor: pointer;
-  transition: background 0.15s ease, color 0.15s ease;
+  transition: background 0.15s ease;
 }
 
 .ws-seq-btn:hover:not(:disabled) {
@@ -236,7 +214,7 @@
 }
 
 .ws-seq-btn:disabled {
-  opacity: 0.45;
+  opacity: 0.4;
   cursor: not-allowed;
 }
 
@@ -244,402 +222,285 @@
   border-right: 1px solid #CBD5E1;
 }
 
-/* Save Button & Indicators */
 .ws-save-btn-group {
   display: flex;
   align-items: center;
-  gap: 8px;
+  gap: 6px;
   position: relative;
 }
 
 .ws-save-indicator {
   display: inline-flex;
   align-items: center;
-  gap: 5px;
-  font-size: 11.5px;
+  gap: 4px;
+  font-size: 11px;
   font-weight: 500;
   white-space: nowrap;
 }
 
-.ws-save-indicator.saving {
-  color: #0284C7;
-}
-
-.ws-save-indicator.saved {
-  color: #059669;
-}
-
-.ws-save-indicator.unsaved {
-  color: #D97706;
-}
+.ws-save-indicator.saving { color: #0284C7; }
+.ws-save-indicator.saved { color: #059669; }
+.ws-save-indicator.unsaved { color: #D97706; }
 
 .unsaved-dot {
-  width: 6px;
-  height: 6px;
+  width: 5px;
+  height: 5px;
   border-radius: 50%;
   background-color: #F59E0B;
-  display: inline-block;
 }
 
 .ws-btn-save {
   display: inline-flex;
   align-items: center;
-  gap: 6px;
-  height: 32px;
-  padding: 0 12px;
-  font-size: 12px;
+  gap: 5px;
+  height: 30px;
+  padding: 0 11px;
+  font-size: 11.5px;
   font-weight: 600;
   color: #FFFFFF;
   background-color: #0284C7;
   border: 1px solid #0284C7;
-  border-radius: 7px;
+  border-radius: 6px;
   cursor: pointer;
-  transition: all 0.15s ease;
+  transition: background 0.15s ease;
   white-space: nowrap;
 }
 
 .ws-btn-save:hover:not(:disabled) {
   background-color: #0369A1;
-  border-color: #0369A1;
 }
 
 .ws-btn-save:disabled {
-  opacity: 0.6;
+  opacity: 0.55;
   cursor: not-allowed;
 }
 
 .ws-save-toast {
   position: absolute;
-  top: 42px;
+  top: 36px;
   right: 0;
   display: inline-flex;
   align-items: center;
-  gap: 6px;
+  gap: 5px;
   background-color: #0F172A;
   color: #F8FAFC;
-  font-size: 11.5px;
+  font-size: 11px;
   font-weight: 600;
-  padding: 6px 12px;
-  border-radius: 6px;
-  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
-  animation: fadeInDown 0.2s ease-out;
-  z-index: 50;
+  padding: 5px 10px;
+  border-radius: 5px;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.18);
+  animation: fadeInDown 0.18s ease-out;
+  z-index: 60;
   white-space: nowrap;
 }
 
-@keyframes fadeInDown {
-  from { opacity: 0; transform: translateY(-6px); }
-  to { opacity: 1; transform: translateY(0); }
+.ws-btn-layout-reset {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 28px;
+  height: 28px;
+  background-color: #F1F5F9;
+  border: 1px solid #CBD5E1;
+  border-radius: 6px;
+  color: #64748B;
+  cursor: pointer;
+  transition: all 0.15s ease;
 }
 
-/* Mobile Tabs Bar */
-.workspace-mobile-tabs {
+.ws-btn-layout-reset:hover {
+  background-color: #E2E8F0;
+  color: #0F172A;
+}
+
+.workspace-mobile-bar {
   display: none;
-  background-color: #FFFFFF;
+  background-color: #F8FAFC;
   border-top: 1px solid #E2E8F0;
-  padding: 4px;
+  padding: 3px;
 }
 
-.ws-mobile-tab-btn {
+.ws-mobile-btn {
   flex: 1;
   display: flex;
   align-items: center;
   justify-content: center;
-  gap: 6px;
-  padding: 8px;
-  font-size: 12px;
+  gap: 5px;
+  padding: 6px;
+  font-size: 11.5px;
   font-weight: 600;
   color: #64748B;
   background: transparent;
   border: none;
-  border-radius: 6px;
+  border-radius: 5px;
   cursor: pointer;
 }
 
-.ws-mobile-tab-btn.active {
-  background-color: #F1F5F9;
+.ws-mobile-btn.active {
+  background-color: #FFFFFF;
   color: #0284C7;
+  box-shadow: 0 1px 2px rgba(0, 0, 0, 0.05);
 }
 
 /* ==========================================================================
-   2. Main Body Container (Sidebar + Split Pane)
+   2. MAIN WORKSPACE VIEWPORT
    ========================================================================== */
 
-.workspace-main-body {
+.workspace-main-viewport {
   flex: 1 1 auto;
-  height: calc(100vh - 52px);
+  height: calc(100vh - 48px);
   overflow: hidden;
   display: flex;
   flex-direction: row;
 }
 
 /* ==========================================================================
-   3. Collapsible Left Navigation Sidebar
+   3. FIXED LEFT SIDEBAR (Stationary Tabs)
    ========================================================================== */
 
-.workspace-nav-sidebar {
-  flex: 0 0 auto;
+.workspace-fixed-sidebar {
+  width: 54px;
+  min-width: 54px;
+  max-width: 54px;
+  height: 100%;
   background-color: #FFFFFF;
   border-right: 1px solid #E2E8F0;
   display: flex;
   flex-direction: column;
-  justify-content: space-between;
-  height: 100%;
-  z-index: 20;
-  transition: width 0.2s cubic-bezier(0.4, 0, 0.2, 1);
-  overflow-y: auto;
-  overflow-x: hidden;
+  justify-content: flex-start;
+  z-index: 30;
+  flex-shrink: 0;
+  user-select: none;
 }
 
-.workspace-nav-sidebar.expanded {
-  width: 200px;
-}
-
-.workspace-nav-sidebar.collapsed {
-  width: 54px;
-}
-
-.sidebar-nav-list {
+.sidebar-tab-items {
   display: flex;
   flex-direction: column;
   gap: 4px;
-  padding: 12px 6px;
+  padding: 8px 4px;
 }
 
-.sidebar-nav-item {
+.sidebar-tab-button {
   display: flex;
+  flex-direction: column;
   align-items: center;
-  gap: 10px;
-  width: 100%;
-  padding: 8px 10px;
-  border-radius: 7px;
-  border: none;
+  justify-content: center;
+  width: 46px;
+  height: 52px;
+  padding: 6px 2px;
   background: transparent;
-  color: #475569;
-  font-size: 12.5px;
-  font-weight: 500;
+  border: none;
+  border-radius: 8px;
+  color: #64748B;
   cursor: pointer;
-  text-align: left;
   transition: all 0.15s ease;
-  white-space: nowrap;
+  position: relative;
 }
 
-.sidebar-nav-item:hover {
+.sidebar-tab-button:hover {
   background-color: #F1F5F9;
   color: #0F172A;
 }
 
-.sidebar-nav-item.active {
+.sidebar-tab-button.active {
   background-color: #E0F2FE;
   color: #0284C7;
-  font-weight: 600;
+  font-weight: 700;
 }
 
-.sidebar-nav-item.ai-item {
+.sidebar-tab-button.active::before {
+  content: '';
+  position: absolute;
+  left: -4px;
+  top: 10px;
+  bottom: 10px;
+  width: 3px;
+  background-color: #0284C7;
+  border-radius: 0 3px 3px 0;
+}
+
+.sidebar-tab-button.ai-tab {
   color: #0284C7;
 }
 
-.sidebar-nav-item.ai-item.active {
+.sidebar-tab-button.ai-tab.active {
   background-color: #0284C7;
   color: #FFFFFF;
 }
 
-.nav-icon-wrap {
+.sidebar-tab-icon {
   display: flex;
   align-items: center;
   justify-content: center;
-  min-width: 20px;
-  flex-shrink: 0;
+  height: 22px;
 }
 
-.nav-item-label {
-  overflow: hidden;
-  text-overflow: ellipsis;
-  white-space: nowrap;
-}
-
-.sidebar-footer {
-  padding: 8px 6px 12px 6px;
-  border-top: 1px solid #F1F5F9;
-}
-
-.sidebar-toggle-btn {
-  display: flex;
-  align-items: center;
-  gap: 8px;
-  width: 100%;
-  padding: 8px 10px;
-  border-radius: 7px;
-  border: none;
-  background: transparent;
-  color: #64748B;
-  font-size: 12px;
-  font-weight: 500;
-  cursor: pointer;
-  transition: all 0.15s ease;
-}
-
-.sidebar-toggle-btn:hover {
-  background-color: #F1F5F9;
-  color: #0F172A;
-}
-
-.toggle-label {
-  white-space: nowrap;
-  overflow: hidden;
+.sidebar-tab-label {
+  font-size: 9.5px;
+  line-height: 1.1;
+  text-align: center;
+  margin-top: 3px;
+  letter-spacing: -0.01em;
 }
 
 /* ==========================================================================
-   4. Split Container (Left Scroll Pane & Right Editor)
+   4. RESIZABLE SPLIT AREA
    ========================================================================== */
 
-.workspace-split-container {
+.workspace-split-area {
   flex: 1 1 auto;
   display: flex;
   height: 100%;
   overflow: hidden;
+  position: relative;
   background-color: #F8FAFC;
 }
 
-/* Scrollable Left Column */
-.ws-left-column {
-  flex: 1 1 50%;
-  height: 100%;
-  overflow-y: auto;
-  padding: 16px 20px 48px 20px;
-  display: flex;
-  flex-direction: column;
-  gap: 16px;
-  scroll-behavior: smooth;
-}
-
-/* Scrollable Right Column */
-.ws-right-column {
-  flex: 1 1 50%;
-  height: 100%;
-  overflow-y: auto;
-  padding: 16px 20px 48px 20px;
-  display: flex;
-  flex-direction: column;
-  gap: 16px;
-  border-left: 1px solid #E2E8F0;
-  background-color: #FFFFFF;
-}
-
 /* ==========================================================================
-   5. Card Styles in Left Column
+   5. LEFT CONTENT PANEL (Independently scrollable)
    ========================================================================== */
 
-.ws-card {
+.workspace-left-content-panel {
+  height: 100%;
+  overflow-y: auto;
   background-color: #FFFFFF;
-  border: 1px solid #E2E8F0;
-  border-radius: 10px;
-  box-shadow: 0 1px 3px rgba(15, 23, 42, 0.04);
-  overflow: hidden;
-  transition: border-color 0.15s ease;
-}
-
-.ws-card:hover {
-  border-color: #CBD5E1;
-}
-
-.ws-card.is-collapsed .ws-card-header-toggle {
-  border-bottom: none;
-}
-
-.ws-card-header-toggle {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  padding: 12px 16px;
-  cursor: pointer;
-  user-select: none;
-  background-color: #FAFAFA;
-  border-bottom: 1px solid #F1F5F9;
-  transition: background 0.15s ease;
-}
-
-.ws-card-header-toggle:hover {
-  background-color: #F1F5F9;
-}
-
-.ws-card-header-compact {
+  box-sizing: border-box;
   display: flex;
   flex-direction: column;
-  gap: 2px;
 }
 
-.ws-pattern-label {
-  font-size: 11px;
-  font-weight: 700;
-  text-transform: uppercase;
-  letter-spacing: 0.05em;
-  color: #0284C7;
+.tab-pane-content {
+  padding: 20px 24px 48px 24px;
+  display: flex;
+  flex-direction: column;
+  gap: 18px;
 }
 
-.ws-problem-main-title {
-  font-size: 1.15rem;
+/* Description Tab Content */
+.description-header-block {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  border-bottom: 1px solid #F1F5F9;
+  padding-bottom: 14px;
+}
+
+.desc-problem-title {
+  font-size: 1.35rem;
   font-weight: 700;
+  letter-spacing: -0.01em;
   color: #0F172A;
   margin: 0;
 }
 
-.ws-section-header {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-}
-
-.ws-section-title-wrap {
-  display: flex;
-  align-items: center;
-  gap: 8px;
-}
-
-.ws-section-title {
-  font-size: 0.95rem;
-  font-weight: 700;
-  color: #0F172A;
-  margin: 0;
-}
-
-.ws-header-actions-wrap {
-  display: flex;
-  align-items: center;
-  gap: 8px;
-}
-
-.ws-section-collapse-btn {
-  background: transparent;
-  border: none;
-  color: #64748B;
-  cursor: pointer;
-  padding: 4px;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  border-radius: 4px;
-}
-
-.ws-section-collapse-btn:hover {
-  background-color: #E2E8F0;
-  color: #0F172A;
-}
-
-.ws-card-content {
-  padding: 16px;
-}
-
-/* Tags Row */
-.ws-tags-row {
+.desc-badges-row {
   display: flex;
   align-items: center;
   gap: 8px;
   flex-wrap: wrap;
-  margin-bottom: 14px;
 }
 
-.ws-diff-tag {
+.desc-diff-badge {
   font-size: 11px;
   font-weight: 700;
   text-transform: uppercase;
@@ -647,22 +508,11 @@
   border-radius: 6px;
 }
 
-.ws-diff-tag.easy {
-  background-color: #ECFDF5;
-  color: #059669;
-}
+.desc-diff-badge.easy { background-color: #ECFDF5; color: #059669; }
+.desc-diff-badge.medium { background-color: #FFFBEB; color: #D97706; }
+.desc-diff-badge.hard { background-color: #FEF2F2; color: #DC2626; }
 
-.ws-diff-tag.medium {
-  background-color: #FFFBEB;
-  color: #D97706;
-}
-
-.ws-diff-tag.hard {
-  background-color: #FEF2F2;
-  color: #DC2626;
-}
-
-.ws-pattern-tag {
+.desc-pattern-badge {
   display: inline-flex;
   align-items: center;
   gap: 5px;
@@ -675,7 +525,7 @@
   border: 1px solid #BAE6FD;
 }
 
-.ws-topic-tag {
+.desc-topic-pill {
   font-size: 11.5px;
   color: #475569;
   background-color: #F1F5F9;
@@ -684,20 +534,108 @@
   border: 1px solid #E2E8F0;
 }
 
-/* Description Text */
-.ws-description-body {
-  margin-bottom: 16px;
+.desc-statement-block {
+  margin: 4px 0;
 }
 
-.ws-description-text {
+.desc-statement-text {
   font-size: 14px;
-  line-height: 1.65;
+  line-height: 1.7;
   color: #1E293B;
   margin: 0;
 }
 
-/* LeetCode Official Callout */
-.ws-leetcode-callout {
+.desc-examples-block {
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+}
+
+.desc-example-card {
+  background-color: #F8FAFC;
+  border: 1px solid #E2E8F0;
+  border-radius: 8px;
+  padding: 12px 14px;
+}
+
+.desc-example-title {
+  font-size: 12px;
+  font-weight: 700;
+  color: #0284C7;
+  text-transform: uppercase;
+  margin-bottom: 6px;
+}
+
+.desc-example-content {
+  display: flex;
+  flex-direction: column;
+  gap: 5px;
+}
+
+.desc-example-item {
+  display: flex;
+  align-items: flex-start;
+  gap: 8px;
+  font-size: 13px;
+}
+
+.desc-item-label {
+  font-weight: 600;
+  color: #475569;
+  min-width: 82px;
+  flex-shrink: 0;
+}
+
+.desc-item-code {
+  font-family: var(--font-mono, monospace);
+  font-size: 12.5px;
+  background-color: #FFFFFF;
+  border: 1px solid #E2E8F0;
+  padding: 2px 6px;
+  border-radius: 4px;
+  color: #0F172A;
+}
+
+.desc-item-code.output {
+  color: #059669;
+  font-weight: 600;
+}
+
+.desc-item-explanation {
+  color: #334155;
+  line-height: 1.45;
+}
+
+.desc-constraints-block {
+  padding-top: 10px;
+  border-top: 1px solid #F1F5F9;
+}
+
+.desc-section-heading {
+  font-size: 13px;
+  font-weight: 700;
+  color: #0F172A;
+  margin: 0 0 8px 0;
+}
+
+.desc-constraints-list {
+  margin: 0;
+  padding-left: 18px;
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.desc-constraint-item code {
+  font-family: var(--font-mono, monospace);
+  font-size: 12px;
+  background-color: #F1F5F9;
+  padding: 2px 6px;
+  border-radius: 4px;
+  color: #0F172A;
+}
+
+.desc-leetcode-callout {
   display: flex;
   align-items: center;
   justify-content: space-between;
@@ -706,32 +644,33 @@
   background-color: #FFFBEB;
   border: 1px solid #FDE68A;
   border-radius: 8px;
+  margin-top: 8px;
 }
 
-.ws-leetcode-text {
+.desc-leetcode-info {
   display: flex;
   flex-direction: column;
   gap: 2px;
 }
 
-.ws-leetcode-label {
+.desc-callout-tag {
   font-size: 11px;
   font-weight: 700;
   text-transform: uppercase;
   color: #B45309;
 }
 
-.ws-leetcode-prompt {
-  font-size: 12.5px;
+.desc-callout-desc {
+  font-size: 12px;
   color: #78350F;
   margin: 0;
   line-height: 1.4;
 }
 
-.ws-btn-leetcode {
+.desc-leetcode-btn {
   display: inline-flex;
   align-items: center;
-  gap: 6px;
+  gap: 5px;
   padding: 6px 12px;
   font-size: 12px;
   font-weight: 600;
@@ -743,294 +682,245 @@
   transition: background 0.15s ease;
 }
 
-.ws-btn-leetcode:hover {
+.desc-leetcode-btn:hover {
   background-color: #B45309;
 }
 
-/* ==========================================================================
-   6. Examples & Constraints Styles
-   ========================================================================== */
-
-.ws-examples-container {
+/* Editorial Tab */
+.editorial-header {
   display: flex;
-  flex-direction: column;
+  align-items: center;
+  justify-content: space-between;
+  border-bottom: 1px solid #F1F5F9;
+  padding-bottom: 12px;
   gap: 12px;
-  margin-bottom: 16px;
 }
 
-.ws-example-box {
-  background-color: #F8FAFC;
-  border: 1px solid #E2E8F0;
-  border-radius: 8px;
-  padding: 12px 14px;
+.editorial-title-wrap {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.editorial-heading {
+  font-size: 1.15rem;
+  font-weight: 700;
+  color: #0F172A;
+  margin: 0;
+}
+
+.editorial-pattern-chip {
+  font-size: 11px;
+  font-weight: 600;
+  color: #0284C7;
+  background-color: #E0F2FE;
+  padding: 3px 8px;
+  border-radius: 6px;
+}
+
+.editorial-body {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+
+.editorial-section {
   display: flex;
   flex-direction: column;
   gap: 6px;
 }
 
-.ws-example-badge {
-  font-size: 11px;
+.editorial-subheading {
+  font-size: 13px;
   font-weight: 700;
-  color: #0284C7;
-  text-transform: uppercase;
-  letter-spacing: 0.04em;
-  margin-bottom: 2px;
+  color: #1E293B;
+  margin: 0;
 }
 
-.ws-example-row {
+.editorial-text {
+  font-size: 13.5px;
+  line-height: 1.65;
+  color: #334155;
+  margin: 0;
+}
+
+.editorial-steps-list {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.editorial-step-item {
   display: flex;
   align-items: flex-start;
-  gap: 8px;
+  gap: 10px;
+  background-color: #F8FAFC;
+  border: 1px solid #E2E8F0;
+  padding: 10px 12px;
+  border-radius: 6px;
   font-size: 13px;
+  line-height: 1.5;
 }
 
-.ws-example-key {
-  font-weight: 600;
-  color: #475569;
-  min-width: 80px;
+.step-num {
+  font-weight: 700;
+  color: #0284C7;
+  background-color: #E0F2FE;
+  width: 20px;
+  height: 20px;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 11px;
   flex-shrink: 0;
 }
 
-.ws-example-val {
-  font-family: var(--font-mono, monospace);
-  background-color: #FFFFFF;
-  padding: 2px 6px;
-  border-radius: 4px;
-  border: 1px solid #E2E8F0;
-  color: #0F172A;
-  font-size: 12.5px;
+.editorial-complexity-cards {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 10px;
 }
 
-.ws-example-exp {
-  color: #334155;
-  font-size: 13px;
-  line-height: 1.45;
-}
-
-.ws-constraints-container {
-  padding-top: 10px;
-  border-top: 1px solid #F1F5F9;
-}
-
-.ws-constraints-heading {
-  font-size: 12.5px;
-  font-weight: 700;
-  color: #0F172A;
-  margin: 0 0 8px 0;
-}
-
-.ws-constraints-list {
-  margin: 0;
-  padding-left: 20px;
+.complexity-theory-card {
   display: flex;
   flex-direction: column;
-  gap: 6px;
-}
-
-.ws-constraint-item code {
-  font-family: var(--font-mono, monospace);
-  font-size: 12px;
-  background-color: #F1F5F9;
-  padding: 2px 6px;
-  border-radius: 4px;
-  color: #0F172A;
-}
-
-/* ==========================================================================
-   7. Concepts & Theory Card
-   ========================================================================== */
-
-.ws-btn-explain-ai {
-  display: inline-flex;
-  align-items: center;
-  gap: 5px;
-  padding: 4px 10px;
-  font-size: 11.5px;
-  font-weight: 600;
-  color: #0284C7;
-  background-color: #F0F9FF;
-  border: 1px solid #BAE6FD;
+  gap: 3px;
+  padding: 10px 12px;
+  background-color: #F8FAFC;
+  border: 1px solid #E2E8F0;
   border-radius: 6px;
-  cursor: pointer;
-  transition: all 0.15s ease;
 }
 
-.ws-btn-explain-ai:hover:not(:disabled) {
-  background-color: #E0F2FE;
-  border-color: #7DD3FC;
+.theory-card-title {
+  font-size: 11px;
+  font-weight: 600;
+  color: #64748B;
+  text-transform: uppercase;
 }
 
-.ws-btn-explain-ai:disabled {
-  opacity: 0.6;
-  cursor: not-allowed;
+.theory-card-val {
+  font-family: var(--font-mono, monospace);
+  font-size: 13px;
+  font-weight: 700;
+  color: #0284C7;
 }
 
-.ws-concept-empty-state {
+.theory-card-desc {
+  font-size: 11.5px;
+  color: #64748B;
+}
+
+.editorial-empty-state {
   display: flex;
   flex-direction: column;
   align-items: center;
   text-align: center;
-  padding: 20px 16px;
+  padding: 32px 16px;
   background-color: #F8FAFC;
   border-radius: 8px;
   border: 1px dashed #CBD5E1;
+  gap: 8px;
 }
 
-.ws-concept-empty-title {
+.editorial-empty-title {
   font-size: 14px;
   font-weight: 700;
   color: #0F172A;
-  margin: 8px 0 4px 0;
+  margin: 0;
 }
 
-.ws-theory-placeholder-text {
+.editorial-empty-desc {
   font-size: 12.5px;
   color: #64748B;
-  max-width: 440px;
+  max-width: 420px;
   line-height: 1.5;
-  margin: 0 0 14px 0;
+  margin: 0;
 }
 
-.ws-btn-explain-ai-large {
+.editorial-ask-ai-btn {
   display: inline-flex;
   align-items: center;
   gap: 6px;
   padding: 7px 14px;
-  font-size: 12.5px;
+  font-size: 12px;
   font-weight: 600;
   color: #FFFFFF;
   background-color: #0284C7;
   border: none;
-  border-radius: 7px;
+  border-radius: 6px;
   cursor: pointer;
-  transition: background 0.15s ease;
+  margin-top: 6px;
 }
 
-.ws-btn-explain-ai-large:hover {
-  background-color: #0369A1;
+/* AI Tab Header */
+.tab-ai-pane {
+  padding: 12px 16px;
+  height: 100%;
 }
 
-.ws-ai-explanation-box {
-  background-color: #F0F9FF;
-  border: 1px solid #BAE6FD;
-  border-radius: 8px;
-  padding: 14px;
+.ai-tab-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  border-bottom: 1px solid #F1F5F9;
+  padding-bottom: 8px;
 }
 
-.ws-ai-explaining-banner {
+.ai-header-badge {
   display: flex;
   align-items: center;
   gap: 6px;
-  font-size: 12px;
+  font-size: 12.5px;
   font-weight: 700;
   color: #0284C7;
-  margin-bottom: 10px;
-  padding-bottom: 8px;
-  border-bottom: 1px solid #E0F2FE;
 }
 
-.ws-markdown-content p {
-  font-size: 13.5px;
-  line-height: 1.6;
-  color: #1E293B;
-  margin-bottom: 10px;
+.ai-mode-pill {
+  font-size: 10.5px;
+  font-weight: 700;
+  color: #059669;
+  background-color: #ECFDF5;
+  padding: 2px 7px;
+  border-radius: 999px;
+  border: 1px solid #A7F3D0;
 }
 
-.ws-markdown-content p:last-child {
-  margin-bottom: 0;
+.ai-assistant-wrapper {
+  flex: 1 1 auto;
+  overflow: hidden;
+  height: calc(100% - 30px);
 }
 
-.ws-ai-loading-container {
+/* Approach & Notes Shared Tabs */
+.tab-section-header {
   display: flex;
-  flex-direction: column;
   align-items: center;
-  justify-content: center;
-  padding: 28px 16px;
-  color: #0284C7;
-  text-align: center;
-  gap: 10px;
-  font-size: 13px;
-  font-weight: 500;
+  justify-content: space-between;
+  border-bottom: 1px solid #F1F5F9;
+  padding-bottom: 12px;
 }
 
-/* ==========================================================================
-   8. Inputs, Complexity & Notes
-   ========================================================================== */
-
-.ws-field-desc {
-  font-size: 12px;
-  color: #64748B;
-  margin: 0 0 8px 0;
-  line-height: 1.4;
-}
-
-.ws-textarea {
-  width: 100%;
-  padding: 10px 12px;
-  font-size: 13px;
-  line-height: 1.5;
-  color: #0F172A;
-  background-color: #FFFFFF;
-  border: 1px solid #CBD5E1;
-  border-radius: 7px;
-  resize: vertical;
-  outline: none;
-  font-family: inherit;
-  transition: border-color 0.15s ease, box-shadow 0.15s ease;
-  box-sizing: border-box;
-}
-
-.ws-textarea:focus {
-  border-color: #0284C7;
-  box-shadow: 0 0 0 3px rgba(2, 132, 199, 0.1);
-}
-
-.ws-notes-textarea {
-  min-height: 120px;
-}
-
-.ws-complexity-grid {
-  display: grid;
-  grid-template-columns: 1fr 1fr;
-  gap: 14px;
-}
-
-.ws-complexity-box {
+.tab-heading-wrap {
   display: flex;
-  flex-direction: column;
-  gap: 5px;
+  align-items: center;
+  gap: 8px;
 }
 
-.ws-complexity-label {
-  font-size: 12px;
-  font-weight: 600;
-  color: #334155;
-}
-
-.ws-complexity-input {
-  height: 36px;
-  padding: 0 10px;
-  font-family: var(--font-mono, monospace);
-  font-size: 13px;
+.tab-main-title {
+  font-size: 1.15rem;
+  font-weight: 700;
   color: #0F172A;
-  background-color: #FFFFFF;
-  border: 1px solid #CBD5E1;
-  border-radius: 7px;
-  outline: none;
-  transition: border-color 0.15s ease;
+  margin: 0;
 }
 
-.ws-complexity-input:focus {
-  border-color: #059669;
-  box-shadow: 0 0 0 3px rgba(5, 150, 105, 0.1);
+.tab-header-right {
+  display: flex;
+  align-items: center;
+  gap: 8px;
 }
 
-.ws-complexity-hint {
-  font-size: 11px;
-  color: #94A3B8;
-}
-
-.ws-privacy-badge {
+.tab-privacy-tag {
   display: inline-flex;
   align-items: center;
   gap: 4px;
@@ -1038,242 +928,302 @@
   color: #64748B;
   background-color: #F1F5F9;
   padding: 2px 7px;
-  border-radius: 5px;
+  border-radius: 4px;
 }
 
-/* ==========================================================================
-   9. Right Column Tabs & Editor Wrappers
-   ========================================================================== */
-
-.ws-panel-tabs {
-  display: flex;
-  align-items: center;
-  gap: 6px;
-  background-color: #F1F5F9;
-  padding: 4px;
-  border-radius: 8px;
-  border: 1px solid #E2E8F0;
-}
-
-.ws-panel-tab-btn {
-  flex: 1;
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  gap: 6px;
-  height: 32px;
-  font-size: 12.5px;
-  font-weight: 600;
-  color: #64748B;
-  background: transparent;
-  border: none;
-  border-radius: 6px;
-  cursor: pointer;
-  transition: all 0.15s ease;
-}
-
-.ws-panel-tab-btn:hover {
-  color: #0F172A;
-}
-
-.ws-panel-tab-btn.active {
-  background-color: #FFFFFF;
-  color: #0284C7;
-  box-shadow: 0 1px 3px rgba(15, 23, 42, 0.08);
-}
-
-.ws-ai-chip {
-  font-size: 10px;
-  font-weight: 700;
-  text-transform: uppercase;
-  color: #0284C7;
-  background-color: #E0F2FE;
-  padding: 1px 6px;
-  border-radius: 999px;
-}
-
-.ws-editor-container-wrapper {
-  display: flex;
-  flex-direction: column;
-  gap: 10px;
-}
-
-.ws-editor-top-actions {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  gap: 10px;
-}
-
-.ws-quick-action-link {
+.tab-save-btn {
   display: inline-flex;
   align-items: center;
   gap: 5px;
-  font-size: 12px;
-  font-weight: 600;
-  color: #D97706;
-  background-color: #FFFBEB;
-  border: 1px solid #FDE68A;
   padding: 5px 10px;
-  border-radius: 6px;
-  text-decoration: none;
-  transition: all 0.15s ease;
-}
-
-.ws-quick-action-link:hover {
-  background-color: #FEF3C7;
-  border-color: #F59E0B;
-}
-
-.ws-quick-action-ai-btn {
-  display: inline-flex;
-  align-items: center;
-  gap: 5px;
-  font-size: 12px;
+  font-size: 11.5px;
   font-weight: 600;
   color: #0284C7;
   background-color: #F0F9FF;
   border: 1px solid #BAE6FD;
-  padding: 5px 10px;
   border-radius: 6px;
   cursor: pointer;
-  transition: all 0.15s ease;
 }
 
-.ws-quick-action-ai-btn:hover {
+.tab-save-btn:hover:not(:disabled) {
   background-color: #E0F2FE;
 }
 
-/* ==========================================================================
-   10. Loading and Error Screens
-   ========================================================================== */
+.tab-desc-text {
+  font-size: 12.5px;
+  color: #64748B;
+  margin: 0;
+  line-height: 1.45;
+}
 
-.workspace-loading-state,
-.workspace-error-container {
+.approach-complexity-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 12px;
+}
+
+.approach-input-box {
   display: flex;
   flex-direction: column;
+  gap: 4px;
+}
+
+.approach-label {
+  display: flex;
   align-items: center;
-  justify-content: center;
-  height: 100vh;
-  gap: 14px;
-  padding: 24px;
-  text-align: center;
-  background-color: #F8FAFC;
-}
-
-.spin-icon {
-  animation: spin 1s linear infinite;
-}
-
-@keyframes spin {
-  from { transform: rotate(0deg); }
-  to { transform: rotate(360deg); }
-}
-
-.loading-label {
-  font-size: 14px;
-  font-weight: 500;
-  color: #64748B;
-}
-
-.error-title {
-  font-size: 1.25rem;
-  font-weight: 700;
-  color: #0F172A;
-  margin: 0;
-}
-
-.error-description {
-  font-size: 14px;
-  color: #64748B;
-  max-width: 420px;
-  margin: 0;
-}
-
-.ws-btn-primary {
-  display: inline-flex;
-  align-items: center;
-  gap: 6px;
-  padding: 8px 16px;
-  font-size: 13px;
+  gap: 5px;
+  font-size: 12px;
   font-weight: 600;
-  color: #FFFFFF;
-  background-color: #0284C7;
-  border-radius: 7px;
-  text-decoration: none;
-  transition: background 0.15s ease;
+  color: #334155;
 }
 
-.ws-btn-primary:hover {
-  background-color: #0369A1;
+.approach-label.error-label {
+  color: #DC2626;
+}
+
+.approach-text-input {
+  height: 34px;
+  padding: 0 10px;
+  font-family: var(--font-mono, monospace);
+  font-size: 12.5px;
+  color: #0F172A;
+  background-color: #FFFFFF;
+  border: 1px solid #CBD5E1;
+  border-radius: 6px;
+  outline: none;
+}
+
+.approach-text-input:focus {
+  border-color: #0284C7;
+  box-shadow: 0 0 0 2px rgba(2, 132, 199, 0.1);
+}
+
+.approach-textarea-wrap,
+.notes-block {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.approach-textarea {
+  width: 100%;
+  padding: 10px 12px;
+  font-size: 13px;
+  line-height: 1.5;
+  color: #0F172A;
+  background-color: #FFFFFF;
+  border: 1px solid #CBD5E1;
+  border-radius: 6px;
+  resize: vertical;
+  outline: none;
+  font-family: inherit;
+  box-sizing: border-box;
+}
+
+.approach-textarea:focus {
+  border-color: #0284C7;
+  box-shadow: 0 0 0 2px rgba(2, 132, 199, 0.1);
 }
 
 /* ==========================================================================
-   11. Responsive Breakpoints
+   6. HORIZONTAL & VERTICAL SPLIT RESIZERS
+   ========================================================================== */
+
+.workspace-h-resizer {
+  width: 6px;
+  min-width: 6px;
+  max-width: 6px;
+  height: 100%;
+  background-color: #F1F5F9;
+  border-left: 1px solid #E2E8F0;
+  border-right: 1px solid #E2E8F0;
+  cursor: col-resize;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  user-select: none;
+  z-index: 20;
+  transition: background-color 0.15s ease;
+}
+
+.workspace-h-resizer:hover,
+.workspace-h-resizer.active {
+  background-color: #BAE6FD;
+}
+
+.resizer-pill {
+  color: #94A3B8;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.workspace-v-resizer {
+  height: 6px;
+  min-height: 6px;
+  max-height: 6px;
+  width: 100%;
+  background-color: #F1F5F9;
+  border-top: 1px solid #E2E8F0;
+  border-bottom: 1px solid #E2E8F0;
+  cursor: row-resize;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  user-select: none;
+  z-index: 20;
+  transition: background-color 0.15s ease;
+}
+
+.workspace-v-resizer:hover,
+.workspace-v-resizer.active {
+  background-color: #BAE6FD;
+}
+
+.v-resizer-pill {
+  color: #94A3B8;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+/* ==========================================================================
+   7. RIGHT CODING PANEL (Editor + Testcases)
+   ========================================================================== */
+
+.workspace-right-coding-panel {
+  height: 100%;
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+  background-color: #FFFFFF;
+}
+
+.coding-editor-section {
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+  position: relative;
+}
+
+.editor-top-toolbar {
+  height: 32px;
+  background-color: #F8FAFC;
+  border-bottom: 1px solid #E2E8F0;
+  padding: 0 10px;
+  display: flex;
+  align-items: center;
+  justify-content: flex-end;
+}
+
+.editor-toolbar-actions {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.editor-leetcode-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  font-size: 11.5px;
+  font-weight: 600;
+  color: #D97706;
+  background-color: #FFFBEB;
+  border: 1px solid #FDE68A;
+  padding: 3px 8px;
+  border-radius: 5px;
+  text-decoration: none;
+  transition: all 0.15s ease;
+}
+
+.editor-leetcode-btn:hover {
+  background-color: #FEF3C7;
+}
+
+.editor-maximize-btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 24px;
+  height: 24px;
+  background: transparent;
+  border: none;
+  color: #64748B;
+  cursor: pointer;
+  border-radius: 4px;
+}
+
+.editor-maximize-btn:hover {
+  background-color: #E2E8F0;
+  color: #0F172A;
+}
+
+.editor-component-container {
+  flex: 1 1 auto;
+  overflow: hidden;
+}
+
+.coding-testcases-section {
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+}
+
+/* ==========================================================================
+   8. RESPONSIVE BREAKPOINTS
    ========================================================================== */
 
 @media (max-width: 1024px) {
-  .workspace-main-body {
-    flex-direction: column;
-  }
-
-  .workspace-nav-sidebar {
-    width: 100% !important;
-    height: 48px;
-    flex-direction: row;
-    overflow-x: auto;
-    overflow-y: hidden;
-    border-right: none;
-    border-bottom: 1px solid #E2E8F0;
-  }
-
-  .sidebar-nav-list {
-    flex-direction: row;
-    padding: 6px 10px;
-    gap: 6px;
-  }
-
-  .sidebar-footer {
-    display: none;
-  }
-
-  .workspace-split-container {
-    flex-direction: column;
-  }
-
-  .workspace-mobile-tabs {
+  .workspace-mobile-bar {
     display: flex;
   }
 
-  .ws-left-column,
-  .ws-right-column {
-    flex: 1 1 auto;
-    width: 100%;
-    border-left: none;
+  .workspace-split-area {
+    flex-direction: column;
   }
 
-  .ws-left-column.mobile-hide,
-  .ws-right-column.mobile-hide {
+  .workspace-h-resizer {
+    display: none;
+  }
+
+  .workspace-v-resizer {
+    display: none;
+  }
+
+  .workspace-left-content-panel,
+  .workspace-right-coding-panel {
+    width: 100% !important;
+  }
+
+  .workspace-left-content-panel.mobile-hidden,
+  .workspace-right-coding-panel.mobile-hidden {
     display: none !important;
   }
 
-  .ws-left-column.mobile-show,
-  .ws-right-column.mobile-show {
+  .workspace-left-content-panel.mobile-visible,
+  .workspace-right-coding-panel.mobile-visible {
     display: flex !important;
+  }
+
+  .coding-editor-section {
+    height: 60% !important;
+  }
+
+  .coding-testcases-section {
+    height: 40% !important;
   }
 }
 
 @media (max-width: 640px) {
   .header-problem-title {
-    max-width: 140px;
+    max-width: 130px;
   }
-
-  .ws-complexity-grid {
-    grid-template-columns: 1fr;
-  }
-
   .header-crumb-sep,
   .header-problem-number {
     display: none;
+  }
+  .approach-complexity-grid {
+    grid-template-columns: 1fr;
   }
 }

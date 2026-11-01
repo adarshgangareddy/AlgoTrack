@@ -30,6 +30,7 @@ export interface MonacoCodeEditorProps {
   leetcodeUrl?: string;
   isExpanded?: boolean;
   onToggleExpand?: () => void;
+  fillHeight?: boolean;
 }
 
 export const MonacoCodeEditor: React.FC<MonacoCodeEditorProps> = ({
@@ -41,6 +42,7 @@ export const MonacoCodeEditor: React.FC<MonacoCodeEditorProps> = ({
   leetcodeUrl,
   isExpanded = true,
   onToggleExpand,
+  fillHeight = false,
 }) => {
   const [copied, setCopied] = useState(false);
   const [copyFeedback, setCopyFeedback] = useState<string | null>(null);
@@ -209,7 +211,17 @@ export const MonacoCodeEditor: React.FC<MonacoCodeEditorProps> = ({
       {/* 2. Monaco Editor Container & Resizer */}
       {isExpanded && (
         <>
-          <div className="monaco-editor-pane" style={{ height: isFullscreen ? 'calc(100vh - 160px)' : `${editorHeight}px` }}>
+          <div 
+            className="monaco-editor-pane" 
+            style={{ 
+              height: isFullscreen 
+                ? 'calc(100vh - 160px)' 
+                : fillHeight 
+                  ? '100%' 
+                  : `${editorHeight}px`,
+              flex: fillHeight ? '1 1 auto' : undefined
+            }}
+          >
             <Editor
               height="100%"
               language={currentLangConfig.monacoLang}
@@ -239,7 +251,7 @@ export const MonacoCodeEditor: React.FC<MonacoCodeEditorProps> = ({
             />
           </div>
 
-          {!isFullscreen && (
+          {!isFullscreen && !fillHeight && (
             <div 
               className="monaco-resize-handle" 
               onMouseDown={handleResizeStart} 

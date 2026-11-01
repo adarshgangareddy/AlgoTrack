@@ -9,6 +9,10 @@ export const aiChatSchema = z.object({
   code: z.string().max(50000, 'Code snippet exceeds maximum permitted size of 50,000 characters').optional(),
   action: z.string().max(50).optional(),
   question: z.string().max(4000, 'Question exceeds maximum permitted length of 4,000 characters').optional(),
+  examples: z.any().optional(),
+  constraints: z.any().optional(),
+  theoryContent: z.string().max(10000).optional(),
+  hints: z.array(z.string()).optional(),
   messages: z
     .array(
       z.object({

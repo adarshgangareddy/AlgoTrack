@@ -1,0 +1,288 @@
+/* src/components/workspace/TestcasesPanel.css */
+/* LeetCode-Inspired Testcases Panel Styles */
+
+.testcases-panel-root {
+  background-color: #FFFFFF;
+  border-top: 1px solid #E2E8F0;
+  display: flex;
+  flex-direction: column;
+  height: 100%;
+  overflow: hidden;
+}
+
+.testcases-panel-root.collapsed {
+  height: 40px !important;
+  min-height: 40px !important;
+}
+
+/* Header */
+.testcases-panel-header {
+  height: 38px;
+  min-height: 38px;
+  background-color: #F8FAFC;
+  border-bottom: 1px solid #E2E8F0;
+  padding: 0 12px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  user-select: none;
+}
+
+.testcases-header-left {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  min-width: 0;
+  overflow-x: auto;
+}
+
+.testcases-title-badge {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 12px;
+  font-weight: 700;
+  color: #0F172A;
+  white-space: nowrap;
+}
+
+.testcases-tabs-list {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.testcase-tab-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  height: 26px;
+  padding: 0 10px;
+  font-size: 11.5px;
+  font-weight: 600;
+  color: #64748B;
+  background-color: #FFFFFF;
+  border: 1px solid #CBD5E1;
+  border-radius: 6px;
+  cursor: pointer;
+  transition: all 0.15s ease;
+  white-space: nowrap;
+}
+
+.testcase-tab-btn:hover {
+  background-color: #F1F5F9;
+  color: #0F172A;
+}
+
+.testcase-tab-btn.active {
+  background-color: #E0F2FE;
+  color: #0284C7;
+  border-color: #BAE6FD;
+}
+
+.testcase-tab-btn.custom {
+  color: #7C3AED;
+}
+
+.testcase-tab-btn.custom.active {
+  background-color: #F5F3FF;
+  border-color: #DDD6FE;
+  color: #7C3AED;
+}
+
+.testcase-tab-btn.add-custom-btn {
+  border-style: dashed;
+}
+
+.testcases-header-right {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.testcases-collapse-btn {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: transparent;
+  border: none;
+  color: #64748B;
+  cursor: pointer;
+  padding: 4px;
+  border-radius: 4px;
+}
+
+.testcases-collapse-btn:hover {
+  background-color: #E2E8F0;
+  color: #0F172A;
+}
+
+/* Body */
+.testcases-panel-body {
+  flex: 1 1 auto;
+  overflow-y: auto;
+  padding: 12px 16px;
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  background-color: #FFFFFF;
+}
+
+.testcase-case-view {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.testcase-view-row {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.testcase-row-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.testcase-field-label {
+  font-size: 11.5px;
+  font-weight: 600;
+  color: #475569;
+  text-transform: uppercase;
+  letter-spacing: 0.03em;
+}
+
+.testcase-copy-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  background: transparent;
+  border: none;
+  font-size: 11.5px;
+  font-weight: 500;
+  color: #0284C7;
+  cursor: pointer;
+  padding: 2px 6px;
+  border-radius: 4px;
+  transition: background 0.15s ease;
+}
+
+.testcase-copy-btn:hover {
+  background-color: #F0F9FF;
+}
+
+.testcase-code-box {
+  font-family: var(--font-mono, 'Fira Code', Consolas, monospace);
+  font-size: 12.5px;
+  background-color: #F8FAFC;
+  border: 1px solid #E2E8F0;
+  border-radius: 6px;
+  padding: 8px 12px;
+  margin: 0;
+  color: #0F172A;
+  white-space: pre-wrap;
+  word-break: break-all;
+}
+
+.testcase-code-box.expected-output {
+  background-color: #F0FDF4;
+  border-color: #DCFCE7;
+  color: #166534;
+}
+
+.testcase-explanation-text {
+  font-size: 12.5px;
+  line-height: 1.45;
+  color: #475569;
+  margin: 0;
+}
+
+/* Custom creator */
+.testcase-custom-creator {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.testcase-custom-textarea {
+  width: 100%;
+  font-family: var(--font-mono, monospace);
+  font-size: 12.5px;
+  padding: 8px 10px;
+  border: 1px solid #CBD5E1;
+  border-radius: 6px;
+  outline: none;
+  resize: vertical;
+  box-sizing: border-box;
+}
+
+.testcase-custom-textarea:focus {
+  border-color: #0284C7;
+  box-shadow: 0 0 0 2px rgba(2, 132, 199, 0.1);
+}
+
+.testcase-add-submit-btn {
+  align-self: flex-start;
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  padding: 5px 12px;
+  font-size: 12px;
+  font-weight: 600;
+  color: #FFFFFF;
+  background-color: #0284C7;
+  border: none;
+  border-radius: 6px;
+  cursor: pointer;
+  transition: background 0.15s ease;
+}
+
+.testcase-add-submit-btn:hover:not(:disabled) {
+  background-color: #0369A1;
+}
+
+.testcase-add-submit-btn:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+/* Footer notice */
+.testcases-panel-footer {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  padding-top: 8px;
+  margin-top: auto;
+  border-top: 1px solid #F1F5F9;
+  flex-wrap: wrap;
+}
+
+.testcase-notice-wrap {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.testcase-notice-text {
+  font-size: 11px;
+  color: #64748B;
+}
+
+.testcase-leetcode-link {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  font-size: 11.5px;
+  font-weight: 600;
+  color: #D97706;
+  text-decoration: none;
+  white-space: nowrap;
+}
+
+.testcase-leetcode-link:hover {
+  text-decoration: underline;
+}
