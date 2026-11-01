@@ -25,7 +25,31 @@ import {
 } from '../services/problemService';
 import './ProblemsPage.css';
 
-const PROBLEMS_PER_PAGE = 48; // 48 is divisible by 1, 2, 3, and 4 columns for balanced grids
+const PROBLEMS_PER_PAGE = 50;
+const VIEW_MODE_KEY = 'algotrack_problems_view_mode';
+
+const TOP_CATEGORIES = [
+  'All Topics',
+  'Array',
+  'String',
+  'Hash Table',
+  'Dynamic Programming',
+  'Math',
+  'Sorting',
+  'Greedy',
+  'Depth-First Search',
+  'Binary Search',
+  'Tree',
+  'Breadth-First Search',
+  'Two Pointers',
+  'Matrix',
+  'Bit Manipulation',
+  'Stack',
+  'Heap (Priority Queue)',
+  'Graph',
+  'Sliding Window',
+  'Linked List'
+];
 
 export const ProblemsPage: React.FC = () => {
   const { user } = useAuth();
@@ -39,6 +63,8 @@ export const ProblemsPage: React.FC = () => {
   const [searchQuery, setSearchQuery] = useState('');
   const [selectedDifficulty, setSelectedDifficulty] = useState<string>('all');
   const [selectedStatus, setSelectedStatus] = useState<string>('all');
+  const [selectedTopic, setSelectedTopic] = useState<string>('All Topics');
+  const [viewMode, setViewMode] = useState<'table' | 'grid'>('table');
   const [currentPage, setCurrentPage] = useState(1);
 
   useEffect(() => {
@@ -100,13 +126,18 @@ export const ProblemsPage: React.FC = () => {
       const matchDiff =
         selectedDifficulty === 'all' || p.difficulty.toLowerCase() === selectedDifficulty.toLowerCase();
 
+      const matchTopic =
+        selectedTopic === 'All Topics' ||
+        (p.topics && p.topics.includes(selectedTopic)) ||
+        p.pattern === selectedTopic;
+
       const status = userStatuses[p.id] || 'not_started';
       const matchStatus =
         selectedStatus === 'all' || status === selectedStatus;
 
-      return matchSearch && matchDiff && matchStatus;
+      return matchSearch && matchDiff && matchTopic && matchStatus;
     });
-  }, [problems, searchQuery, selectedDifficulty, selectedStatus, userStatuses]);
+  }, [problems, searchQuery, selectedDifficulty, selectedTopic, selectedStatus, userStatuses]);
 
   // Pagination calculation
   const totalPages = Math.max(1, Math.ceil(filteredProblems.length / PROBLEMS_PER_PAGE));
