@@ -27,7 +27,10 @@ import {
   User,
   LayoutDashboard,
   LogOut,
-  ChevronDown
+  ChevronDown,
+  Menu,
+  X,
+  History
 } from 'lucide-react';
 import { 
   fetchProblemBySlug, 
@@ -60,6 +63,7 @@ export const ProblemWorkspacePage: React.FC = () => {
 
   // Profile dropdown in header
   const [profileDropdownOpen, setProfileDropdownOpen] = useState(false);
+  const [mobileDrawerOpen, setMobileDrawerOpen] = useState(false);
   const dropdownRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
@@ -642,6 +646,16 @@ export const ProblemWorkspacePage: React.FC = () => {
                 </div>
               )}
             </div>
+            {/* Mobile 3-Lines Hamburger Button */}
+            <button
+              type="button"
+              className="ws-mobile-hamburger-btn"
+              onClick={() => setMobileDrawerOpen(true)}
+              aria-label="Open Navigation Menu"
+              title="Open Menu"
+            >
+              <Menu size={18} />
+            </button>
           </div>
         </div>
 
@@ -664,6 +678,112 @@ export const ProblemWorkspacePage: React.FC = () => {
             <span>Code & Testcases</span>
           </button>
         </div>
+
+        {/* Mobile Navigation Drawer */}
+        {mobileDrawerOpen && (
+          <>
+            <div 
+              className="ws-mobile-drawer-backdrop" 
+              onClick={() => setMobileDrawerOpen(false)} 
+              aria-hidden="true" 
+            />
+            <div className="ws-mobile-drawer" role="dialog" aria-modal="true" aria-label="Workspace Navigation Drawer">
+              <div className="ws-drawer-top">
+                <Link to="/dashboard" className="ws-drawer-brand" onClick={() => setMobileDrawerOpen(false)}>
+                  <div className="ws-brand-icon-box">
+                    <svg width="22" height="22" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                      <rect width="24" height="24" rx="6" fill="#18181B" />
+                      <path d="M7 12L11 8L15 12L11 16L7 12Z" fill="#0284C7" fillOpacity="0.3" stroke="#38BDF8" strokeWidth="1.75" strokeLinejoin="round" />
+                      <circle cx="11" cy="8" r="1.5" fill="#38BDF8" />
+                      <circle cx="15" cy="12" r="1.5" fill="#0284C7" />
+                      <circle cx="11" cy="16" r="1.5" fill="#38BDF8" />
+                      <circle cx="7" cy="12" r="1.5" fill="#38BDF8" />
+                      <path d="M15 12H18" stroke="#F97316" strokeWidth="1.75" strokeLinecap="round" />
+                      <circle cx="18" cy="12" r="1.75" fill="#F97316" />
+                    </svg>
+                  </div>
+                  <span className="ws-brand-title">AlgoTrack</span>
+                </Link>
+                <button
+                  type="button"
+                  className="ws-drawer-close-btn"
+                  onClick={() => setMobileDrawerOpen(false)}
+                  aria-label="Close menu"
+                >
+                  <X size={20} />
+                </button>
+              </div>
+
+              {/* Profile Card */}
+              <Link 
+                to="/profile" 
+                className="ws-drawer-profile-card"
+                onClick={() => setMobileDrawerOpen(false)}
+              >
+                <div className="ws-avatar-circle">
+                  {getInitials(displayName)}
+                </div>
+                <div className="ws-drawer-user-info">
+                  <span className="drawer-user-name">{displayName}</span>
+                  <span className="drawer-user-email">{displayEmail}</span>
+                </div>
+              </Link>
+
+              {/* Navigation Links */}
+              <nav className="ws-drawer-nav">
+                <Link 
+                  to="/dashboard" 
+                  className="ws-drawer-link"
+                  onClick={() => setMobileDrawerOpen(false)}
+                >
+                  <LayoutDashboard size={18} />
+                  <span>Dashboard</span>
+                </Link>
+
+                <Link 
+                  to="/problems" 
+                  className="ws-drawer-link"
+                  onClick={() => setMobileDrawerOpen(false)}
+                >
+                  <Code2 size={18} />
+                  <span>Problems Library</span>
+                </Link>
+
+                <Link 
+                  to="/dashboard#recent-activity" 
+                  className="ws-drawer-link"
+                  onClick={() => setMobileDrawerOpen(false)}
+                >
+                  <History size={18} />
+                  <span>Problems History</span>
+                </Link>
+
+                <Link 
+                  to="/profile" 
+                  className="ws-drawer-link"
+                  onClick={() => setMobileDrawerOpen(false)}
+                >
+                  <User size={18} />
+                  <span>My Profile & Analytics</span>
+                </Link>
+              </nav>
+
+              <div className="ws-drawer-footer">
+                <button
+                  type="button"
+                  className="ws-drawer-logout-btn"
+                  onClick={() => {
+                    setMobileDrawerOpen(false);
+                    handleLogout();
+                  }}
+                >
+                  <LogOut size={16} />
+                  <span>Log Out</span>
+                </button>
+              </div>
+            </div>
+          </>
+        )}
       </header>
 
       {/* ==================================================================

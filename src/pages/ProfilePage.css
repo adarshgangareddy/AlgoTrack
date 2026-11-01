@@ -656,3 +656,94 @@
   font-weight: 500;
 }
 
+/* ==========================================================================
+   Mobile Responsive Styles (< 768px & < 500px)
+   ========================================================================== */
+
+@media (max-width: 768px) {
+  .profile-container {
+    padding: 0 12px;
+  }
+
+  .profile-sub-navbar {
+    padding: 8px 0;
+  }
+
+  .profile-sub-crumb,
+  .profile-sub-sep {
+    display: none;
+  }
+
+  .profile-main-layout {
+    padding: 16px 0 40px 0;
+  }
+
+  .profile-grid {
+    grid-template-columns: 1fr;
+    gap: 16px;
+  }
+
+  .profile-card {
+    padding: 18px 14px;
+    border-radius: 14px;
+    margin-bottom: 16px;
+  }
+
+  .profile-stats-grid {
+    grid-template-columns: repeat(2, 1fr);
+    gap: 10px;
+    margin-bottom: 16px;
+  }
+
+  .stat-summary-card {
+    padding: 14px 12px;
+  }
+
+  .stat-card-value {
+    font-size: 1.25rem;
+    margin-bottom: 6px;
+  }
+
+  .heatmap-scroll-container {
+    overflow-x: auto;
+    -webkit-overflow-scrolling: touch;
+    padding-bottom: 10px;
+    margin: 0 -6px;
+    padding: 0 6px 10px 6px;
+  }
+
+  .topic-bars-grid {
+    grid-template-columns: 1fr;
+    gap: 12px;
+  }
+
+  .recent-activity-item {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 8px;
+    padding: 10px 12px;
+  }
+
+  .activity-item-right {
+    width: 100%;
+    justify-content: space-between;
+  }
+}
+
+@media (max-width: 440px) {
+  .profile-stats-grid {
+    grid-template-columns: 1fr 1fr;
+    gap: 8px;
+  }
+
+  .profile-avatar-circle {
+    width: 68px;
+    height: 68px;
+    font-size: 22px;
+  }
+
+  .profile-name {
+    font-size: 1.15rem;
+  }
+}
+

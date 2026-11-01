@@ -286,3 +286,36 @@
 .testcase-leetcode-link:hover {
   text-decoration: underline;
 }
+
+/* Mobile Responsive */
+@media (max-width: 768px) {
+  .testcases-panel-header {
+    padding: 0 8px;
+    gap: 6px;
+  }
+
+  .testcases-tab-group {
+    overflow-x: auto;
+    -webkit-overflow-scrolling: touch;
+    scrollbar-width: none;
+  }
+
+  .testcases-tab-group::-webkit-scrollbar {
+    display: none;
+  }
+
+  .testcase-tab-btn {
+    padding: 2px 7px;
+    font-size: 11px;
+  }
+
+  .testcases-content-scroll {
+    padding: 8px 10px;
+  }
+
+  .testcases-panel-footer {
+    padding-top: 6px;
+    gap: 6px;
+  }
+}
+

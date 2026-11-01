@@ -985,3 +985,90 @@
 .lc-open-link:hover {
   background-color: #FFEDD5;
 }
+
+/* ==========================================================================
+   Mobile Responsive Enhancements for Problems Page
+   ========================================================================== */
+
+@media (max-width: 768px) {
+  .problems-container {
+    padding: 0 12px;
+  }
+
+  .problems-header-bar {
+    padding: 14px 0;
+  }
+
+  .problems-header-inner {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 14px;
+  }
+
+  .header-page-title {
+    font-size: 1.25rem;
+  }
+
+  .header-page-subtitle {
+    font-size: 0.85rem;
+  }
+
+  .header-stats-row {
+    width: 100%;
+    display: flex;
+    gap: 8px;
+  }
+
+  .summary-stat-card {
+    flex: 1;
+    padding: 8px 12px;
+  }
+
+  /* Topics Scroll Bar */
+  .leetcode-topics-scroll-bar {
+    margin: 0 -12px 14px -12px;
+    padding: 0 12px;
+  }
+
+  .topics-scroll-inner {
+    overflow-x: auto;
+    -webkit-overflow-scrolling: touch;
+    scrollbar-width: none;
+    -ms-overflow-style: none;
+    padding-bottom: 4px;
+  }
+
+  .topics-scroll-inner::-webkit-scrollbar {
+    display: none;
+  }
+
+  /* Toolbar */
+  .library-toolbar-card {
+    padding: 12px;
+    gap: 12px;
+  }
+
+  .toolbar-search-field {
+    min-width: 100%;
+    max-width: 100%;
+    height: 38px;
+  }
+
+  .toolbar-filters-group {
+    width: 100%;
+  }
+
+  /* Cards Grid */
+  .problems-cards-grid {
+    grid-template-columns: 1fr;
+    gap: 12px;
+  }
+
+  .problem-item-card {
+    padding: 14px;
+  }
+
+  .card-problem-title {
+    font-size: 0.95rem;
+  }
+}

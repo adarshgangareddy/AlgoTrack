@@ -1121,25 +1121,13 @@
 }
 
 @media (max-width: 900px) {
-  .dashboard-sidebar {
-    transform: translateX(-100%);
-  }
-
-  .dashboard-sidebar.mobile-open {
-    transform: translateX(0);
-  }
-
   .dashboard-main-wrapper {
     margin-left: 0 !important;
     width: 100% !important;
   }
 
-  .mobile-menu-trigger {
-    display: flex;
-  }
-
   .summary-cards-grid {
-    grid-template-columns: 1fr;
+    grid-template-columns: repeat(2, 1fr);
   }
 
   .topic-progress-grid {
@@ -1148,5 +1136,92 @@
 
   .welcome-banner-illustration {
     display: none;
+  }
+}
+
+/* Mobile Devices (Phones & Small Tablets) */
+@media (max-width: 640px) {
+  .dashboard-content-body {
+    padding: 16px 12px;
+    gap: 16px;
+  }
+
+  /* Welcome Banner */
+  .dashboard-welcome-banner {
+    flex-direction: column;
+    align-items: flex-start;
+    padding: 20px 16px;
+    gap: 12px;
+    border-radius: 14px;
+  }
+
+  .welcome-heading {
+    font-size: 1.45rem;
+  }
+
+  .welcome-subtitle {
+    font-size: 0.88rem;
+    line-height: 1.45;
+  }
+
+  /* Summary Cards: 1 column on phone */
+  .summary-cards-grid {
+    grid-template-columns: 1fr;
+    gap: 12px;
+  }
+
+  .summary-card-inner {
+    padding: 16px;
+  }
+
+  /* Split and Bottom Grids */
+  .dashboard-split-grid,
+  .dashboard-bottom-grid {
+    grid-template-columns: 1fr;
+    gap: 14px;
+  }
+
+  /* Cards Sections */
+  .dashboard-card-section {
+    padding: 16px;
+    border-radius: 14px;
+  }
+
+  .card-section-header {
+    flex-wrap: wrap;
+    gap: 8px;
+    margin-bottom: 14px;
+  }
+
+  .card-section-title {
+    font-size: 1.05rem;
+  }
+
+  /* Touch Scrollable Heatmap */
+  .activity-heatmap-scroll {
+    overflow-x: auto;
+    -webkit-overflow-scrolling: touch;
+    padding-bottom: 8px;
+    margin: 0 -8px;
+    padding: 0 8px 8px 8px;
+  }
+
+  /* Recent Activity Items */
+  .recent-activity-row {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 8px;
+    padding: 12px;
+  }
+
+  .recent-activity-meta {
+    width: 100%;
+    justify-content: space-between;
+  }
+
+  /* Quick Action Buttons */
+  .quick-action-btn {
+    width: 100%;
+    justify-content: center;
   }
 }

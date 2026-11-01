@@ -537,10 +537,173 @@
   cursor: pointer;
 }
 
-.ws-mobile-btn.active {
+.ws-mobile-hamburger-btn {
+  display: none;
+  align-items: center;
+  justify-content: center;
+  width: 32px;
+  height: 32px;
+  background-color: #F8FAFC;
+  border: 1px solid #E2E8F0;
+  border-radius: 8px;
+  color: #475569;
+  cursor: pointer;
+  transition: all 0.15s ease;
+}
+
+.ws-mobile-hamburger-btn:hover {
+  background-color: #F1F5F9;
+  color: #0F172A;
+}
+
+/* Workspace Mobile Slide-In Drawer */
+.ws-mobile-drawer-backdrop {
+  position: fixed;
+  inset: 0;
+  background-color: rgba(15, 23, 42, 0.45);
+  backdrop-filter: blur(4px);
+  z-index: 999;
+  animation: fadeIn 0.2s ease;
+}
+
+.ws-mobile-drawer {
+  position: fixed;
+  top: 0;
+  right: 0;
+  bottom: 0;
+  width: 280px;
+  max-width: 85vw;
   background-color: #FFFFFF;
+  z-index: 1000;
+  display: flex;
+  flex-direction: column;
+  padding: 20px 18px;
+  box-shadow: -6px 0 28px rgba(15, 23, 42, 0.15);
+  animation: wsSlideInRight 0.25s cubic-bezier(0.16, 1, 0.3, 1);
+  overflow-y: auto;
+  box-sizing: border-box;
+}
+
+@keyframes wsSlideInRight {
+  from {
+    transform: translateX(100%);
+  }
+  to {
+    transform: translateX(0);
+  }
+}
+
+.ws-drawer-top {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding-bottom: 16px;
+  border-bottom: 1px solid #F1F5F9;
+  margin-bottom: 14px;
+}
+
+.ws-drawer-brand {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  text-decoration: none;
+  color: #0F172A;
+}
+
+.ws-drawer-close-btn {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 32px;
+  height: 32px;
+  background-color: #F8FAFC;
+  border: 1px solid #E2E8F0;
+  border-radius: 8px;
+  color: #64748B;
+  cursor: pointer;
+  transition: all 0.15s ease;
+}
+
+.ws-drawer-close-btn:hover {
+  background-color: #F1F5F9;
+  color: #0F172A;
+}
+
+.ws-drawer-profile-card {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 12px;
+  background-color: #F8FAFC;
+  border: 1px solid #E2E8F0;
+  border-radius: 12px;
+  text-decoration: none;
+  margin-bottom: 14px;
+  transition: all 0.15s ease;
+}
+
+.ws-drawer-profile-card:hover {
+  background-color: #F0F9FF;
+  border-color: #BAE6FD;
+}
+
+.ws-drawer-user-info {
+  display: flex;
+  flex-direction: column;
+  min-width: 0;
+}
+
+.ws-drawer-nav {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  flex: 1;
+}
+
+.ws-drawer-link {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 12px 14px;
+  font-size: 14px;
+  font-weight: 600;
+  color: #334155;
+  text-decoration: none;
+  border-radius: 10px;
+  transition: all 0.15s ease;
+}
+
+.ws-drawer-link:hover {
+  background-color: #E0F2FE;
   color: #0284C7;
-  box-shadow: 0 1px 2px rgba(0, 0, 0, 0.05);
+}
+
+.ws-drawer-footer {
+  padding-top: 16px;
+  border-top: 1px solid #F1F5F9;
+  margin-top: auto;
+}
+
+.ws-drawer-logout-btn {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  width: 100%;
+  padding: 11px;
+  font-size: 13.5px;
+  font-weight: 600;
+  color: #DC2626;
+  background-color: #FEF2F2;
+  border: 1px solid #FECACA;
+  border-radius: 10px;
+  cursor: pointer;
+  transition: all 0.15s ease;
+}
+
+.ws-drawer-logout-btn:hover {
+  background-color: #FEE2E2;
+  color: #B91C1C;
 }
 
 /* ==========================================================================
@@ -1352,30 +1515,58 @@
 }
 
 /* ==========================================================================
-   6. RESPONSIVE BREAKPOINTS
+   6. RESPONSIVE BREAKPOINTS (Mobile-First Workspace Enhancements)
    ========================================================================== */
 
 @media (max-width: 1024px) {
   .workspace-mobile-bar {
     display: flex;
+    background-color: #F8FAFC;
+    border-bottom: 1px solid #E2E8F0;
+    padding: 6px 10px;
+    gap: 8px;
+    flex-shrink: 0;
+  }
+
+  .ws-mobile-btn {
+    flex: 1;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 6px;
+    padding: 8px 12px;
+    font-size: 13px;
+    font-weight: 600;
+    color: #475569;
+    background-color: #FFFFFF;
+    border: 1px solid #E2E8F0;
+    border-radius: 8px;
+    cursor: pointer;
+    transition: all 0.15s ease;
+  }
+
+  .ws-mobile-btn.active {
+    background-color: #0284C7;
+    border-color: #0284C7;
+    color: #FFFFFF;
+    box-shadow: 0 2px 6px rgba(2, 132, 199, 0.25);
   }
 
   .workspace-main-viewport {
     flex-direction: column;
-    padding: 4px;
+    padding: 6px;
+    height: calc(100vh - 48px - 48px);
   }
 
-  .workspace-h-resizer {
-    display: none;
-  }
-
+  .workspace-h-resizer,
   .workspace-v-resizer {
-    display: none;
+    display: none !important;
   }
 
   .workspace-left-panel,
   .workspace-right-panel {
     width: 100% !important;
+    height: 100% !important;
   }
 
   .workspace-left-panel.mobile-hidden,
@@ -1397,15 +1588,120 @@
   }
 }
 
-@media (max-width: 640px) {
-  .header-problem-title {
-    max-width: 130px;
+@media (max-width: 768px) {
+  .workspace-header-inner {
+    padding: 0 10px;
+    gap: 8px;
   }
+
+  .ws-brand-title {
+    display: none;
+  }
+
+  .ws-nav-pipe {
+    display: none;
+  }
+
+  .ws-problem-list-link span {
+    display: none;
+  }
+
+  .ws-problem-list-link {
+    padding: 4px 6px;
+  }
+
+  .header-problem-title {
+    max-width: 120px;
+    font-size: 0.88rem;
+  }
+
   .header-crumb-sep,
   .header-problem-number {
     display: none;
   }
+
+  .ws-search-text {
+    display: none;
+  }
+
+  .ws-nav-search-btn {
+    width: 30px;
+    height: 30px;
+    padding: 0;
+    justify-content: center;
+    border-radius: 6px;
+  }
+
+  .ws-btn-layout-reset,
+  .ws-user-menu-wrapper {
+    display: none !important;
+  }
+
+  .ws-mobile-hamburger-btn {
+    display: flex;
+  }
+
+  .left-panel-tab-bar {
+    padding: 0 6px;
+  }
+
+  .left-tabs-group {
+    overflow-x: auto;
+    -webkit-overflow-scrolling: touch;
+    scrollbar-width: none;
+  }
+
+  .left-tabs-group::-webkit-scrollbar {
+    display: none;
+  }
+
+  .left-tab-btn {
+    padding: 0 9px;
+    font-size: 12px;
+    gap: 4px;
+  }
+
+  .problem-dashboard-footer {
+    height: auto;
+    min-height: auto;
+    padding: 10px 12px;
+    flex-direction: column;
+    gap: 8px;
+  }
+
+  .pdf-status-group {
+    width: 100%;
+    justify-content: space-between;
+  }
+
+  .pdf-actions-group {
+    width: 100%;
+    justify-content: space-between;
+    flex-wrap: wrap;
+    gap: 6px;
+  }
+
+  .ws-btn-save,
+  .ws-btn-leetcode {
+    flex: 1;
+    justify-content: center;
+  }
+
   .approach-complexity-grid {
     grid-template-columns: 1fr;
+  }
+}
+
+@media (max-width: 480px) {
+  .header-problem-title {
+    max-width: 90px;
+  }
+
+  .header-diff-badge {
+    display: none;
+  }
+
+  .ws-seq-nav-group {
+    display: none;
   }
 }

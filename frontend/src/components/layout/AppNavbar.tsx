@@ -232,68 +232,140 @@ export const AppNavbar: React.FC<AppNavbarProps> = ({ onOpenSearch }) => {
             )}
           </div>
 
-          {/* Mobile Menu Button */}
+          {/* Mobile 3-Lines Hamburger Button */}
           <button
             type="button"
             className="mobile-hamburger-btn"
-            onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
-            aria-label="Toggle Navigation Menu"
+            onClick={() => setMobileMenuOpen(true)}
+            aria-label="Open Navigation Menu"
+            title="Open Menu"
           >
-            {mobileMenuOpen ? <X size={20} /> : <Menu size={20} />}
+            <Menu size={20} />
           </button>
         </div>
       </div>
 
-      {/* Mobile Drawer */}
+      {/* Mobile Drawer & Backdrop Overlay */}
       {mobileMenuOpen && (
-        <div className="navbar-mobile-drawer">
-          <Link 
-            to="/dashboard" 
-            className={`mobile-drawer-link ${isActive('/dashboard') ? 'active' : ''}`}
-            onClick={() => setMobileMenuOpen(false)}
-          >
-            <LayoutDashboard size={16} />
-            <span>Dashboard</span>
-          </Link>
-          <Link 
-            to="/problems" 
-            className={`mobile-drawer-link ${isActive('/problems') ? 'active' : ''}`}
-            onClick={() => setMobileMenuOpen(false)}
-          >
-            <Code2 size={16} />
-            <span>Problems</span>
-          </Link>
-          <Link 
-            to="/dashboard#recent-activity" 
-            className={`mobile-drawer-link ${isActive('/history') ? 'active' : ''}`}
-            onClick={(e) => {
-              setMobileMenuOpen(false);
-              handleHistoryClick(e);
-            }}
-          >
-            <History size={16} />
-            <span>Problems History</span>
-          </Link>
-          <Link 
-            to="/profile" 
-            className="mobile-drawer-link"
-            onClick={() => setMobileMenuOpen(false)}
-          >
-            <User size={16} />
-            <span>My Profile & Analytics</span>
-          </Link>
-          <button
-            type="button"
-            className="mobile-drawer-link logout-link"
-            onClick={() => {
-              setMobileMenuOpen(false);
-              handleLogout();
-            }}
-          >
-            <LogOut size={16} />
-            <span>Log Out</span>
-          </button>
-        </div>
+        <>
+          <div 
+            className="navbar-mobile-backdrop" 
+            onClick={() => setMobileMenuOpen(false)} 
+            aria-hidden="true" 
+          />
+          <div className="navbar-mobile-drawer" role="dialog" aria-modal="true" aria-label="Mobile Navigation Drawer">
+            {/* Drawer Top Bar */}
+            <div className="mobile-drawer-top">
+              <Link to="/dashboard" className="mobile-drawer-brand" onClick={() => setMobileMenuOpen(false)}>
+                <div className="brand-icon-box">
+                  <svg width="22" height="22" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                    <rect width="24" height="24" rx="6" fill="#18181B" />
+                    <path d="M7 12L11 8L15 12L11 16L7 12Z" fill="#0284C7" fillOpacity="0.3" stroke="#38BDF8" strokeWidth="1.75" strokeLinejoin="round" />
+                    <circle cx="11" cy="8" r="1.5" fill="#38BDF8" />
+                    <circle cx="15" cy="12" r="1.5" fill="#0284C7" />
+                    <circle cx="11" cy="16" r="1.5" fill="#38BDF8" />
+                    <circle cx="7" cy="12" r="1.5" fill="#38BDF8" />
+                    <path d="M15 12H18" stroke="#F97316" strokeWidth="1.75" strokeLinecap="round" />
+                    <circle cx="18" cy="12" r="1.75" fill="#F97316" />
+                  </svg>
+                </div>
+                <span className="brand-title">AlgoTrack</span>
+              </Link>
+
+              <button
+                type="button"
+                className="mobile-drawer-close-btn"
+                onClick={() => setMobileMenuOpen(false)}
+                aria-label="Close menu"
+              >
+                <X size={20} />
+              </button>
+            </div>
+
+            {/* User Profile Card in Drawer */}
+            <Link 
+              to="/profile" 
+              className="mobile-drawer-profile-card"
+              onClick={() => setMobileMenuOpen(false)}
+            >
+              <div className="navbar-avatar-circle">
+                {getInitials(displayName)}
+              </div>
+              <div className="mobile-drawer-user-info">
+                <span className="drawer-user-name">{displayName}</span>
+                <span className="drawer-user-email">{displayEmail}</span>
+              </div>
+            </Link>
+
+            {/* Quick Search in Drawer */}
+            <button
+              type="button"
+              className="mobile-drawer-search-btn"
+              onClick={() => {
+                setMobileMenuOpen(false);
+                if (onOpenSearch) onOpenSearch();
+                else navigate('/problems');
+              }}
+            >
+              <Search size={15} />
+              <span>Search Problems...</span>
+            </button>
+
+            {/* Navigation Links */}
+            <nav className="mobile-drawer-nav">
+              <Link 
+                to="/dashboard" 
+                className={`mobile-drawer-link ${isActive('/dashboard') ? 'active' : ''}`}
+                onClick={() => setMobileMenuOpen(false)}
+              >
+                <LayoutDashboard size={18} />
+                <span>Dashboard</span>
+              </Link>
+              <Link 
+                to="/problems" 
+                className={`mobile-drawer-link ${isActive('/problems') ? 'active' : ''}`}
+                onClick={() => setMobileMenuOpen(false)}
+              >
+                <Code2 size={18} />
+                <span>Problems Library</span>
+              </Link>
+              <Link 
+                to="/dashboard#recent-activity" 
+                className={`mobile-drawer-link ${isActive('/history') ? 'active' : ''}`}
+                onClick={(e) => {
+                  setMobileMenuOpen(false);
+                  handleHistoryClick(e);
+                }}
+              >
+                <History size={18} />
+                <span>Problems History</span>
+              </Link>
+              <Link 
+                to="/profile" 
+                className={`mobile-drawer-link ${location.pathname === '/profile' ? 'active' : ''}`}
+                onClick={() => setMobileMenuOpen(false)}
+              >
+                <User size={18} />
+                <span>My Profile & Analytics</span>
+              </Link>
+            </nav>
+
+            {/* Drawer Footer with Log Out */}
+            <div className="mobile-drawer-footer">
+              <button
+                type="button"
+                className="mobile-drawer-logout-btn"
+                onClick={() => {
+                  setMobileMenuOpen(false);
+                  handleLogout();
+                }}
+              >
+                <LogOut size={16} />
+                <span>Log Out</span>
+              </button>
+            </div>
+          </div>
+        </>
       )}
     </header>
   );
