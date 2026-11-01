@@ -32,16 +32,8 @@ export const TestcasesPanel: React.FC<TestcasesPanelProps> = ({
   const [customInputValue, setCustomInputValue] = useState<string>('');
   const [copiedIdx, setCopiedIdx] = useState<number | null>(null);
 
-  // Normalize sample cases from problem examples
-  const sampleCases = examples && examples.length > 0 
-    ? examples 
-    : [
-        {
-          input: 'nums = [2,7,11,15], target = 9',
-          output: '[0,1]',
-          explanation: 'nums[0] + nums[1] == 9, return [0, 1].'
-        }
-      ];
+  // Sample cases from problem examples (never fallback to Two Sum!)
+  const sampleCases = examples || [];
 
   const allCasesCount = sampleCases.length + customTestcases.length;
 
@@ -238,7 +230,13 @@ export const TestcasesPanel: React.FC<TestcasesPanelProps> = ({
                 </div>
               )}
             </div>
-          ) : null}
+          ) : (
+            <div className="testcase-case-view">
+              <p className="testcase-explanation-text">
+                No sample testcases recorded for this problem. You can click <strong>+ Custom</strong> above to test your custom inputs.
+              </p>
+            </div>
+          )}
 
           {/* 3. Footer Notice: No execution disclaimer & LeetCode redirect */}
           <div className="testcases-panel-footer">

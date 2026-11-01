@@ -455,24 +455,9 @@ export const ProblemWorkspacePage: React.FC = () => {
 
   const activeCode = solutionsByLang[activeLanguage] ?? (STARTER_CODE_TEMPLATES[activeLanguage] || '');
 
-  // Normalized examples
-  const problemExamples = problem.examples && problem.examples.length > 0 
-    ? problem.examples 
-    : [
-        {
-          input: 'nums = [2,7,11,15], target = 9',
-          output: '[0,1]',
-          explanation: 'Because nums[0] + nums[1] == 9, we return [0, 1].'
-        }
-      ];
-
-  const problemConstraints = problem.constraints && problem.constraints.length > 0
-    ? problem.constraints
-    : [
-        `1 <= nums.length <= 10^5`,
-        `-10^9 <= nums[i] <= 10^9`,
-        `Optimal asymptotic runtime: O(N) or O(N log N)`,
-      ];
+  // Authentic problem examples and constraints - mapped strictly per problem without Two Sum fallbacks
+  const problemExamples = problem.examples || [];
+  const problemConstraints = problem.constraints || [];
 
   return (
     <div className="workspace-page-container">
@@ -695,9 +680,11 @@ export const ProblemWorkspacePage: React.FC = () => {
             </button>
           </div>
         </div>
+      </header>
 
-        {/* Mobile Tab Switcher (Visible only below 1024px) */}
-        <div className="workspace-mobile-bar">
+      {/* Mobile Tab Switcher (Segmented Control, visible only below 1024px) */}
+      <div className="workspace-mobile-bar">
+        <div className="workspace-mobile-segmented">
           <button
             type="button"
             className={`ws-mobile-btn ${mobileActiveTab === 'content' ? 'active' : ''}`}
@@ -715,9 +702,10 @@ export const ProblemWorkspacePage: React.FC = () => {
             <span>Code & Testcases</span>
           </button>
         </div>
+      </div>
 
-        {/* Mobile Navigation Drawer */}
-        {mobileDrawerOpen && (
+      {/* Mobile Navigation Drawer */}
+      {mobileDrawerOpen && (
           <>
             <div 
               className="ws-mobile-drawer-backdrop" 
@@ -821,7 +809,6 @@ export const ProblemWorkspacePage: React.FC = () => {
             </div>
           </>
         )}
-      </header>
 
       {/* ==================================================================
           2. MAIN WORKSPACE VIEWPORT (Top Tabs on Left Panel + Right Coding Cards)
@@ -928,41 +915,45 @@ export const ProblemWorkspacePage: React.FC = () => {
                   )}
 
                   {/* Examples Section */}
-                  <div className="desc-examples-block">
-                    {problemExamples.map((ex, idx) => (
-                      <div key={idx} className="desc-example-card">
-                        <div className="desc-example-title">Example {idx + 1}:</div>
-                        <div className="desc-example-content">
-                          <div className="desc-example-item">
-                            <span className="desc-item-label">Input:</span>
-                            <code className="desc-item-code">{ex.input}</code>
-                          </div>
-                          <div className="desc-example-item">
-                            <span className="desc-item-label">Output:</span>
-                            <code className="desc-item-code output">{ex.output}</code>
-                          </div>
-                          {ex.explanation && (
+                  {problemExamples.length > 0 && (
+                    <div className="desc-examples-block">
+                      {problemExamples.map((ex, idx) => (
+                        <div key={idx} className="desc-example-card">
+                          <div className="desc-example-title">Example {idx + 1}:</div>
+                          <div className="desc-example-content">
                             <div className="desc-example-item">
-                              <span className="desc-item-label">Explanation:</span>
-                              <span className="desc-item-explanation">{ex.explanation}</span>
+                              <span className="desc-item-label">Input:</span>
+                              <code className="desc-item-code">{ex.input}</code>
                             </div>
-                          )}
+                            <div className="desc-example-item">
+                              <span className="desc-item-label">Output:</span>
+                              <code className="desc-item-code output">{ex.output}</code>
+                            </div>
+                            {ex.explanation && (
+                              <div className="desc-example-item">
+                                <span className="desc-item-label">Explanation:</span>
+                                <span className="desc-item-explanation">{ex.explanation}</span>
+                              </div>
+                            )}
+                          </div>
                         </div>
-                      </div>
-                    ))}
-                  </div>
+                      ))}
+                    </div>
+                  )}
 
                   {/* Constraints Section */}
-                  <div className="desc-constraints-block">
-                    <h3 className="desc-section-heading">Constraints:</h3>
-                    <ul className="desc-constraints-list">
-                      {problemConstraints.map((c, i) => (
-                        <li key={i} className="desc-constraint-item">
-                          <code>{c}</code>
-                        </li>
-                      ))}
-                    </ul>
-                  </div>
+                  {problemConstraints.length > 0 && (
+                    <div className="desc-constraints-block">
+                      <h3 className="desc-section-heading">Constraints:</h3>
+                      <ul className="desc-constraints-list">
+                        {problemConstraints.map((c, i) => (
+                          <li key={i} className="desc-constraint-item">
+                            <code>{c}</code>
+                          </li>
+                        ))}
+                      </ul>
+                    </div>
+                  )}
 
                   {/* LeetCode Challenge Runner Link */}
                   {problem.leetcode_url && (

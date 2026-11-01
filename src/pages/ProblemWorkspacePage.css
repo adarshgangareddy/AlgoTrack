@@ -971,6 +971,8 @@
   letter-spacing: -0.01em;
   color: #0F172A;
   margin: 0;
+  line-height: 1.35;
+  word-break: break-word;
 }
 
 .desc-badges-row {
@@ -1630,41 +1632,54 @@
     z-index: 100;
   }
 
-  /* Mode Switcher: Problem & Tabs vs Code & Testcases Sticky beneath Header */
+  /* Mode Switcher: Problem & Tabs vs Code & Testcases (Compact Segmented Control) */
   .workspace-mobile-bar {
     display: flex;
     position: sticky;
     top: 48px;
     z-index: 95;
-    background-color: #F8FAFC;
+    background-color: #FFFFFF;
     border-bottom: 1px solid #E2E8F0;
-    padding: 6px 10px;
-    gap: 8px;
+    padding: 6px 12px;
     flex-shrink: 0;
+    box-sizing: border-box;
+  }
+
+  .workspace-mobile-segmented {
+    display: flex;
+    width: 100%;
+    background-color: #F1F5F9;
+    border: 1px solid #E2E8F0;
+    border-radius: 8px;
+    padding: 3px;
+    gap: 4px;
+    box-sizing: border-box;
   }
 
   .ws-mobile-btn {
     flex: 1;
-    display: flex;
+    display: inline-flex;
     align-items: center;
     justify-content: center;
     gap: 6px;
-    padding: 8px 12px;
-    font-size: 13px;
+    height: 32px;
+    padding: 0 8px;
+    font-size: 12.5px;
     font-weight: 600;
-    color: #475569;
-    background-color: #FFFFFF;
-    border: 1px solid #E2E8F0;
-    border-radius: 8px;
+    color: #64748B;
+    background-color: transparent;
+    border: none;
+    border-radius: 6px;
     cursor: pointer;
     transition: all 0.15s ease;
+    white-space: nowrap;
   }
 
   .ws-mobile-btn.active {
     background-color: #0284C7;
     border-color: #0284C7;
     color: #FFFFFF;
-    box-shadow: 0 2px 6px rgba(2, 132, 199, 0.25);
+    box-shadow: 0 1px 3px rgba(2, 132, 199, 0.25);
   }
 
   /* Layer 2: Problem Content Tabs Sticky beneath Mode Switcher */
@@ -1705,9 +1720,11 @@
   }
 
   .tab-pane-content {
+    padding: 16px 14px 44px 14px;
     height: auto !important;
     min-height: calc(100dvh - 132px);
     overflow: visible !important;
+    box-sizing: border-box;
   }
 
   .workspace-left-panel.mobile-hidden,
@@ -1731,12 +1748,14 @@
   }
 
   .code-editor-card {
-    height: 60% !important;
+    height: 48vh !important;
+    min-height: 240px;
     border-radius: 0 !important;
   }
 
   .testcases-card {
-    height: 40% !important;
+    height: calc(100dvh - 92px - 48vh - 44px) !important;
+    min-height: 180px;
     border-radius: 0 !important;
   }
 }
@@ -1896,12 +1915,24 @@
 
   .problem-dashboard-footer {
     display: flex !important;
-    height: 42px;
-    min-height: 42px;
-    padding: 0 8px;
-    gap: 6px;
+    height: 44px;
+    min-height: 44px;
+    padding: 0 10px;
+    gap: 8px;
     background-color: #FFFFFF;
     border-top: 1px solid #E2E8F0;
+    align-items: center;
+    justify-content: space-between;
+    box-sizing: border-box;
+    width: 100%;
+    overflow: hidden;
+    flex-shrink: 0;
+  }
+
+  .pdf-status-group {
+    display: flex;
+    align-items: center;
+    gap: 4px;
     flex-shrink: 0;
   }
 
@@ -1913,18 +1944,38 @@
     height: 28px;
     font-size: 11px;
     padding: 0 4px;
+    max-width: 95px;
+  }
+
+  .pdf-actions-group {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    flex-shrink: 0;
+  }
+
+  .ws-save-indicator {
+    display: none !important; /* Hide saved text to avoid overflowing on mobile */
   }
 
   .ws-btn-save {
     height: 28px;
     padding: 0 8px;
     font-size: 11px;
+    display: inline-flex;
+    align-items: center;
+    gap: 4px;
+    flex-shrink: 0;
   }
 
   .ws-btn-leetcode {
     height: 28px;
-    padding: 0 6px;
+    padding: 0 8px;
     font-size: 11px;
+    display: inline-flex;
+    align-items: center;
+    gap: 3px;
+    flex-shrink: 0;
   }
 
   .approach-complexity-grid {
@@ -1934,11 +1985,12 @@
 
 @media (max-width: 480px) {
   .header-problem-title {
-    max-width: 85px;
+    max-width: 105px;
   }
 
   .header-diff-badge {
-    display: none;
+    padding: 1px 4px;
+    font-size: 9px;
   }
 
   .ws-seq-nav-group {
@@ -1951,5 +2003,13 @@
 
   .ws-header-saved-tag {
     display: none;
+  }
+
+  .ws-btn-save span {
+    font-size: 10.5px;
+  }
+
+  .ws-btn-leetcode span {
+    font-size: 10.5px;
   }
 }

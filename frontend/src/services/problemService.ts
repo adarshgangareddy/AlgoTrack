@@ -112,7 +112,28 @@ export const CURATED_PROBLEMS: Problem[] = [
     leetcode_url: 'https://leetcode.com/problems/longest-substring-without-repeating-characters/',
     topics: ['Strings', 'Sliding Window', 'Hash Maps'],
     description: 'Given a string s, find the length of the longest substring without duplicate characters.',
-    theory_content: 'Maintain a dynamic window [left, right] using a hash map or character array storing the last seen index of each character. When a duplicate is encountered, slide left forward to the index after the previous occurrence.'
+    theory_content: 'Maintain a dynamic window [left, right] using a hash map or character array storing the last seen index of each character. When a duplicate is encountered, slide left forward to the index after the previous occurrence.',
+    examples: [
+      {
+        input: 's = "abcabcbb"',
+        output: '3',
+        explanation: 'The answer is "abc", with the length of 3.'
+      },
+      {
+        input: 's = "bbbbb"',
+        output: '1',
+        explanation: 'The answer is "b", with the length of 1.'
+      },
+      {
+        input: 's = "pwwkew"',
+        output: '3',
+        explanation: 'The answer is "wke", with the length of 3. Notice that the answer must be a substring, "pwke" is a subsequence and not a substring.'
+      }
+    ],
+    constraints: [
+      '0 <= s.length <= 5 * 10^4',
+      's consists of English letters, digits, symbols and spaces.'
+    ]
   },
   {
     id: 'p11-container-with-most-water',
@@ -124,7 +145,24 @@ export const CURATED_PROBLEMS: Problem[] = [
     leetcode_url: 'https://leetcode.com/problems/container-with-most-water/',
     topics: ['Arrays', 'Two Pointers'],
     description: 'You are given an integer array height of length n. Find two lines that together with the x-axis form a container that contains the most water.',
-    theory_content: 'Place two pointers at the extreme ends of the array. The area is bounded by the shorter line multiplied by the width. To find a potentially larger area, always move the pointer pointing to the shorter vertical bar inward.'
+    theory_content: 'Place two pointers at the extreme ends of the array. The area is bounded by the shorter line multiplied by the width. To find a potentially larger area, always move the pointer pointing to the shorter vertical bar inward.',
+    examples: [
+      {
+        input: 'height = [1,8,6,2,5,4,8,3,7]',
+        output: '49',
+        explanation: 'The above vertical lines are represented by array [1,8,6,2,5,4,8,3,7]. In this case, the max area of water the container can contain is 49.'
+      },
+      {
+        input: 'height = [1,1]',
+        output: '1',
+        explanation: 'The max area is min(1, 1) * (1 - 0) = 1.'
+      }
+    ],
+    constraints: [
+      'n == height.length',
+      '2 <= n <= 10^5',
+      '0 <= height[i] <= 10^4'
+    ]
   },
   {
     id: 'p15-3sum',
@@ -136,7 +174,28 @@ export const CURATED_PROBLEMS: Problem[] = [
     leetcode_url: 'https://leetcode.com/problems/3sum/',
     topics: ['Arrays', 'Two Pointers', 'Sorting'],
     description: 'Given an integer array nums, return all the triplets [nums[i], nums[j], nums[k]] such that i != j, i != k, and j != k, and nums[i] + nums[j] + nums[k] == 0.',
-    theory_content: 'Sort the array first to enable two-pointer scanning and duplicate skipping. Fix the first element nums[i] in a loop, then use two pointers (left = i + 1, right = n - 1) to find pairs summing to -nums[i].'
+    theory_content: 'Sort the array first to enable two-pointer scanning and duplicate skipping. Fix the first element nums[i] in a loop, then use two pointers (left = i + 1, right = n - 1) to find pairs summing to -nums[i].',
+    examples: [
+      {
+        input: 'nums = [-1,0,1,2,-1,-4]',
+        output: '[[-1,-1,2],[-1,0,1]]',
+        explanation: 'nums[0] + nums[1] + nums[2] = (-1) + 0 + 1 = 0.\nnums[1] + nums[2] + nums[4] = 0 + 1 + (-1) = 0.\nnums[0] + nums[3] + nums[4] = (-1) + 2 + (-1) = 0.\nThe distinct triplets are [-1,0,1] and [-1,-1,2].'
+      },
+      {
+        input: 'nums = [0,1,1]',
+        output: '[]',
+        explanation: 'The only possible triplet does not sum up to 0.'
+      },
+      {
+        input: 'nums = [0,0,0]',
+        output: '[[0,0,0]]',
+        explanation: 'The only possible triplet sums up to 0.'
+      }
+    ],
+    constraints: [
+      '3 <= nums.length <= 3000',
+      '-10^5 <= nums[i] <= 10^5'
+    ]
   },
   {
     id: 'p20-valid-parentheses',
@@ -148,7 +207,25 @@ export const CURATED_PROBLEMS: Problem[] = [
     leetcode_url: 'https://leetcode.com/problems/valid-parentheses/',
     topics: ['Strings', 'Stack'],
     description: 'Given a string s containing just the characters "(", ")", "{", "}", "[" and "]", determine if the input string is valid.',
-    theory_content: 'Use a Last-In First-Out (LIFO) stack. Push expected closing brackets when an opening bracket is met, or verify that the top element matches and pops when encountering a closing symbol.'
+    theory_content: 'Use a Last-In First-Out (LIFO) stack. Push expected closing brackets when an opening bracket is met, or verify that the top element matches and pops when encountering a closing symbol.',
+    examples: [
+      {
+        input: 's = "()"',
+        output: 'true'
+      },
+      {
+        input: 's = "()[]{}"',
+        output: 'true'
+      },
+      {
+        input: 's = "(]"',
+        output: 'false'
+      }
+    ],
+    constraints: [
+      '1 <= s.length <= 10^4',
+      's consists of parentheses only "()[]{}"'
+    ]
   },
   {
     id: 'p42-trapping-rain-water',
@@ -160,7 +237,23 @@ export const CURATED_PROBLEMS: Problem[] = [
     leetcode_url: 'https://leetcode.com/problems/trapping-rain-water/',
     topics: ['Arrays', 'Two Pointers', 'Dynamic Programming'],
     description: 'Given n non-negative integers representing an elevation map where the width of each bar is 1, compute how much water it can trap after raining.',
-    theory_content: 'The water above any bar is min(max_left, max_right) - height[i]. Using two pointers moving from exterior inward while tracking left_max and right_max eliminates auxiliary array storage.'
+    theory_content: 'The water above any bar is min(max_left, max_right) - height[i]. Using two pointers moving from exterior inward while tracking left_max and right_max eliminates auxiliary array storage.',
+    examples: [
+      {
+        input: 'height = [0,1,0,2,1,0,1,3,2,1,2,1]',
+        output: '6',
+        explanation: 'The above elevation map is represented by array [0,1,0,2,1,0,1,3,2,1,2,1]. In this case, 6 units of rain water are being trapped.'
+      },
+      {
+        input: 'height = [4,2,0,3,2,5]',
+        output: '9'
+      }
+    ],
+    constraints: [
+      'n == height.length',
+      '1 <= n <= 2 * 10^4',
+      '0 <= height[i] <= 10^5'
+    ]
   },
   {
     id: 'p53-maximum-subarray',
@@ -172,7 +265,28 @@ export const CURATED_PROBLEMS: Problem[] = [
     leetcode_url: 'https://leetcode.com/problems/maximum-subarray/',
     topics: ['Arrays', 'Dynamic Programming'],
     description: 'Given an integer array nums, find the subarray with the largest sum, and return its sum.',
-    theory_content: "Kadane's algorithm iterates through the array while maintaining current_sum = max(num, current_sum + num). If the running sum becomes negative, starting fresh at the next number yields a higher potential."
+    theory_content: "Kadane's algorithm iterates through the array while maintaining current_sum = max(num, current_sum + num). If the running sum becomes negative, starting fresh at the next number yields a higher potential.",
+    examples: [
+      {
+        input: 'nums = [-2,1,-3,4,-1,2,1,-5,4]',
+        output: '6',
+        explanation: 'The subarray [4,-1,2,1] has the largest sum 6.'
+      },
+      {
+        input: 'nums = [1]',
+        output: '1',
+        explanation: 'The subarray [1] has the largest sum 1.'
+      },
+      {
+        input: 'nums = [5,4,-1,7,8]',
+        output: '23',
+        explanation: 'The subarray [5,4,-1,7,8] has the largest sum 23.'
+      }
+    ],
+    constraints: [
+      '1 <= nums.length <= 10^5',
+      '-10^4 <= nums[i] <= 10^4'
+    ]
   },
   {
     id: 'p70-climbing-stairs',
@@ -184,7 +298,22 @@ export const CURATED_PROBLEMS: Problem[] = [
     leetcode_url: 'https://leetcode.com/problems/climbing-stairs/',
     topics: ['Dynamic Programming', 'Math'],
     description: 'You are climbing a staircase. It takes n steps to reach the top. Each time you can climb 1 or 2 steps. In how many distinct ways can you climb to the top?',
-    theory_content: 'Notice that to reach step n, you must arrive from either step n-1 or step n-2. Thus ways(n) = ways(n-1) + ways(n-2), mirroring the Fibonacci recurrence, reducible to O(1) space with two variables.'
+    theory_content: 'Notice that to reach step n, you must arrive from either step n-1 or step n-2. Thus ways(n) = ways(n-1) + ways(n-2), mirroring the Fibonacci recurrence, reducible to O(1) space with two variables.',
+    examples: [
+      {
+        input: 'n = 2',
+        output: '2',
+        explanation: 'There are two ways to climb to the top: 1. 1 step + 1 step, 2. 2 steps.'
+      },
+      {
+        input: 'n = 3',
+        output: '3',
+        explanation: 'There are three ways to climb to the top: 1. 1 step + 1 step + 1 step, 2. 1 step + 2 steps, 3. 2 steps + 1 step.'
+      }
+    ],
+    constraints: [
+      '1 <= n <= 45'
+    ]
   },
   {
     id: 'p121-best-time-to-buy-and-sell-stock',
@@ -196,7 +325,23 @@ export const CURATED_PROBLEMS: Problem[] = [
     leetcode_url: 'https://leetcode.com/problems/best-time-to-buy-and-sell-stock/',
     topics: ['Arrays', 'Dynamic Programming'],
     description: 'You want to maximize your profit by choosing a single day to buy one stock and choosing a different day in the future to sell that stock.',
-    theory_content: 'Iterate once through the prices array while keeping track of the minimum price observed so far. Calculate potential profit at each day (price - min_price) and maintain the global maximum.'
+    theory_content: 'Iterate once through the prices array while keeping track of the minimum price observed so far. Calculate potential profit at each day (price - min_price) and maintain the global maximum.',
+    examples: [
+      {
+        input: 'prices = [7,1,5,3,6,4]',
+        output: '5',
+        explanation: 'Buy on day 2 (price = 1) and sell on day 5 (price = 6), profit = 6-1 = 5.'
+      },
+      {
+        input: 'prices = [7,6,4,3,1]',
+        output: '0',
+        explanation: 'In this case, no transactions are done and the max profit = 0.'
+      }
+    ],
+    constraints: [
+      '1 <= prices.length <= 10^5',
+      '0 <= prices[i] <= 10^4'
+    ]
   },
   {
     id: 'p141-linked-list-cycle',
@@ -208,7 +353,29 @@ export const CURATED_PROBLEMS: Problem[] = [
     leetcode_url: 'https://leetcode.com/problems/linked-list-cycle/',
     topics: ['Linked Lists', 'Two Pointers'],
     description: 'Given head, the head of a linked list, determine if the linked list has a cycle in it.',
-    theory_content: "Floyd's cycle-finding algorithm uses two pointers moving at different speeds (slow by 1, fast by 2). If there is a cycle, the fast pointer is guaranteed to catch up to the slow pointer within the loop."
+    theory_content: "Floyd's cycle-finding algorithm uses two pointers moving at different speeds (slow by 1, fast by 2). If there is a cycle, the fast pointer is guaranteed to catch up to the slow pointer within the loop.",
+    examples: [
+      {
+        input: 'head = [3,2,0,-4], pos = 1',
+        output: 'true',
+        explanation: 'There is a cycle in the linked list, where the tail connects to the 1st node (0-indexed).'
+      },
+      {
+        input: 'head = [1,2], pos = 0',
+        output: 'true',
+        explanation: 'There is a cycle in the linked list, where the tail connects to the 0th node.'
+      },
+      {
+        input: 'head = [1], pos = -1',
+        output: 'false',
+        explanation: 'There is no cycle in the linked list.'
+      }
+    ],
+    constraints: [
+      'The number of the nodes in the list is in the range [0, 10^4].',
+      '-10^5 <= Node.val <= 10^5',
+      'pos is -1 or a valid index in the linked-list.'
+    ]
   },
   {
     id: 'p200-number-of-islands',
@@ -220,7 +387,23 @@ export const CURATED_PROBLEMS: Problem[] = [
     leetcode_url: 'https://leetcode.com/problems/number-of-islands/',
     topics: ['Arrays', 'Graph', 'DFS / BFS'],
     description: 'Given an m x n 2D binary grid grid which represents a map of "1"s (land) and "0"s (water), return the number of islands.',
-    theory_content: 'Scan every cell in the matrix. Whenever a "1" is encountered, increment the island count and initiate a Breadth-First or Depth-First search to sink or mark all adjacent connected land cells to "0".'
+    theory_content: 'Scan every cell in the matrix. Whenever a "1" is encountered, increment the island count and initiate a Breadth-First or Depth-First search to sink or mark all adjacent connected land cells to "0".',
+    examples: [
+      {
+        input: 'grid = [["1","1","1","1","0"],["1","1","0","1","0"],["1","1","0","0","0"],["0","0","0","0","0"]]',
+        output: '1'
+      },
+      {
+        input: 'grid = [["1","1","0","0","0"],["1","1","0","0","0"],["0","0","1","0","0"],["0","0","0","1","1"]]',
+        output: '3'
+      }
+    ],
+    constraints: [
+      'm == grid.length',
+      'n == grid[i].length',
+      '1 <= m, n <= 300',
+      'grid[i][j] is "0" or "1".'
+    ]
   },
   {
     id: 'p206-reverse-linked-list',
@@ -232,7 +415,25 @@ export const CURATED_PROBLEMS: Problem[] = [
     leetcode_url: 'https://leetcode.com/problems/reverse-linked-list/',
     topics: ['Linked Lists', 'Recursion'],
     description: 'Given the head of a singly linked list, reverse the list, and return the reversed list.',
-    theory_content: 'Maintain three pointers: prev (initially null), curr (starting at head), and next_temp. In each iteration, save curr.next, invert the link (curr.next = prev), and shift both prev and curr forward.'
+    theory_content: 'Maintain three pointers: prev (initially null), curr (starting at head), and next_temp. In each iteration, save curr.next, invert the link (curr.next = prev), and shift both prev and curr forward.',
+    examples: [
+      {
+        input: 'head = [1,2,3,4,5]',
+        output: '[5,4,3,2,1]'
+      },
+      {
+        input: 'head = [1,2]',
+        output: '[2,1]'
+      },
+      {
+        input: 'head = []',
+        output: '[]'
+      }
+    ],
+    constraints: [
+      'The number of nodes in the list is the range [0, 5000].',
+      '-5000 <= Node.val <= 5000'
+    ]
   },
   {
     id: 'p23-merge-k-sorted-lists',
@@ -244,7 +445,30 @@ export const CURATED_PROBLEMS: Problem[] = [
     leetcode_url: 'https://leetcode.com/problems/merge-k-sorted-lists/',
     topics: ['Linked Lists', 'Divide and Conquer', 'Heap'],
     description: 'You are given an array of k linked-lists lists, each linked-list is sorted in ascending order. Merge all the linked-lists into one sorted linked-list and return it.',
-    theory_content: 'A min-heap / priority queue storing the heads of all k lists allows retrieving the smallest node across lists in O(log k) time, yielding an optimal overall runtime of O(N log k).'
+    theory_content: 'A min-heap / priority queue storing the heads of all k lists allows retrieving the smallest node across lists in O(log k) time, yielding an optimal overall runtime of O(N log k).',
+    examples: [
+      {
+        input: 'lists = [[1,4,5],[1,3,4],[2,6]]',
+        output: '[1,1,2,3,4,4,5,6]',
+        explanation: 'The linked-lists are:\n[\n  1->4->5,\n  1->3->4,\n  2->6\n]\nmerging them into one sorted list: 1->1->2->3->4->4->5->6'
+      },
+      {
+        input: 'lists = []',
+        output: '[]'
+      },
+      {
+        input: 'lists = [[]]',
+        output: '[]'
+      }
+    ],
+    constraints: [
+      'k == lists.length',
+      '0 <= k <= 10^4',
+      '0 <= lists[i].length <= 500',
+      '-10^4 <= lists[i][j] <= 10^4',
+      'lists[i] is sorted in ascending order.',
+      'The sum of lists[i].length will not exceed 10^4.'
+    ]
   }
 ];
 
