@@ -152,37 +152,35 @@ export const DashboardSidebar: React.FC<DashboardSidebarProps> = ({
                 )}
               </Link>
 
-              <button
-                type="button"
-                className="nav-item-btn disabled"
-                title="Advanced Analytics (Phase 6)"
+              <Link
+                to="/profile"
+                className="nav-item-btn"
+                onClick={onCloseMobile}
+                title="Full-Screen Analytics & Performance Profile"
               >
                 <BarChart3 size={18} />
                 {!isCollapsed && (
                   <>
                     <span>Analytics</span>
-                    <span className="nav-badge">Phase 6</span>
+                    <span className="nav-badge" style={{ background: '#ECFDF5', color: '#059669' }}>Active</span>
                   </>
                 )}
-              </button>
+              </Link>
             </div>
 
             {/* Account & Profile Navigation */}
             <div className="nav-section" style={{ marginTop: '28px' }}>
               {!isCollapsed && <span className="nav-section-title">Account</span>}
 
-              <button
-                type="button"
+              <Link
+                to="/profile"
                 className="nav-item-btn"
-                onClick={() => {
-                  onOpenProfile();
-                  onCloseMobile();
-                }}
-                title="Your Profile"
+                onClick={onCloseMobile}
+                title="Your Dedicated Profile"
               >
                 <User size={18} />
                 {!isCollapsed && <span>Profile</span>}
-              </button>
+              </Link>
 
               <button
                 type="button"
