@@ -1,24 +1,28 @@
 // src/components/workspace/AIAssistant.tsx
-// AlgoTrack — AI Problem Explainer & Interactive Tutor Component
+// AlgoTrack Phase 6: Groq AI Code Assistant & Interactive Mentor
 
 import React, { useState, useEffect, useRef, useCallback } from 'react';
 import { 
   Sparkles, 
   Send, 
-  Key, 
   Lightbulb, 
   ShieldAlert, 
   Clock, 
   HelpCircle, 
-  RefreshCw,
-  ExternalLink,
+  Loader2,
+  Trash2,
+  RotateCcw,
+  Copy,
   Check,
-  X
+  Zap,
+  Code2,
+  AlertTriangle,
+  FileCode,
+  ArrowUpRight
 } from 'lucide-react';
 import { 
-  askGeminiAI, 
-  getGeminiApiKey, 
-  saveGeminiApiKey, 
+  askGroqAI, 
+  checkAiStatus, 
   type ChatMessage, 
   type ProblemContext 
 } from '../../services/aiService';
@@ -26,335 +30,421 @@ import './AIAssistant.css';
 
 interface AIAssistantProps {
   problem: ProblemContext;
-  autoExplainOnMount?: boolean;
+  code?: string;
+  language?: string;
+  userId?: string | null;
+  userToken?: string | null;
 }
 
-export const AIAssistant: React.FC<AIAssistantProps> = ({ problem, autoExplainOnMount = false }) => {
+const QUICK_ACTIONS = [
+  { id: 'analyze', label: 'Analyze My Code', icon: Zap, color: '#0284C7' },
+  { id: 'explain', label: 'Explain My Code', icon: FileCode, color: '#059669' },
+  { id: 'errors', label: 'Find Logical Errors', icon: AlertTriangle, color: '#DC2626' },
+  { id: 'edge_cases', label: 'Review Edge Cases', icon: ShieldAlert, color: '#D97706' },
+  { id: 'complexity', label: 'Time & Space Complexity', icon: Clock, color: '#7C3AED' },
+  { id: 'hint', label: 'Give Me a Hint', icon: HelpCircle, color: '#10B981' },
+  { id: 'optimize', label: 'Optimize My Approach', icon: ArrowUpRight, color: '#EA580C' },
+];
+
+export const AIAssistant: React.FC<AIAssistantProps> = ({ 
+  problem, 
+  code = '', 
+  language = 'python',
+  userId,
+  userToken 
+}) => {
   const [messages, setMessages] = useState<ChatMessage[]>(() => [
     {
       id: 'greeting',
       sender: 'ai',
-      text: `👋 **Welcome! I'm your AlgoTrack AI Tutor.**\n\nI can explain **${problem.title}**, reveal its optimal algorithmic pattern, walk through tricky edge cases, or answer any coding questions.\n\n*Click a quick prompt below or type your question!*`,
-      timestamp: new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })
-    }
+      text: `👋 **Welcome! I'm your Groq AI Code Mentor on AlgoTrack.**\n\nI can analyze your code, identify logical bugs, verify tricky edge cases, compute exact asymptotic complexities, or offer step-by-step guidance.\n\n*Click any quick action below or ask custom questions in the chat!*`,
+      timestamp: new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }),
+    },
   ]);
   const [inputText, setInputText] = useState('');
   const [isLoading, setIsLoading] = useState(false);
-  const [showKeyModal, setShowKeyModal] = useState(false);
-  const [apiKeyInput, setApiKeyInput] = useState(() => getGeminiApiKey());
-  const [hasApiKey, setHasApiKey] = useState(() => Boolean(getGeminiApiKey()));
-  const [saveKeySuccess, setSaveKeySuccess] = useState(false);
+  const [lastFailedPrompt, setLastFailedPrompt] = useState<{ action?: string; question?: string } | null>(null);
+  const [copiedSnippetId, setCopiedSnippetId] = useState<string | null>(null);
+  const [modelName, setModelName] = useState('llama-3.3-70b-versatile');
+  const [isConfigured, setIsConfigured] = useState(true);
 
   const messagesEndRef = useRef<HTMLDivElement>(null);
+  const textareaRef = useRef<HTMLTextAreaElement>(null);
 
-  const handleSendPrompt = useCallback(async (promptText: string) => {
-    if (!promptText.trim() || isLoading) return;
-
-    const userMsg: ChatMessage = {
-      id: `user-${Date.now()}`,
-      sender: 'user',
-      text: promptText.trim(),
-      timestamp: new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })
-    };
-
-    setMessages(prev => [...prev, userMsg]);
-    setInputText('');
-    setIsLoading(true);
-
-    try {
-      const aiReplyText = await askGeminiAI({
-        problem,
-        userPrompt: promptText.trim(),
-        history: messages,
-      });
-
-      const aiMsg: ChatMessage = {
-        id: `ai-${Date.now()}`,
-        sender: 'ai',
-        text: aiReplyText,
-        timestamp: new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })
-      };
-
-      setMessages(prev => [...prev, aiMsg]);
-    } catch {
-      const errorMsg: ChatMessage = {
-        id: `err-${Date.now()}`,
-        sender: 'ai',
-        text: 'Sorry, I encountered an issue processing your question. Please try again.',
-        timestamp: new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })
-      };
-      setMessages(prev => [...prev, errorMsg]);
-    } finally {
-      setIsLoading(false);
-    }
-  }, [isLoading, problem, messages]);
-
-  // Handle auto-explain on mount
+  // Check backend configuration on mount
   useEffect(() => {
-    if (autoExplainOnMount) {
-      handleSendPrompt(`Can you explain this problem: ${problem.title}? What is the core intuition and optimal approach?`);
-    }
-  }, [autoExplainOnMount, handleSendPrompt, problem.title]);
+    let isMounted = true;
+    checkAiStatus().then((status) => {
+      if (isMounted) {
+        setIsConfigured(status.configured);
+        if (status.model) setModelName(status.model);
+      }
+    });
+    return () => { isMounted = false; };
+  }, []);
 
-  const handleSaveApiKey = () => {
-    saveGeminiApiKey(apiKeyInput.trim());
-    setHasApiKey(Boolean(apiKeyInput.trim()));
-    setSaveKeySuccess(true);
-    setTimeout(() => {
-      setSaveKeySuccess(false);
-      setShowKeyModal(false);
-    }, 1200);
+  // Scroll to bottom on new messages
+  useEffect(() => {
+    messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' });
+  }, [messages, isLoading]);
+
+  // Send prompt to Groq backend
+  const handleSendPrompt = useCallback(
+    async (params: { action?: string; question?: string }) => {
+      const { action, question } = params;
+      if (isLoading) return;
+
+      const userDisplayText = question 
+        ? question.trim() 
+        : (QUICK_ACTIONS.find(a => a.id === action)?.label || `Action: ${action}`);
+
+      const userMsg: ChatMessage = {
+        id: `user-${Date.now()}`,
+        sender: 'user',
+        text: userDisplayText,
+        timestamp: new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }),
+        action,
+      };
+
+      setMessages((prev) => [...prev, userMsg]);
+      setInputText('');
+      setIsLoading(true);
+      setLastFailedPrompt(null);
+
+      // Prepare conversation history (exclude system greeting)
+      const chatHistory = messages
+        .filter((m) => m.id !== 'greeting' && !m.isError)
+        .map((m) => ({
+          role: m.sender === 'user' ? ('user' as const) : ('assistant' as const),
+          content: m.text,
+        }));
+
+      try {
+        const response = await askGroqAI({
+          problemTitle: problem.title,
+          problemDescription: problem.description,
+          language,
+          code,
+          action,
+          question,
+          messages: chatHistory,
+          userId,
+          token: userToken,
+        });
+
+        if (response.model) {
+          setModelName(response.model);
+        }
+
+        const aiMsg: ChatMessage = {
+          id: `ai-${Date.now()}`,
+          sender: 'ai',
+          text: response.reply,
+          timestamp: new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }),
+          action,
+        };
+
+        setMessages((prev) => [...prev, aiMsg]);
+      } catch (err: any) {
+        setLastFailedPrompt({ action, question });
+        const errorMsg: ChatMessage = {
+          id: `err-${Date.now()}`,
+          sender: 'ai',
+          text: `⚠️ **Unable to complete AI request**\n\n${err.message || 'An error occurred while communicating with Groq AI.'}`,
+          timestamp: new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }),
+          isError: true,
+        };
+        setMessages((prev) => [...prev, errorMsg]);
+      } finally {
+        setIsLoading(false);
+      }
+    },
+    [isLoading, messages, problem, language, code, userId, userToken]
+  );
+
+  const handleClearConversation = () => {
+    if (window.confirm('Clear your AI conversation history for this session?')) {
+      setMessages([
+        {
+          id: 'greeting',
+          sender: 'ai',
+          text: `Conversation cleared. Ready to assist with **${problem.title}**!`,
+          timestamp: new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }),
+        },
+      ]);
+      setLastFailedPrompt(null);
+    }
   };
 
-  const renderFormattedText = (text: string) => {
-    // Simple fast markdown parser for clean presentation
+  const handleKeyDown = (e: React.KeyboardEvent<HTMLTextAreaElement>) => {
+    if (e.key === 'Enter' && !e.shiftKey) {
+      e.preventDefault();
+      if (inputText.trim() && !isLoading) {
+        handleSendPrompt({ question: inputText.trim() });
+      }
+    }
+  };
+
+  const handleCopySnippet = async (text: string, id: string) => {
+    try {
+      await navigator.clipboard.writeText(text);
+      setCopiedSnippetId(id);
+      setTimeout(() => setCopiedSnippetId(null), 2000);
+    } catch {
+      // Fallback
+    }
+  };
+
+  // Markdown rendering helper with code blocks & copy buttons
+  const renderFormattedText = (rawText: string) => {
+    // Split text by markdown code blocks ```
+    const codeBlockRegex = /```([a-zA-Z0-9_-]*)\n([\s\S]*?)```/g;
+    const parts: React.ReactNode[] = [];
+    let lastIndex = 0;
+    let match: RegExpExecArray | null;
+
+    while ((match = codeBlockRegex.exec(rawText)) !== null) {
+      const textBefore = rawText.substring(lastIndex, match.index);
+      if (textBefore) {
+        parts.push(renderTextParagraphs(textBefore, `text-${lastIndex}`));
+      }
+
+      const blockLang = match[1] || language || 'code';
+      const blockCode = match[2];
+      const snippetId = `snippet-${match.index}`;
+
+      parts.push(
+        <div key={snippetId} className="ai-code-block-container">
+          <div className="ai-code-block-header">
+            <span className="ai-code-lang">{blockLang}</span>
+            <button
+              type="button"
+              className="ai-code-copy-btn"
+              onClick={() => handleCopySnippet(blockCode, snippetId)}
+              title="Copy code snippet"
+            >
+              {copiedSnippetId === snippetId ? (
+                <>
+                  <Check size={12} color="#10B981" />
+                  <span>Copied</span>
+                </>
+              ) : (
+                <>
+                  <Copy size={12} />
+                  <span>Copy</span>
+                </>
+              )}
+            </button>
+          </div>
+          <pre className="ai-code-pre">
+            <code>{blockCode}</code>
+          </pre>
+        </div>
+      );
+
+      lastIndex = match.index + match[0].length;
+    }
+
+    const remainingText = rawText.substring(lastIndex);
+    if (remainingText) {
+      parts.push(renderTextParagraphs(remainingText, `text-${lastIndex}`));
+    }
+
+    return parts;
+  };
+
+  const renderTextParagraphs = (text: string, keyPrefix: string) => {
     const lines = text.split('\n');
-    return lines.map((line, idx) => {
-      if (line.startsWith('### ')) {
-        return <h4 key={idx} className="ai-md-h3">{line.replace('### ', '')}</h4>;
+    return (
+      <div key={keyPrefix} className="ai-text-block">
+        {lines.map((line, idx) => {
+          if (!line.trim()) {
+            return <div key={`${keyPrefix}-${idx}`} className="ai-empty-line" />;
+          }
+
+          // Headers
+          if (line.startsWith('### ')) {
+            return <h4 key={`${keyPrefix}-${idx}`} className="ai-h4">{line.replace('### ', '')}</h4>;
+          }
+          if (line.startsWith('## ')) {
+            return <h3 key={`${keyPrefix}-${idx}`} className="ai-h3">{line.replace('## ', '')}</h3>;
+          }
+
+          // Bullet points
+          if (line.trim().startsWith('- ') || line.trim().startsWith('* ')) {
+            return (
+              <div key={`${keyPrefix}-${idx}`} className="ai-bullet-line">
+                <span className="ai-bullet-dot">•</span>
+                <span>{renderInlineFormatting(line.trim().substring(2))}</span>
+              </div>
+            );
+          }
+
+          // Numbered lists
+          const numMatch = line.trim().match(/^(\d+)\.\s+(.*)$/);
+          if (numMatch) {
+            return (
+              <div key={`${keyPrefix}-${idx}`} className="ai-numbered-line">
+                <span className="ai-numbered-prefix">{numMatch[1]}.</span>
+                <span>{renderInlineFormatting(numMatch[2])}</span>
+              </div>
+            );
+          }
+
+          return (
+            <p key={`${keyPrefix}-${idx}`} className="ai-paragraph">
+              {renderInlineFormatting(line)}
+            </p>
+          );
+        })}
+      </div>
+    );
+  };
+
+  const renderInlineFormatting = (str: string) => {
+    // Bold, inline code
+    const parts = str.split(/(\*\*.*?\*\*|`.*?`)/g);
+    return parts.map((part, index) => {
+      if (part.startsWith('**') && part.endsWith('**')) {
+        return <strong key={index}>{part.slice(2, -2)}</strong>;
       }
-      if (line.startsWith('#### ')) {
-        return <h5 key={idx} className="ai-md-h4">{line.replace('#### ', '')}</h5>;
+      if (part.startsWith('`') && part.endsWith('`')) {
+        return <code key={index} className="ai-inline-code">{part.slice(1, -1)}</code>;
       }
-      if (line.startsWith('> ')) {
-        return <blockquote key={idx} className="ai-md-quote">{line.replace('> ', '')}</blockquote>;
-      }
-      if (line.startsWith('- ') || line.startsWith('* ')) {
-        return (
-          <li key={idx} className="ai-md-li">
-            {line.replace(/^[-*]\s+/, '')}
-          </li>
-        );
-      }
-      if (line.trim().length === 0) {
-        return <div key={idx} className="ai-md-spacer" />;
-      }
-      return <p key={idx} className="ai-md-p">{line}</p>;
+      return part;
     });
   };
 
+  const codeLineCount = code ? code.split('\n').length : 0;
+
   return (
-    <div className="ai-assistant-wrapper">
-      {/* Header bar */}
+    <div className="ai-assistant-container">
+      {/* 1. Header with Model Info & Actions */}
       <div className="ai-assistant-header">
         <div className="ai-header-left">
-          <div className="ai-sparkle-box">
-            <Sparkles size={16} color="#0284C7" />
+          <div className="ai-avatar-badge">
+            <Sparkles size={16} color="#FFFFFF" />
           </div>
-          <div>
-            <span className="ai-header-title">AlgoTrack AI Tutor</span>
-            <div className="ai-header-badge-row">
-              <span className={`ai-mode-pill ${hasApiKey ? 'live' : 'smart'}`}>
-                {hasApiKey ? 'Gemini 1.5 Live' : 'Smart Engine'}
+          <div className="ai-header-titles">
+            <span className="ai-header-title">Groq AI Code Assistant</span>
+            <div className="ai-header-meta">
+              <span className="ai-model-tag" title="Configured in backend/.env">
+                {modelName}
+              </span>
+              <span className="ai-context-pill">
+                {language.toUpperCase()} • {codeLineCount} lines
               </span>
             </div>
           </div>
         </div>
 
-        <button 
-          type="button" 
-          className="ai-key-btn" 
-          onClick={() => setShowKeyModal(true)}
-          title="Configure Google Gemini API Key"
-        >
-          <Key size={14} />
-          <span>{hasApiKey ? 'API Key Active' : 'Set Gemini Key'}</span>
-        </button>
-      </div>
-
-      {/* Quick Action Chips */}
-      <div className="ai-quick-chips-row">
-        <button
-          type="button"
-          className="ai-chip-btn"
-          onClick={() => handleSendPrompt(`Can you explain the problem "${problem.title}" in simple terms with an example?`)}
-          disabled={isLoading}
-        >
-          <Lightbulb size={13} color="#F59E0B" />
-          <span>Explain Problem</span>
-        </button>
-
-        <button
-          type="button"
-          className="ai-chip-btn"
-          onClick={() => handleSendPrompt(`What is the optimal algorithmic pattern for "${problem.title}", and why does it work?`)}
-          disabled={isLoading}
-        >
-          <Sparkles size={13} color="#0284C7" />
-          <span>Optimal Pattern</span>
-        </button>
-
-        <button
-          type="button"
-          className="ai-chip-btn"
-          onClick={() => handleSendPrompt(`What are the most common edge cases and pitfalls for "${problem.title}"?`)}
-          disabled={isLoading}
-        >
-          <ShieldAlert size={13} color="#EF4444" />
-          <span>Edge Cases</span>
-        </button>
-
-        <button
-          type="button"
-          className="ai-chip-btn"
-          onClick={() => handleSendPrompt(`Can you give me a progressive hint without spoiling the full code for "${problem.title}"?`)}
-          disabled={isLoading}
-        >
-          <HelpCircle size={13} color="#10B981" />
-          <span>Give Me a Hint</span>
-        </button>
-
-        <button
-          type="button"
-          className="ai-chip-btn"
-          onClick={() => handleSendPrompt(`Analyze the time and space complexity for "${problem.title}". What is the tight asymptotic bound?`)}
-          disabled={isLoading}
-        >
-          <Clock size={13} color="#6366F1" />
-          <span>Complexity</span>
-        </button>
-      </div>
-
-      {/* Messages Scroll Area */}
-      <div className="ai-messages-container">
-        {messages.map((msg) => (
-          <div 
-            key={msg.id} 
-            className={`ai-message-bubble-wrap ${msg.sender === 'user' ? 'user-wrap' : 'ai-wrap'}`}
+        <div className="ai-header-right">
+          <button
+            type="button"
+            className="ai-tool-btn"
+            onClick={handleClearConversation}
+            title="Clear current session chat history"
           >
-            {msg.sender === 'ai' && (
-              <div className="ai-avatar-tiny">
-                <Sparkles size={12} color="#FFFFFF" />
-              </div>
-            )}
-            <div className={`ai-message-bubble ${msg.sender === 'user' ? 'user-bubble' : 'ai-bubble'}`}>
-              <div className="ai-message-content">
+            <Trash2 size={13} />
+            <span>Clear</span>
+          </button>
+        </div>
+      </div>
+
+      {/* 2. Quick Actions Bar */}
+      <div className="ai-quick-actions-bar">
+        <span className="quick-actions-label">Quick Actions:</span>
+        <div className="quick-actions-scroll">
+          {QUICK_ACTIONS.map((action) => {
+            const Icon = action.icon;
+            return (
+              <button
+                key={action.id}
+                type="button"
+                className="quick-action-btn"
+                onClick={() => handleSendPrompt({ action: action.id })}
+                disabled={isLoading}
+                title={action.label}
+              >
+                <Icon size={12} color={action.color} />
+                <span>{action.label}</span>
+              </button>
+            );
+          })}
+        </div>
+      </div>
+
+      {/* 3. Messages Stream */}
+      <div className="ai-messages-scroll-area">
+        {messages.map((msg) => (
+          <div
+            key={msg.id}
+            className={`ai-message-row ${msg.sender === 'user' ? 'is-user' : 'is-ai'} ${msg.isError ? 'is-error' : ''}`}
+          >
+            <div className="ai-bubble">
+              <div className="ai-bubble-content">
                 {renderFormattedText(msg.text)}
               </div>
-              <span className="ai-message-time">{msg.timestamp}</span>
+              <div className="ai-bubble-footer">
+                <span className="ai-bubble-time">{msg.timestamp}</span>
+              </div>
             </div>
           </div>
         ))}
 
+        {/* Loading Indicator */}
         {isLoading && (
-          <div className="ai-message-bubble-wrap ai-wrap">
-            <div className="ai-avatar-tiny">
-              <Sparkles size={12} color="#FFFFFF" />
+          <div className="ai-message-row is-ai">
+            <div className="ai-bubble ai-loading-bubble">
+              <Loader2 size={15} className="spin-icon" color="#0284C7" />
+              <span>Analyzing with Groq AI...</span>
             </div>
-            <div className="ai-message-bubble ai-bubble ai-loading-bubble">
-              <RefreshCw size={14} className="spin-icon" />
-              <span>Analyzing problem with AI...</span>
-            </div>
+          </div>
+        )}
+
+        {/* Retry Button if last message failed */}
+        {lastFailedPrompt && !isLoading && (
+          <div className="ai-retry-row">
+            <button
+              type="button"
+              className="ai-retry-btn"
+              onClick={() => handleSendPrompt(lastFailedPrompt)}
+            >
+              <RotateCcw size={13} />
+              <span>Retry Question</span>
+            </button>
           </div>
         )}
 
         <div ref={messagesEndRef} />
       </div>
 
-      {/* Input Form */}
-      <form 
-        className="ai-input-form"
-        onSubmit={(e) => {
-          e.preventDefault();
-          handleSendPrompt(inputText);
-        }}
-      >
-        <input 
-          type="text"
-          className="ai-text-input"
-          placeholder="Ask AI anything about this problem... (e.g. 'Can you explain this step by step?')"
+      {/* 4. Chat Input Form */}
+      <div className="ai-input-wrapper">
+        <textarea
+          ref={textareaRef}
+          className="ai-chat-textarea"
+          rows={2}
           value={inputText}
           onChange={(e) => setInputText(e.target.value)}
+          onKeyDown={handleKeyDown}
+          placeholder="Ask Groq AI anything... (Press Enter to send, Shift+Enter for newline)"
           disabled={isLoading}
         />
-        <button 
-          type="submit" 
-          className="ai-send-btn"
+        <button
+          type="button"
+          className="ai-send-button"
+          onClick={() => {
+            if (inputText.trim() && !isLoading) {
+              handleSendPrompt({ question: inputText.trim() });
+            }
+          }}
           disabled={isLoading || !inputText.trim()}
-          title="Send Question"
+          title="Send message"
         >
-          <Send size={15} />
+          {isLoading ? <Loader2 size={15} className="spin-icon" /> : <Send size={15} />}
         </button>
-      </form>
-
-      {/* API Key Modal */}
-      {showKeyModal && (
-        <div className="ai-modal-backdrop" onClick={() => setShowKeyModal(false)}>
-          <div className="ai-modal-box" onClick={(e) => e.stopPropagation()}>
-            <div className="ai-modal-header">
-              <div className="ai-modal-title-row">
-                <Key size={18} color="#0284C7" />
-                <h3>Google Gemini API Key</h3>
-              </div>
-              <button 
-                type="button" 
-                className="ai-modal-close"
-                onClick={() => setShowKeyModal(false)}
-              >
-                <X size={18} />
-              </button>
-            </div>
-
-            <p className="ai-modal-desc">
-              Connect your free Google Gemini API key to enable live, conversational AI answers tailored to any algorithm challenge.
-            </p>
-
-            <div className="ai-modal-field">
-              <label htmlFor="gemini-key-input">Gemini API Key</label>
-              <input 
-                id="gemini-key-input"
-                type="password"
-                className="ai-key-input-field"
-                placeholder="AIzaSy..."
-                value={apiKeyInput}
-                onChange={(e) => setApiKeyInput(e.target.value)}
-              />
-            </div>
-
-            <div className="ai-modal-actions">
-              <a 
-                href="https://aistudio.google.com/app/apikey" 
-                target="_blank" 
-                rel="noopener noreferrer"
-                className="ai-get-free-key-link"
-              >
-                <span>Get Free Gemini Key</span>
-                <ExternalLink size={13} />
-              </a>
-
-              <div className="ai-modal-btn-group">
-                <button 
-                  type="button" 
-                  className="ai-btn-secondary"
-                  onClick={() => {
-                    setApiKeyInput('');
-                    saveGeminiApiKey('');
-                    setHasApiKey(false);
-                    setShowKeyModal(false);
-                  }}
-                >
-                  Clear Key
-                </button>
-
-                <button 
-                  type="button" 
-                  className="ai-btn-primary"
-                  onClick={handleSaveApiKey}
-                >
-                  {saveKeySuccess ? (
-                    <>
-                      <Check size={14} />
-                      <span>Saved!</span>
-                    </>
-                  ) : (
-                    <span>Save Key</span>
-                  )}
-                </button>
-              </div>
-            </div>
-          </div>
-        </div>
-      )}
+      </div>
     </div>
   );
 };
