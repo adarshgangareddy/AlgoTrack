@@ -1617,26 +1617,42 @@
    ========================================================================== */
 
 @media (max-width: 1024px) {
-  /* Allow window to scroll naturally on mobile so browser address bar collapses */
+  /* Allow window to scroll naturally on mobile */
   .workspace-page-container {
     height: auto !important;
     min-height: 100dvh;
-    overflow-x: hidden;
+    overflow-x: clip;
     overflow-y: visible !important;
   }
 
-  /* Layer 1: Main Global Header Sticky */
+  /* Layer 1: Main Global Header Fixed on Top */
   .workspace-header {
-    position: sticky;
+    position: fixed !important;
     top: 0;
+    left: 0;
+    right: 0;
+    width: 100%;
+    height: 48px;
+    min-height: 48px;
+    max-height: 48px;
     z-index: 100;
+    background-color: #FFFFFF;
+    border-bottom: 1px solid #E2E8F0;
+    box-shadow: 0 1px 3px rgba(15, 23, 42, 0.05);
+    box-sizing: border-box;
   }
 
   /* Mode Switcher: Problem & Tabs vs Code & Testcases (Compact Segmented Control) */
   .workspace-mobile-bar {
-    display: flex;
-    position: sticky;
+    display: flex !important;
+    position: fixed !important;
     top: 48px;
+    left: 0;
+    right: 0;
+    width: 100%;
+    height: 44px;
+    min-height: 44px;
+    max-height: 44px;
     z-index: 95;
     background-color: #FFFFFF;
     border-bottom: 1px solid #E2E8F0;
@@ -1682,20 +1698,27 @@
     box-shadow: 0 1px 3px rgba(2, 132, 199, 0.25);
   }
 
-  /* Layer 2: Problem Content Tabs Sticky beneath Mode Switcher */
+  /* Layer 2: Problem Content Tabs Fixed beneath Mode Switcher */
   .left-panel-tab-bar {
-    position: sticky;
+    position: fixed !important;
     top: 92px;
+    left: 0;
+    right: 0;
+    width: 100%;
+    height: 38px;
+    min-height: 38px;
+    max-height: 38px;
     z-index: 90;
     background-color: #FFFFFF;
     border-bottom: 1px solid #E2E8F0;
+    box-sizing: border-box;
   }
 
   .workspace-main-viewport {
     flex-direction: column;
     padding: 0;
     height: auto !important;
-    min-height: calc(100dvh - 92px);
+    min-height: 100dvh;
     overflow: visible !important;
   }
 
@@ -1704,14 +1727,17 @@
     display: none !important;
   }
 
+  /* Left Panel with offset for the 3 fixed top bars (48px + 44px + 38px = 130px) */
   .workspace-left-panel {
     width: 100% !important;
     height: auto !important;
-    min-height: calc(100dvh - 92px);
+    min-height: calc(100dvh - 130px);
+    padding-top: 130px !important;
     overflow: visible !important;
     border: none !important;
     border-radius: 0 !important;
     box-shadow: none !important;
+    box-sizing: border-box !important;
   }
 
   .left-panel-content-body {
@@ -1720,11 +1746,17 @@
   }
 
   .tab-pane-content {
-    padding: 16px 14px 44px 14px;
+    padding: 14px 14px 44px 14px;
     height: auto !important;
-    min-height: calc(100dvh - 132px);
+    min-height: calc(100dvh - 130px);
     overflow: visible !important;
     box-sizing: border-box;
+  }
+
+  .tab-ai-pane {
+    padding: 0 !important;
+    height: auto !important;
+    min-height: calc(100dvh - 130px);
   }
 
   .workspace-left-panel.mobile-hidden,
@@ -1737,25 +1769,47 @@
     flex-direction: column;
   }
 
+  /* Right Coding Panel with offset for the 2 fixed top bars (48px + 44px = 92px) */
   .workspace-right-panel.mobile-visible {
     display: flex !important;
     flex-direction: column;
     width: 100% !important;
-    height: calc(100dvh - 92px) !important;
+    height: 100dvh !important;
+    padding-top: 92px !important;
+    padding-bottom: 44px !important;
     overflow: hidden;
     border: none !important;
     border-radius: 0 !important;
+    box-sizing: border-box !important;
   }
 
-  .code-editor-card {
-    height: 48vh !important;
+  .workspace-right-panel .problem-dashboard-footer {
+    position: fixed !important;
+    bottom: 0 !important;
+    left: 0 !important;
+    right: 0 !important;
+    width: 100% !important;
+    height: 44px !important;
+    z-index: 95 !important;
+    background-color: #FFFFFF !important;
+    border-top: 1px solid #E2E8F0 !important;
+    box-sizing: border-box !important;
+  }
+
+  .workspace-right-panel.mobile-visible .right-panel-workspace-body {
+    height: 100% !important;
+    flex: 1 1 auto;
+  }
+
+  .workspace-right-panel.mobile-visible .code-editor-card {
+    height: 52% !important;
     min-height: 240px;
     border-radius: 0 !important;
   }
 
-  .testcases-card {
-    height: calc(100dvh - 92px - 48vh - 44px) !important;
-    min-height: 180px;
+  .workspace-right-panel.mobile-visible .testcases-card {
+    height: 48% !important;
+    min-height: 160px;
     border-radius: 0 !important;
   }
 }
@@ -1769,8 +1823,11 @@
     height: 48px;
     min-height: 48px;
     max-height: 48px;
-    position: sticky;
+    position: fixed !important;
     top: 0;
+    left: 0;
+    right: 0;
+    width: 100%;
     z-index: 100;
     background-color: #FFFFFF;
     border-bottom: 1px solid #E2E8F0;

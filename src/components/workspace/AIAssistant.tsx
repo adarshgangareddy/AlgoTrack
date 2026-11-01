@@ -63,6 +63,8 @@ export const AIAssistant: React.FC<AIAssistantProps> = ({
 
   const messagesEndRef = useRef<HTMLDivElement>(null);
   const textareaRef = useRef<HTMLTextAreaElement>(null);
+  const lastUserPromptIdRef = useRef<string | null>(null);
+  const shouldScrollToPromptRef = useRef<boolean>(false);
 
   // Check backend configuration
   useEffect(() => {
@@ -75,9 +77,18 @@ export const AIAssistant: React.FC<AIAssistantProps> = ({
     return () => { isMounted = false; };
   }, []);
 
-  // Scroll to bottom when messages update
+  // Scroll to the active user prompt so the user stays anchored at the start of the explanation,
+  // rather than jarringly jumping to the bottom sentence!
   useEffect(() => {
-    messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' });
+    if (shouldScrollToPromptRef.current && lastUserPromptIdRef.current) {
+      const el = document.getElementById(`chat-msg-${lastUserPromptIdRef.current}`);
+      if (el) {
+        el.scrollIntoView({ behavior: 'smooth', block: 'start' });
+        if (!isLoading) {
+          shouldScrollToPromptRef.current = false;
+        }
+      }
+    }
   }, [messages, isLoading]);
 
   // Send prompt to Groq backend
@@ -98,6 +109,8 @@ export const AIAssistant: React.FC<AIAssistantProps> = ({
         action,
       };
 
+      lastUserPromptIdRef.current = userMsg.id;
+      shouldScrollToPromptRef.current = true;
       setMessages((prev) => [...prev, userMsg]);
       setInputText('');
       if (textareaRef.current) {
@@ -163,6 +176,8 @@ export const AIAssistant: React.FC<AIAssistantProps> = ({
 
   const handleClearConversation = () => {
     if (window.confirm('Reset this chat conversation?')) {
+      lastUserPromptIdRef.current = null;
+      shouldScrollToPromptRef.current = false;
       setMessages([
         {
           id: 'greeting',
@@ -226,6 +241,7 @@ export const AIAssistant: React.FC<AIAssistantProps> = ({
           {messages.map((msg) => (
             <div 
               key={msg.id} 
+              id={`chat-msg-${msg.id}`}
               className={`chatgpt-message-row ${msg.sender === 'user' ? 'user-row' : 'assistant-row'}`}
             >
               <div className={`message-bubble ${msg.sender === 'user' ? 'user-bubble' : 'assistant-bubble'} ${msg.isError ? 'error-bubble' : ''}`}>
