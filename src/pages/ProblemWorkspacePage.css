@@ -1,10 +1,12 @@
 /* ==========================================================================
-   AlgoTrack — Problem Workspace Styles (Refined UI & Contrast Fix)
+   AlgoTrack — LeetCode-Inspired Problem Workspace Styles
    ========================================================================== */
 
-/* Page Root */
+/* Full Viewport App Container */
 .workspace-page-container {
-  min-height: 100vh;
+  height: 100vh;
+  max-height: 100vh;
+  overflow: hidden;
   background-color: #F8FAFC;
   color: #0F172A;
   display: flex;
@@ -12,53 +14,54 @@
 }
 
 /* ==========================================================================
-   1. Top Workspace Header
+   1. Compact Top Workspace Header
    ========================================================================== */
 
 .workspace-header {
-  position: sticky;
-  top: 0;
-  z-index: 40;
+  flex: 0 0 auto;
+  height: 52px;
   background-color: #FFFFFF;
   border-bottom: 1px solid #E2E8F0;
-  box-shadow: 0 1px 3px rgba(15, 23, 42, 0.03);
-  padding: 12px 0;
+  box-shadow: 0 1px 2px rgba(15, 23, 42, 0.04);
+  display: flex;
+  align-items: center;
+  position: relative;
+  z-index: 40;
 }
 
 .workspace-header-inner {
   display: flex;
   align-items: center;
   justify-content: space-between;
-  gap: 16px;
-  max-width: 1520px;
-  margin: 0 auto;
-  padding: 0 24px;
-  flex-wrap: wrap;
+  width: 100%;
+  padding: 0 16px;
+  gap: 12px;
 }
 
 /* Left: Back & Problem Identity */
 .header-left-group {
   display: flex;
   align-items: center;
-  gap: 12px;
-  flex-wrap: wrap;
-  min-width: 280px;
+  gap: 10px;
+  min-width: 0;
+  flex: 1 1 auto;
 }
 
 .ws-back-link {
   display: inline-flex;
   align-items: center;
   gap: 6px;
-  padding: 6px 12px;
-  font-size: 13px;
+  padding: 5px 10px;
+  font-size: 12.5px;
   font-weight: 600;
   color: #475569;
   background-color: #F1F5F9;
   border: 1px solid #CBD5E1;
-  border-radius: 8px;
+  border-radius: 7px;
   text-decoration: none;
   transition: all 0.15s ease;
   white-space: nowrap;
+  flex-shrink: 0;
 }
 
 .ws-back-link:hover {
@@ -71,34 +74,36 @@
   color: #CBD5E1;
   font-size: 14px;
   user-select: none;
+  flex-shrink: 0;
 }
 
 .header-problem-info {
   display: flex;
   align-items: center;
   gap: 8px;
-  flex-wrap: wrap;
+  min-width: 0;
+  overflow: hidden;
 }
 
 .header-problem-number {
   font-family: var(--font-mono, monospace);
-  font-size: 12.5px;
+  font-size: 12px;
   font-weight: 700;
   color: #0284C7;
   background-color: #E0F2FE;
   padding: 2px 7px;
   border-radius: 6px;
   border: 1px solid #BAE6FD;
+  flex-shrink: 0;
 }
 
 .header-problem-title {
-  font-size: 1.15rem;
+  font-size: 1.05rem;
   font-weight: 700;
   letter-spacing: -0.01em;
   color: #0F172A;
   margin: 0;
   white-space: nowrap;
-  max-width: 320px;
   overflow: hidden;
   text-overflow: ellipsis;
 }
@@ -110,6 +115,7 @@
   padding: 2px 8px;
   border-radius: 999px;
   letter-spacing: 0.02em;
+  flex-shrink: 0;
 }
 
 .header-diff-badge.easy {
@@ -134,128 +140,129 @@
 .header-right-actions {
   display: flex;
   align-items: center;
-  gap: 10px;
-  flex-wrap: wrap;
+  gap: 8px;
+  flex-shrink: 0;
 }
 
-/* Status Selector */
+/* Status Dropdown */
 .ws-status-select-wrap {
   position: relative;
 }
 
 .ws-status-dropdown {
-  height: 36px;
-  padding: 0 10px;
-  font-size: 12.5px;
-  font-weight: 600;
-  color: #0F172A;
-  background-color: #FFFFFF;
-  border: 1px solid #CBD5E1;
-  border-radius: 8px;
-  outline: none;
-  cursor: pointer;
-  transition: all 0.15s ease;
-}
-
-.ws-status-dropdown:focus {
-  border-color: #0284C7;
-  box-shadow: 0 0 0 3px rgba(2, 132, 199, 0.12);
-}
-
-.ws-status-dropdown.solved {
-  border-color: #A7F3D0;
-  background-color: #F0FDF4;
-  color: #059669;
-}
-
-.ws-status-dropdown.attempted {
-  border-color: #FDE68A;
-  background-color: #FFFBEB;
-  color: #D97706;
-}
-
-/* Ask AI Toggle Button */
-.ws-ai-toggle-btn {
-  height: 36px;
-  padding: 0 12px;
-  font-size: 12.5px;
-  font-weight: 700;
-  color: #0284C7;
-  background-color: #F0F9FF;
-  border: 1px solid #BAE6FD;
-  border-radius: 8px;
-  cursor: pointer;
-  display: inline-flex;
-  align-items: center;
-  gap: 6px;
-  transition: all 0.15s ease;
-}
-
-.ws-ai-toggle-btn:hover {
-  background-color: #E0F2FE;
-  transform: translateY(-1px);
-}
-
-.ws-ai-toggle-btn.active {
-  background: linear-gradient(135deg, #0284C7 0%, #0369A1 100%);
-  color: #FFFFFF;
-  border-color: #0284C7;
-  box-shadow: 0 2px 8px rgba(2, 132, 199, 0.25);
-}
-
-/* Sequence Navigation (Prev / Next) */
-.ws-seq-nav-group {
-  display: inline-flex;
-  align-items: center;
-  gap: 4px;
-  background-color: #F1F5F9;
-  padding: 2px;
-  border-radius: 8px;
-  border: 1px solid #E2E8F0;
-}
-
-.ws-seq-btn {
   height: 32px;
   padding: 0 10px;
   font-size: 12px;
   font-weight: 600;
-  color: #475569;
-  background-color: #FFFFFF;
+  border-radius: 7px;
   border: 1px solid #CBD5E1;
-  border-radius: 6px;
+  background-color: #FFFFFF;
+  color: #0F172A;
   cursor: pointer;
-  display: inline-flex;
-  align-items: center;
-  gap: 4px;
+  outline: none;
   transition: all 0.15s ease;
 }
 
-.ws-seq-btn:hover:not(:disabled) {
-  background-color: #F8FAFC;
+.ws-status-dropdown.not_started {
+  border-color: #CBD5E1;
+  color: #64748B;
+}
+
+.ws-status-dropdown.attempted {
+  border-color: #FBBF24;
+  background-color: #FFFBEB;
+  color: #B45309;
+}
+
+.ws-status-dropdown.solved {
+  border-color: #34D399;
+  background-color: #ECFDF5;
+  color: #065F46;
+}
+
+/* Ask AI Button in Header */
+.ws-ai-toggle-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  height: 32px;
+  padding: 0 11px;
+  font-size: 12px;
+  font-weight: 600;
   color: #0284C7;
-  border-color: #94A3B8;
+  background-color: #F0F9FF;
+  border: 1px solid #BAE6FD;
+  border-radius: 7px;
+  cursor: pointer;
+  transition: all 0.15s ease;
+  white-space: nowrap;
+}
+
+.ws-ai-toggle-btn:hover,
+.ws-ai-toggle-btn.active {
+  background-color: #0284C7;
+  color: #FFFFFF;
+  border-color: #0284C7;
+}
+
+/* Previous / Next Navigation Group */
+.ws-seq-nav-group {
+  display: flex;
+  align-items: center;
+  background-color: #F1F5F9;
+  border: 1px solid #CBD5E1;
+  border-radius: 7px;
+  overflow: hidden;
+}
+
+.ws-seq-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  height: 30px;
+  padding: 0 9px;
+  font-size: 12px;
+  font-weight: 600;
+  color: #475569;
+  background: transparent;
+  border: none;
+  cursor: pointer;
+  transition: background 0.15s ease, color 0.15s ease;
+}
+
+.ws-seq-btn:hover:not(:disabled) {
+  background-color: #E2E8F0;
+  color: #0F172A;
 }
 
 .ws-seq-btn:disabled {
-  opacity: 0.4;
+  opacity: 0.45;
   cursor: not-allowed;
+}
+
+.ws-seq-btn:first-child {
+  border-right: 1px solid #CBD5E1;
 }
 
 /* Save Button & Indicators */
 .ws-save-btn-group {
-  display: inline-flex;
+  display: flex;
   align-items: center;
   gap: 8px;
   position: relative;
 }
 
 .ws-save-indicator {
-  font-size: 12px;
-  font-weight: 500;
   display: inline-flex;
   align-items: center;
   gap: 5px;
+  font-size: 11.5px;
+  font-weight: 500;
   white-space: nowrap;
+}
+
+.ws-save-indicator.saving {
+  color: #0284C7;
 }
 
 .ws-save-indicator.saved {
@@ -266,87 +273,81 @@
   color: #D97706;
 }
 
-.ws-save-indicator.saving {
-  color: #0284C7;
-}
-
 .unsaved-dot {
   width: 6px;
   height: 6px;
   border-radius: 50%;
   background-color: #F59E0B;
+  display: inline-block;
 }
 
 .ws-btn-save {
-  height: 36px;
-  padding: 0 14px;
-  font-size: 13px;
-  font-weight: 600;
-  color: #FFFFFF;
-  background: linear-gradient(135deg, #0284C7 0%, #0369A1 100%);
-  border: none;
-  border-radius: 8px;
-  cursor: pointer;
   display: inline-flex;
   align-items: center;
   gap: 6px;
-  box-shadow: 0 1px 3px rgba(2, 132, 199, 0.25);
+  height: 32px;
+  padding: 0 12px;
+  font-size: 12px;
+  font-weight: 600;
+  color: #FFFFFF;
+  background-color: #0284C7;
+  border: 1px solid #0284C7;
+  border-radius: 7px;
+  cursor: pointer;
   transition: all 0.15s ease;
+  white-space: nowrap;
 }
 
 .ws-btn-save:hover:not(:disabled) {
-  background: #0369A1;
-  transform: translateY(-1px);
-  box-shadow: 0 3px 10px rgba(2, 132, 199, 0.35);
+  background-color: #0369A1;
+  border-color: #0369A1;
 }
 
 .ws-btn-save:disabled {
-  opacity: 0.5;
+  opacity: 0.6;
   cursor: not-allowed;
 }
 
 .ws-save-toast {
   position: absolute;
-  top: 100%;
+  top: 42px;
   right: 0;
-  margin-top: 6px;
-  background-color: #0F172A;
-  color: #FFFFFF;
-  font-size: 12px;
-  font-weight: 600;
-  padding: 5px 12px;
-  border-radius: 6px;
-  box-shadow: 0 4px 12px rgba(15, 23, 42, 0.15);
   display: inline-flex;
   align-items: center;
   gap: 6px;
-  white-space: nowrap;
-  animation: ws-fade-in 0.2s ease-out;
+  background-color: #0F172A;
+  color: #F8FAFC;
+  font-size: 11.5px;
+  font-weight: 600;
+  padding: 6px 12px;
+  border-radius: 6px;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+  animation: fadeInDown 0.2s ease-out;
   z-index: 50;
+  white-space: nowrap;
 }
 
-@keyframes ws-fade-in {
-  from { opacity: 0; transform: translateY(-4px); }
+@keyframes fadeInDown {
+  from { opacity: 0; transform: translateY(-6px); }
   to { opacity: 1; transform: translateY(0); }
 }
 
-/* Mobile Tabs */
+/* Mobile Tabs Bar */
 .workspace-mobile-tabs {
   display: none;
-  background-color: #F1F5F9;
+  background-color: #FFFFFF;
   border-top: 1px solid #E2E8F0;
-  padding: 4px 16px;
-  gap: 8px;
+  padding: 4px;
 }
 
 .ws-mobile-tab-btn {
   flex: 1;
-  display: inline-flex;
+  display: flex;
   align-items: center;
   justify-content: center;
   gap: 6px;
-  padding: 8px 12px;
-  font-size: 13px;
+  padding: 8px;
+  font-size: 12px;
   font-weight: 600;
   color: #64748B;
   background: transparent;
@@ -356,129 +357,250 @@
 }
 
 .ws-mobile-tab-btn.active {
-  background-color: #FFFFFF;
+  background-color: #F1F5F9;
   color: #0284C7;
-  box-shadow: 0 1px 3px rgba(15, 23, 42, 0.05);
-}
-
-@media (max-width: 991px) {
-  .workspace-mobile-tabs {
-    display: flex;
-  }
 }
 
 /* ==========================================================================
-   2. Main Layout & Columns
+   2. Main Body Container (Sidebar + Split Pane)
    ========================================================================== */
 
 .workspace-main-body {
-  padding: 24px 0 60px 0;
-  flex: 1;
-}
-
-.workspace-grid-layout {
-  display: grid;
-  grid-template-columns: 1fr 1.15fr;
-  gap: 24px;
-  max-width: 1520px;
-  margin: 0 auto;
-  padding: 0 24px;
-  align-items: start;
-}
-
-.ws-column {
+  flex: 1 1 auto;
+  height: calc(100vh - 52px);
+  overflow: hidden;
   display: flex;
-  flex-direction: column;
-  gap: 20px;
-}
-
-/* Desktop sticky right column */
-@media (min-width: 1024px) {
-  .ws-right-column {
-    position: sticky;
-    top: 76px;
-    max-height: calc(100vh - 96px);
-    overflow-y: auto;
-    padding-bottom: 24px;
-    scrollbar-width: thin;
-    scrollbar-color: #CBD5E1 transparent;
-  }
-}
-
-@media (max-width: 1023px) {
-  .workspace-grid-layout {
-    grid-template-columns: 1fr;
-    padding: 0 16px;
-  }
-
-  .ws-left-column.mobile-hide,
-  .ws-right-column.mobile-hide {
-    display: none !important;
-  }
-
-  .ws-left-column.mobile-show,
-  .ws-right-column.mobile-show {
-    display: flex !important;
-  }
+  flex-direction: row;
 }
 
 /* ==========================================================================
-   3. Refined Problem Content Cards (White Backgrounds, High Contrast)
+   3. Collapsible Left Navigation Sidebar
+   ========================================================================== */
+
+.workspace-nav-sidebar {
+  flex: 0 0 auto;
+  background-color: #FFFFFF;
+  border-right: 1px solid #E2E8F0;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  height: 100%;
+  z-index: 20;
+  transition: width 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+  overflow-y: auto;
+  overflow-x: hidden;
+}
+
+.workspace-nav-sidebar.expanded {
+  width: 200px;
+}
+
+.workspace-nav-sidebar.collapsed {
+  width: 54px;
+}
+
+.sidebar-nav-list {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  padding: 12px 6px;
+}
+
+.sidebar-nav-item {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  width: 100%;
+  padding: 8px 10px;
+  border-radius: 7px;
+  border: none;
+  background: transparent;
+  color: #475569;
+  font-size: 12.5px;
+  font-weight: 500;
+  cursor: pointer;
+  text-align: left;
+  transition: all 0.15s ease;
+  white-space: nowrap;
+}
+
+.sidebar-nav-item:hover {
+  background-color: #F1F5F9;
+  color: #0F172A;
+}
+
+.sidebar-nav-item.active {
+  background-color: #E0F2FE;
+  color: #0284C7;
+  font-weight: 600;
+}
+
+.sidebar-nav-item.ai-item {
+  color: #0284C7;
+}
+
+.sidebar-nav-item.ai-item.active {
+  background-color: #0284C7;
+  color: #FFFFFF;
+}
+
+.nav-icon-wrap {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  min-width: 20px;
+  flex-shrink: 0;
+}
+
+.nav-item-label {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.sidebar-footer {
+  padding: 8px 6px 12px 6px;
+  border-top: 1px solid #F1F5F9;
+}
+
+.sidebar-toggle-btn {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  width: 100%;
+  padding: 8px 10px;
+  border-radius: 7px;
+  border: none;
+  background: transparent;
+  color: #64748B;
+  font-size: 12px;
+  font-weight: 500;
+  cursor: pointer;
+  transition: all 0.15s ease;
+}
+
+.sidebar-toggle-btn:hover {
+  background-color: #F1F5F9;
+  color: #0F172A;
+}
+
+.toggle-label {
+  white-space: nowrap;
+  overflow: hidden;
+}
+
+/* ==========================================================================
+   4. Split Container (Left Scroll Pane & Right Editor)
+   ========================================================================== */
+
+.workspace-split-container {
+  flex: 1 1 auto;
+  display: flex;
+  height: 100%;
+  overflow: hidden;
+  background-color: #F8FAFC;
+}
+
+/* Scrollable Left Column */
+.ws-left-column {
+  flex: 1 1 50%;
+  height: 100%;
+  overflow-y: auto;
+  padding: 16px 20px 48px 20px;
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+  scroll-behavior: smooth;
+}
+
+/* Scrollable Right Column */
+.ws-right-column {
+  flex: 1 1 50%;
+  height: 100%;
+  overflow-y: auto;
+  padding: 16px 20px 48px 20px;
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+  border-left: 1px solid #E2E8F0;
+  background-color: #FFFFFF;
+}
+
+/* ==========================================================================
+   5. Card Styles in Left Column
    ========================================================================== */
 
 .ws-card {
-  background-color: #FFFFFF !important;
-  border: 1px solid #E2E8F0 !important;
-  border-radius: 12px !important;
-  padding: 20px 24px !important;
-  box-shadow: 0 1px 3px rgba(15, 23, 42, 0.04) !important;
-  color: #0F172A !important;
-  display: flex;
-  flex-direction: column;
-  position: relative;
-  overflow: visible;
-  transition: all 0.2s ease;
+  background-color: #FFFFFF;
+  border: 1px solid #E2E8F0;
+  border-radius: 10px;
+  box-shadow: 0 1px 3px rgba(15, 23, 42, 0.04);
+  overflow: hidden;
+  transition: border-color 0.15s ease;
 }
 
-.ws-card.is-collapsed {
-  padding: 14px 20px !important;
-  background-color: #FAFAFA !important;
+.ws-card:hover {
+  border-color: #CBD5E1;
+}
+
+.ws-card.is-collapsed .ws-card-header-toggle {
+  border-bottom: none;
 }
 
 .ws-card-header-toggle {
   display: flex;
   align-items: center;
   justify-content: space-between;
-  width: 100%;
+  padding: 12px 16px;
   cursor: pointer;
   user-select: none;
-  gap: 12px;
+  background-color: #FAFAFA;
+  border-bottom: 1px solid #F1F5F9;
+  transition: background 0.15s ease;
 }
 
-.ws-card-header-toggle:hover .ws-section-collapse-btn {
-  background-color: #E2E8F0;
-  color: #0F172A;
+.ws-card-header-toggle:hover {
+  background-color: #F1F5F9;
 }
 
-.ws-section-collapse-btn {
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  width: 28px;
-  height: 28px;
-  border-radius: 6px;
-  border: 1px solid #CBD5E1;
-  background-color: #FFFFFF;
-  color: #64748B;
-  cursor: pointer;
-  transition: all 0.15s ease;
-  flex-shrink: 0;
+.ws-card-header-compact {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
 }
 
-.ws-section-collapse-btn:hover {
-  background-color: #E0F2FE;
+.ws-pattern-label {
+  font-size: 11px;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
   color: #0284C7;
-  border-color: #BAE6FD;
+}
+
+.ws-problem-main-title {
+  font-size: 1.15rem;
+  font-weight: 700;
+  color: #0F172A;
+  margin: 0;
+}
+
+.ws-section-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.ws-section-title-wrap {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.ws-section-title {
+  font-size: 0.95rem;
+  font-weight: 700;
+  color: #0F172A;
+  margin: 0;
 }
 
 .ws-header-actions-wrap {
@@ -487,34 +609,25 @@
   gap: 8px;
 }
 
-.ws-card-content {
-  margin-top: 14px;
-  animation: wsCardFade 0.2s ease-out;
+.ws-section-collapse-btn {
+  background: transparent;
+  border: none;
+  color: #64748B;
+  cursor: pointer;
+  padding: 4px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 4px;
 }
 
-@keyframes wsCardFade {
-  from { opacity: 0; transform: translateY(-4px); }
-  to { opacity: 1; transform: translateY(0); }
-}
-
-/* Pattern Sub-label */
-.ws-pattern-label {
-  font-size: 11px;
-  font-weight: 700;
-  text-transform: uppercase;
-  letter-spacing: 0.04em;
-  color: #F97316;
-  margin-bottom: 4px;
-  display: block;
-}
-
-.ws-problem-main-title {
-  font-size: 1.55rem;
-  font-weight: 800;
-  letter-spacing: -0.02em;
+.ws-section-collapse-btn:hover {
+  background-color: #E2E8F0;
   color: #0F172A;
-  margin: 0 0 12px 0;
-  line-height: 1.25;
+}
+
+.ws-card-content {
+  padding: 16px;
 }
 
 /* Tags Row */
@@ -523,33 +636,30 @@
   align-items: center;
   gap: 8px;
   flex-wrap: wrap;
-  margin-bottom: 16px;
+  margin-bottom: 14px;
 }
 
 .ws-diff-tag {
   font-size: 11px;
   font-weight: 700;
-  padding: 3px 9px;
-  border-radius: 999px;
   text-transform: uppercase;
+  padding: 2px 8px;
+  border-radius: 6px;
 }
 
 .ws-diff-tag.easy {
   background-color: #ECFDF5;
   color: #059669;
-  border: 1px solid #A7F3D0;
 }
 
 .ws-diff-tag.medium {
   background-color: #FFFBEB;
   color: #D97706;
-  border: 1px solid #FDE68A;
 }
 
 .ws-diff-tag.hard {
   background-color: #FEF2F2;
   color: #DC2626;
-  border: 1px solid #FECACA;
 }
 
 .ws-pattern-tag {
@@ -560,59 +670,60 @@
   font-weight: 600;
   color: #0284C7;
   background-color: #F0F9FF;
-  padding: 3px 9px;
+  padding: 2px 8px;
   border-radius: 6px;
   border: 1px solid #BAE6FD;
 }
 
 .ws-topic-tag {
   font-size: 11.5px;
-  font-weight: 600;
   color: #475569;
   background-color: #F1F5F9;
-  padding: 3px 9px;
+  padding: 2px 8px;
   border-radius: 6px;
   border: 1px solid #E2E8F0;
 }
 
-/* Description */
+/* Description Text */
 .ws-description-body {
-  margin-bottom: 18px;
+  margin-bottom: 16px;
 }
 
 .ws-description-text {
   font-size: 14px;
   line-height: 1.65;
-  color: #334155;
+  color: #1E293B;
   margin: 0;
 }
 
-/* Official LeetCode Callout */
+/* LeetCode Official Callout */
 .ws-leetcode-callout {
-  background-color: #FFF7ED;
-  border: 1px solid #FED7AA;
-  border-radius: 10px;
-  padding: 14px 18px;
   display: flex;
   align-items: center;
   justify-content: space-between;
-  gap: 16px;
-  flex-wrap: wrap;
+  gap: 14px;
+  padding: 12px 14px;
+  background-color: #FFFBEB;
+  border: 1px solid #FDE68A;
+  border-radius: 8px;
+}
+
+.ws-leetcode-text {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
 }
 
 .ws-leetcode-label {
   font-size: 11px;
   font-weight: 700;
   text-transform: uppercase;
-  color: #C2410C;
-  letter-spacing: 0.03em;
-  display: block;
-  margin-bottom: 2px;
+  color: #B45309;
 }
 
 .ws-leetcode-prompt {
   font-size: 12.5px;
-  color: #7C2D12;
+  color: #78350F;
   margin: 0;
   line-height: 1.4;
 }
@@ -621,247 +732,212 @@
   display: inline-flex;
   align-items: center;
   gap: 6px;
-  padding: 7px 14px;
-  font-size: 12.5px;
+  padding: 6px 12px;
+  font-size: 12px;
   font-weight: 600;
   color: #FFFFFF;
-  background-color: #EA580C;
-  border: none;
-  border-radius: 8px;
+  background-color: #D97706;
+  border-radius: 6px;
   text-decoration: none;
-  transition: all 0.15s ease;
   white-space: nowrap;
+  transition: background 0.15s ease;
 }
 
 .ws-btn-leetcode:hover {
-  background-color: #C2410C;
-  transform: translateY(-1px);
+  background-color: #B45309;
 }
 
 /* ==========================================================================
-   4. Section Headers & Textareas
+   6. Examples & Constraints Styles
    ========================================================================== */
 
-.ws-section-header {
+.ws-examples-container {
   display: flex;
-  align-items: center;
-  justify-content: space-between;
+  flex-direction: column;
   gap: 12px;
-  margin-bottom: 10px;
-  flex-wrap: wrap;
+  margin-bottom: 16px;
 }
 
-.ws-section-title-wrap {
+.ws-example-box {
+  background-color: #F8FAFC;
+  border: 1px solid #E2E8F0;
+  border-radius: 8px;
+  padding: 12px 14px;
   display: flex;
-  align-items: center;
-  gap: 8px;
+  flex-direction: column;
+  gap: 6px;
 }
 
-.ws-section-title {
-  font-size: 15px;
+.ws-example-badge {
+  font-size: 11px;
+  font-weight: 700;
+  color: #0284C7;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+  margin-bottom: 2px;
+}
+
+.ws-example-row {
+  display: flex;
+  align-items: flex-start;
+  gap: 8px;
+  font-size: 13px;
+}
+
+.ws-example-key {
+  font-weight: 600;
+  color: #475569;
+  min-width: 80px;
+  flex-shrink: 0;
+}
+
+.ws-example-val {
+  font-family: var(--font-mono, monospace);
+  background-color: #FFFFFF;
+  padding: 2px 6px;
+  border-radius: 4px;
+  border: 1px solid #E2E8F0;
+  color: #0F172A;
+  font-size: 12.5px;
+}
+
+.ws-example-exp {
+  color: #334155;
+  font-size: 13px;
+  line-height: 1.45;
+}
+
+.ws-constraints-container {
+  padding-top: 10px;
+  border-top: 1px solid #F1F5F9;
+}
+
+.ws-constraints-heading {
+  font-size: 12.5px;
   font-weight: 700;
   color: #0F172A;
-  margin: 0;
+  margin: 0 0 8px 0;
 }
+
+.ws-constraints-list {
+  margin: 0;
+  padding-left: 20px;
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.ws-constraint-item code {
+  font-family: var(--font-mono, monospace);
+  font-size: 12px;
+  background-color: #F1F5F9;
+  padding: 2px 6px;
+  border-radius: 4px;
+  color: #0F172A;
+}
+
+/* ==========================================================================
+   7. Concepts & Theory Card
+   ========================================================================== */
 
 .ws-btn-explain-ai {
   display: inline-flex;
   align-items: center;
   gap: 5px;
-  padding: 5px 12px;
-  font-size: 12px;
+  padding: 4px 10px;
+  font-size: 11.5px;
   font-weight: 600;
   color: #0284C7;
   background-color: #F0F9FF;
   border: 1px solid #BAE6FD;
-  border-radius: 999px;
+  border-radius: 6px;
   cursor: pointer;
   transition: all 0.15s ease;
 }
 
-.ws-btn-explain-ai:hover {
+.ws-btn-explain-ai:hover:not(:disabled) {
   background-color: #E0F2FE;
   border-color: #7DD3FC;
-  transform: translateY(-1px);
 }
 
-.ws-field-desc {
-  font-size: 13px;
-  color: #64748B;
-  margin: 0 0 10px 0;
-  line-height: 1.5;
-}
-
-.ws-textarea {
-  width: 100%;
-  padding: 12px 14px;
-  font-size: 13.5px;
-  font-family: inherit;
-  line-height: 1.6;
-  color: #0F172A;
-  background-color: #F8FAFC;
-  border: 1px solid #CBD5E1;
-  border-radius: 8px;
-  resize: vertical;
-  transition: all 0.15s ease;
-}
-
-.ws-textarea:focus {
-  outline: none;
-  background-color: #FFFFFF;
-  border-color: #0284C7;
-  box-shadow: 0 0 0 3px rgba(2, 132, 199, 0.12);
-}
-
-.ws-textarea::placeholder {
-  color: #94A3B8;
-}
-
-/* Complexity Grid */
-.ws-complexity-grid {
-  display: grid;
-  grid-template-columns: repeat(2, 1fr);
-  gap: 16px;
-}
-
-@media (max-width: 640px) {
-  .ws-complexity-grid {
-    grid-template-columns: 1fr;
-  }
-}
-
-.ws-complexity-box {
-  display: flex;
-  flex-direction: column;
-}
-
-.ws-complexity-label {
-  font-size: 11.5px;
-  font-weight: 700;
-  text-transform: uppercase;
-  letter-spacing: 0.03em;
-  color: #475569;
-  margin-bottom: 5px;
-}
-
-.ws-complexity-input {
-  width: 100%;
-  padding: 8px 12px;
-  font-family: var(--font-mono, monospace);
-  font-size: 13.5px;
-  font-weight: 600;
-  color: #0F172A;
-  background-color: #F8FAFC;
-  border: 1px solid #CBD5E1;
-  border-radius: 8px;
-  transition: all 0.15s ease;
-}
-
-.ws-complexity-input:focus {
-  outline: none;
-  background-color: #FFFFFF;
-  border-color: #0284C7;
-  box-shadow: 0 0 0 3px rgba(2, 132, 199, 0.12);
-}
-
-.ws-complexity-hint {
-  font-size: 11px;
-  color: #64748B;
-  margin-top: 4px;
-}
-
-/* Theory Content */
-.ws-theory-content {
-  margin-top: 4px;
-}
-
-.ws-theory-text {
-  font-size: 13.5px;
-  color: #334155;
-  line-height: 1.6;
-  margin: 0 0 14px 0;
-}
-
-.ws-theory-keypoints {
-  display: flex;
-  flex-direction: column;
-  gap: 8px;
-  background-color: #F8FAFC;
-  border: 1px solid #E2E8F0;
-  border-radius: 8px;
-  padding: 12px 14px;
-}
-
-.ws-keypoint-row {
-  display: flex;
-  align-items: flex-start;
-  gap: 8px;
-}
-
-.ws-keypoint-dot {
-  width: 6px;
-  height: 6px;
-  border-radius: 50%;
-  background-color: #0284C7;
-  margin-top: 6px;
-  flex-shrink: 0;
-}
-
-.ws-keypoint-text {
-  font-size: 13px;
-  color: #334155;
-  line-height: 1.5;
-}
-
-.ws-keypoint-text strong {
-  color: #0F172A;
-}
-
-.ws-theory-placeholder {
-  background-color: #F8FAFC;
-  border: 1px dashed #CBD5E1;
-  border-radius: 8px;
-  padding: 24px 20px;
-  text-align: center;
+.ws-btn-explain-ai:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
 }
 
 .ws-concept-empty-state {
   display: flex;
   flex-direction: column;
   align-items: center;
-  justify-content: center;
-  gap: 10px;
-  max-width: 480px;
-  margin: 0 auto;
+  text-align: center;
+  padding: 20px 16px;
+  background-color: #F8FAFC;
+  border-radius: 8px;
+  border: 1px dashed #CBD5E1;
 }
 
 .ws-concept-empty-title {
-  font-size: 15px;
+  font-size: 14px;
   font-weight: 700;
   color: #0F172A;
-  margin: 4px 0 0 0;
+  margin: 8px 0 4px 0;
+}
+
+.ws-theory-placeholder-text {
+  font-size: 12.5px;
+  color: #64748B;
+  max-width: 440px;
+  line-height: 1.5;
+  margin: 0 0 14px 0;
 }
 
 .ws-btn-explain-ai-large {
   display: inline-flex;
   align-items: center;
   gap: 6px;
-  padding: 8px 18px;
-  font-size: 13px;
+  padding: 7px 14px;
+  font-size: 12.5px;
   font-weight: 600;
   color: #FFFFFF;
   background-color: #0284C7;
   border: none;
-  border-radius: 8px;
+  border-radius: 7px;
   cursor: pointer;
-  margin-top: 6px;
-  transition: all 0.15s ease;
-  box-shadow: 0 1px 3px rgba(2, 132, 199, 0.2);
+  transition: background 0.15s ease;
 }
 
 .ws-btn-explain-ai-large:hover {
   background-color: #0369A1;
-  transform: translateY(-1px);
+}
+
+.ws-ai-explanation-box {
+  background-color: #F0F9FF;
+  border: 1px solid #BAE6FD;
+  border-radius: 8px;
+  padding: 14px;
+}
+
+.ws-ai-explaining-banner {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 12px;
+  font-weight: 700;
+  color: #0284C7;
+  margin-bottom: 10px;
+  padding-bottom: 8px;
+  border-bottom: 1px solid #E0F2FE;
+}
+
+.ws-markdown-content p {
+  font-size: 13.5px;
+  line-height: 1.6;
+  color: #1E293B;
+  margin-bottom: 10px;
+}
+
+.ws-markdown-content p:last-child {
+  margin-bottom: 0;
 }
 
 .ws-ai-loading-container {
@@ -869,78 +945,104 @@
   flex-direction: column;
   align-items: center;
   justify-content: center;
-  gap: 12px;
-  padding: 32px 20px;
+  padding: 28px 16px;
   color: #0284C7;
-  font-size: 13.5px;
-  font-weight: 500;
   text-align: center;
-}
-
-.ws-ai-explanation-box {
-  background-color: #F8FAFC;
-  border: 1px solid #E2E8F0;
-  border-radius: 8px;
-  padding: 18px 20px;
-}
-
-.ws-ai-explaining-banner {
-  display: flex;
-  align-items: center;
-  gap: 7px;
-  font-size: 11.5px;
-  font-weight: 700;
-  text-transform: uppercase;
-  letter-spacing: 0.03em;
-  color: #0284C7;
-  padding-bottom: 12px;
-  margin-bottom: 14px;
-  border-bottom: 1px solid #E2E8F0;
-}
-
-.ws-markdown-content p {
-  margin: 0 0 12px 0;
-  line-height: 1.65;
-  color: #1E293B;
-  font-size: 13.5px;
-}
-
-.ws-markdown-content p:last-child {
-  margin-bottom: 0;
-}
-
-.ws-theory-placeholder-text {
+  gap: 10px;
   font-size: 13px;
-  color: #64748B;
-  margin: 0;
-  line-height: 1.5;
+  font-weight: 500;
 }
 
-/* Privacy & Lang Badges */
+/* ==========================================================================
+   8. Inputs, Complexity & Notes
+   ========================================================================== */
+
+.ws-field-desc {
+  font-size: 12px;
+  color: #64748B;
+  margin: 0 0 8px 0;
+  line-height: 1.4;
+}
+
+.ws-textarea {
+  width: 100%;
+  padding: 10px 12px;
+  font-size: 13px;
+  line-height: 1.5;
+  color: #0F172A;
+  background-color: #FFFFFF;
+  border: 1px solid #CBD5E1;
+  border-radius: 7px;
+  resize: vertical;
+  outline: none;
+  font-family: inherit;
+  transition: border-color 0.15s ease, box-shadow 0.15s ease;
+  box-sizing: border-box;
+}
+
+.ws-textarea:focus {
+  border-color: #0284C7;
+  box-shadow: 0 0 0 3px rgba(2, 132, 199, 0.1);
+}
+
+.ws-notes-textarea {
+  min-height: 120px;
+}
+
+.ws-complexity-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 14px;
+}
+
+.ws-complexity-box {
+  display: flex;
+  flex-direction: column;
+  gap: 5px;
+}
+
+.ws-complexity-label {
+  font-size: 12px;
+  font-weight: 600;
+  color: #334155;
+}
+
+.ws-complexity-input {
+  height: 36px;
+  padding: 0 10px;
+  font-family: var(--font-mono, monospace);
+  font-size: 13px;
+  color: #0F172A;
+  background-color: #FFFFFF;
+  border: 1px solid #CBD5E1;
+  border-radius: 7px;
+  outline: none;
+  transition: border-color 0.15s ease;
+}
+
+.ws-complexity-input:focus {
+  border-color: #059669;
+  box-shadow: 0 0 0 3px rgba(5, 150, 105, 0.1);
+}
+
+.ws-complexity-hint {
+  font-size: 11px;
+  color: #94A3B8;
+}
+
 .ws-privacy-badge {
   display: inline-flex;
   align-items: center;
   gap: 4px;
   font-size: 11px;
-  font-weight: 600;
   color: #64748B;
   background-color: #F1F5F9;
-  border: 1px solid #E2E8F0;
-  padding: 2px 8px;
-  border-radius: 999px;
-}
-
-.ws-lang-tag {
-  font-size: 11px;
-  font-weight: 700;
-  color: #0284C7;
-  background-color: #E0F2FE;
-  padding: 2px 8px;
-  border-radius: 999px;
+  padding: 2px 7px;
+  border-radius: 5px;
 }
 
 /* ==========================================================================
-   5. Right Panel View Switcher Tabs
+   9. Right Column Tabs & Editor Wrappers
    ========================================================================== */
 
 .ws-panel-tabs {
@@ -949,9 +1051,8 @@
   gap: 6px;
   background-color: #F1F5F9;
   padding: 4px;
-  border-radius: 10px;
+  border-radius: 8px;
   border: 1px solid #E2E8F0;
-  margin-bottom: 2px;
 }
 
 .ws-panel-tab-btn {
@@ -959,8 +1060,8 @@
   display: inline-flex;
   align-items: center;
   justify-content: center;
-  gap: 7px;
-  padding: 7px 12px;
+  gap: 6px;
+  height: 32px;
   font-size: 12.5px;
   font-weight: 600;
   color: #64748B;
@@ -978,63 +1079,115 @@
 .ws-panel-tab-btn.active {
   background-color: #FFFFFF;
   color: #0284C7;
-  box-shadow: 0 1px 3px rgba(15, 23, 42, 0.05);
+  box-shadow: 0 1px 3px rgba(15, 23, 42, 0.08);
 }
 
 .ws-ai-chip {
   font-size: 10px;
   font-weight: 700;
-  background: #E0F2FE;
+  text-transform: uppercase;
   color: #0284C7;
+  background-color: #E0F2FE;
   padding: 1px 6px;
   border-radius: 999px;
-  text-transform: uppercase;
+}
+
+.ws-editor-container-wrapper {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.ws-editor-top-actions {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 10px;
+}
+
+.ws-quick-action-link {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  font-size: 12px;
+  font-weight: 600;
+  color: #D97706;
+  background-color: #FFFBEB;
+  border: 1px solid #FDE68A;
+  padding: 5px 10px;
+  border-radius: 6px;
+  text-decoration: none;
+  transition: all 0.15s ease;
+}
+
+.ws-quick-action-link:hover {
+  background-color: #FEF3C7;
+  border-color: #F59E0B;
+}
+
+.ws-quick-action-ai-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  font-size: 12px;
+  font-weight: 600;
+  color: #0284C7;
+  background-color: #F0F9FF;
+  border: 1px solid #BAE6FD;
+  padding: 5px 10px;
+  border-radius: 6px;
+  cursor: pointer;
+  transition: all 0.15s ease;
+}
+
+.ws-quick-action-ai-btn:hover {
+  background-color: #E0F2FE;
 }
 
 /* ==========================================================================
-   6. Loading & Error States
+   10. Loading and Error Screens
    ========================================================================== */
 
 .workspace-loading-state,
 .workspace-error-container {
-  min-height: 80vh;
   display: flex;
   flex-direction: column;
   align-items: center;
   justify-content: center;
+  height: 100vh;
+  gap: 14px;
+  padding: 24px;
   text-align: center;
-  padding: 32px;
+  background-color: #F8FAFC;
 }
 
 .spin-icon {
-  animation: ws-spin 1s linear infinite;
-  color: #0284C7;
+  animation: spin 1s linear infinite;
 }
 
-@keyframes ws-spin {
+@keyframes spin {
   from { transform: rotate(0deg); }
   to { transform: rotate(360deg); }
 }
 
 .loading-label {
-  font-size: 15px;
-  font-weight: 600;
+  font-size: 14px;
+  font-weight: 500;
   color: #64748B;
-  margin-top: 14px;
 }
 
 .error-title {
-  font-size: 1.5rem;
-  font-weight: 800;
+  font-size: 1.25rem;
+  font-weight: 700;
   color: #0F172A;
-  margin: 16px 0 8px 0;
+  margin: 0;
 }
 
 .error-description {
   font-size: 14px;
   color: #64748B;
-  margin: 0 0 24px 0;
-  max-width: 440px;
+  max-width: 420px;
+  margin: 0;
 }
 
 .ws-btn-primary {
@@ -1046,11 +1199,81 @@
   font-weight: 600;
   color: #FFFFFF;
   background-color: #0284C7;
-  border: none;
-  border-radius: 8px;
+  border-radius: 7px;
   text-decoration: none;
+  transition: background 0.15s ease;
 }
 
 .ws-btn-primary:hover {
   background-color: #0369A1;
+}
+
+/* ==========================================================================
+   11. Responsive Breakpoints
+   ========================================================================== */
+
+@media (max-width: 1024px) {
+  .workspace-main-body {
+    flex-direction: column;
+  }
+
+  .workspace-nav-sidebar {
+    width: 100% !important;
+    height: 48px;
+    flex-direction: row;
+    overflow-x: auto;
+    overflow-y: hidden;
+    border-right: none;
+    border-bottom: 1px solid #E2E8F0;
+  }
+
+  .sidebar-nav-list {
+    flex-direction: row;
+    padding: 6px 10px;
+    gap: 6px;
+  }
+
+  .sidebar-footer {
+    display: none;
+  }
+
+  .workspace-split-container {
+    flex-direction: column;
+  }
+
+  .workspace-mobile-tabs {
+    display: flex;
+  }
+
+  .ws-left-column,
+  .ws-right-column {
+    flex: 1 1 auto;
+    width: 100%;
+    border-left: none;
+  }
+
+  .ws-left-column.mobile-hide,
+  .ws-right-column.mobile-hide {
+    display: none !important;
+  }
+
+  .ws-left-column.mobile-show,
+  .ws-right-column.mobile-show {
+    display: flex !important;
+  }
+}
+
+@media (max-width: 640px) {
+  .header-problem-title {
+    max-width: 140px;
+  }
+
+  .ws-complexity-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .header-crumb-sep,
+  .header-problem-number {
+    display: none;
+  }
 }

@@ -15,7 +15,11 @@ import {
   ExternalLink,
   Loader2,
   ChevronLeft,
-  ChevronRight
+  ChevronRight,
+  LayoutList,
+  LayoutGrid,
+  Check,
+  Sparkles
 } from 'lucide-react';
 import { 
   fetchAllProblems, 
@@ -25,7 +29,31 @@ import {
 } from '../services/problemService';
 import './ProblemsPage.css';
 
-const PROBLEMS_PER_PAGE = 48; // 48 is divisible by 1, 2, 3, and 4 columns for balanced grids
+const PROBLEMS_PER_PAGE = 50;
+const VIEW_MODE_KEY = 'algotrack_problems_view_mode';
+
+const TOP_CATEGORIES = [
+  'All Topics',
+  'Array',
+  'String',
+  'Hash Table',
+  'Dynamic Programming',
+  'Math',
+  'Sorting',
+  'Greedy',
+  'Depth-First Search',
+  'Binary Search',
+  'Tree',
+  'Breadth-First Search',
+  'Two Pointers',
+  'Matrix',
+  'Bit Manipulation',
+  'Stack',
+  'Heap (Priority Queue)',
+  'Graph',
+  'Sliding Window',
+  'Linked List'
+];
 
 export const ProblemsPage: React.FC = () => {
   const { user } = useAuth();
@@ -39,6 +67,8 @@ export const ProblemsPage: React.FC = () => {
   const [searchQuery, setSearchQuery] = useState('');
   const [selectedDifficulty, setSelectedDifficulty] = useState<string>('all');
   const [selectedStatus, setSelectedStatus] = useState<string>('all');
+  const [selectedTopic, setSelectedTopic] = useState<string>('All Topics');
+  const [viewMode, setViewMode] = useState<'table' | 'grid'>('table');
   const [currentPage, setCurrentPage] = useState(1);
 
   useEffect(() => {
@@ -100,13 +130,18 @@ export const ProblemsPage: React.FC = () => {
       const matchDiff =
         selectedDifficulty === 'all' || p.difficulty.toLowerCase() === selectedDifficulty.toLowerCase();
 
+      const matchTopic =
+        selectedTopic === 'All Topics' ||
+        (p.topics && p.topics.includes(selectedTopic)) ||
+        p.pattern === selectedTopic;
+
       const status = userStatuses[p.id] || 'not_started';
       const matchStatus =
         selectedStatus === 'all' || status === selectedStatus;
 
-      return matchSearch && matchDiff && matchStatus;
+      return matchSearch && matchDiff && matchTopic && matchStatus;
     });
-  }, [problems, searchQuery, selectedDifficulty, selectedStatus, userStatuses]);
+  }, [problems, searchQuery, selectedDifficulty, selectedTopic, selectedStatus, userStatuses]);
 
   // Pagination calculation
   const totalPages = Math.max(1, Math.ceil(filteredProblems.length / PROBLEMS_PER_PAGE));
@@ -173,7 +208,26 @@ export const ProblemsPage: React.FC = () => {
       {/* 2. Main Page Container */}
       <main className="problems-main-layout">
         <div className="problems-container">
-          {/* Controls Toolbar: Search + Filter Group */}
+          {/* LeetCode Topic Navigation Pills */}
+          <section className="leetcode-topics-scroll-bar" aria-label="Filter by Topic">
+            <div className="topics-scroll-inner">
+              {TOP_CATEGORIES.map((topic) => (
+                <button
+                  key={topic}
+                  type="button"
+                  className={`topic-pill-btn ${selectedTopic === topic ? 'active' : ''}`}
+                  onClick={() => {
+                    setSelectedTopic(topic);
+                    setCurrentPage(1);
+                  }}
+                >
+                  <span>{topic}</span>
+                </button>
+              ))}
+            </div>
+          </section>
+
+          {/* Controls Toolbar: Search + Filter Group + View Switcher */}
           <section className="library-toolbar-card" aria-label="Search and filter challenges">
             <div className="toolbar-search-field">
               <Search size={16} className="search-field-icon" />
@@ -235,6 +289,26 @@ export const ProblemsPage: React.FC = () => {
                   ))}
                 </div>
               </div>
+
+              {/* View Switcher: Table vs Grid */}
+              <div className="view-mode-toggle-group">
+                <button
+                  type="button"
+                  className={`view-mode-btn ${viewMode === 'table' ? 'active' : ''}`}
+                  onClick={() => setViewMode('table')}
+                  title="Compact Table List (LeetCode Style)"
+                >
+                  <LayoutList size={16} />
+                </button>
+                <button
+                  type="button"
+                  className={`view-mode-btn ${viewMode === 'grid' ? 'active' : ''}`}
+                  onClick={() => setViewMode('grid')}
+                  title="Card Grid View"
+                >
+                  <LayoutGrid size={16} />
+                </button>
+              </div>
             </div>
           </section>
 
@@ -275,7 +349,7 @@ export const ProblemsPage: React.FC = () => {
             )}
           </div>
 
-          {/* 3. Problem Cards Grid */}
+          {/* 3. Problem Display: Table or Grid */}
           {loading ? (
             <div className="library-state-panel">
               <Loader2 size={32} className="spin-loader" />
@@ -297,13 +371,108 @@ export const ProblemsPage: React.FC = () => {
                   setSearchQuery('');
                   setSelectedDifficulty('all');
                   setSelectedStatus('all');
+                  setSelectedTopic('All Topics');
                   setCurrentPage(1);
                 }}
               >
                 Reset Filters
               </button>
             </div>
+          ) : viewMode === 'table' ? (
+            /* LeetCode Style Clean Table Layout */
+            <div className="leetcode-table-card">
+              <div className="leetcode-table-wrap">
+                <table className="leetcode-problems-table">
+                  <thead>
+                    <tr>
+                      <th className="col-status">Status</th>
+                      <th className="col-title">Title</th>
+                      <th className="col-solution">Solution / Notes</th>
+                      <th className="col-difficulty">Difficulty</th>
+                      <th className="col-category">Category</th>
+                      <th className="col-action">Action</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    {paginatedProblems.map((problem) => {
+                      const status = userStatuses[problem.id] || 'not_started';
+                      return (
+                        <tr 
+                          key={problem.id}
+                          className="leetcode-row"
+                          onClick={() => navigate(`/problems/${problem.slug}`)}
+                        >
+                          {/* Status */}
+                          <td className="col-status" onClick={(e) => e.stopPropagation()}>
+                            {status === 'solved' ? (
+                              <span className="lc-status-icon solved" title="Solved">
+                                <CheckCircle2 size={16} />
+                              </span>
+                            ) : status === 'attempted' ? (
+                              <span className="lc-status-icon attempted" title="Attempted">
+                                <Clock size={16} />
+                              </span>
+                            ) : (
+                              <span className="lc-status-icon todo" title="Todo">
+                                <CircleDot size={15} />
+                              </span>
+                            )}
+                          </td>
+
+                          {/* Problem Title */}
+                          <td className="col-title">
+                            <div className="lc-title-cell">
+                              <span className="lc-num">{problem.problem_number ? `${problem.problem_number}.` : ''}</span>
+                              <span className="lc-title-text">{problem.title}</span>
+                            </div>
+                          </td>
+
+                          {/* Solution / Notes Status */}
+                          <td className="col-solution">
+                            <span className="lc-solution-link">
+                              <BookOpen size={13} />
+                              <span>Workspace</span>
+                            </span>
+                          </td>
+
+                          {/* Difficulty */}
+                          <td className="col-difficulty">
+                            <span className={`lc-diff-badge ${problem.difficulty.toLowerCase()}`}>
+                              {problem.difficulty}
+                            </span>
+                          </td>
+
+                          {/* Category / Pattern */}
+                          <td className="col-category">
+                            <span className="lc-topic-tag">
+                              {problem.pattern || problem.topics?.[0] || 'Algorithm'}
+                            </span>
+                          </td>
+
+                          {/* Action Link to LeetCode */}
+                          <td className="col-action" onClick={(e) => e.stopPropagation()}>
+                            {problem.leetcode_url && (
+                              <a
+                                href={problem.leetcode_url}
+                                target="_blank"
+                                rel="noopener noreferrer"
+                                className="lc-open-link"
+                                title="Open on LeetCode"
+                              >
+                                <span>LeetCode</span>
+                                <ExternalLink size={12} />
+                              </a>
+                            )}
+                          </td>
+                        </tr>
+                      );
+                    })}
+                  </tbody>
+                </table>
+              </div>
+            </div>
           ) : (
+            /* Card Grid View */
             <div className="problems-cards-grid">
               {paginatedProblems.map((problem) => {
                 const status = userStatuses[problem.id] || 'not_started';

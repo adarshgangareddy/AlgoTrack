@@ -10,6 +10,7 @@ import { AuthCallbackPage } from './pages/AuthCallbackPage';
 import { DashboardPage } from './pages/DashboardPage';
 import { ProblemsPage } from './pages/ProblemsPage';
 import { ProblemWorkspacePage } from './pages/ProblemWorkspacePage';
+import { ProfilePage } from './pages/ProfilePage';
 
 export function App() {
   return (
@@ -52,6 +53,16 @@ export function App() {
             element={
               <ProtectedRoute>
                 <ProblemWorkspacePage />
+              </ProtectedRoute>
+            }
+          />
+
+          {/* Dedicated Full-Screen Profile & Analytics Route */}
+          <Route
+            path="/profile"
+            element={
+              <ProtectedRoute>
+                <ProfilePage />
               </ProtectedRoute>
             }
           />

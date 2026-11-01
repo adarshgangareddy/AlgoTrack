@@ -108,9 +108,12 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
   };
 
   useEffect(() => {
+    let isMounted = true;
+
     if (configured) {
-      // Real Supabase session initialization
+      // 1. Initial session check
       supabase.auth.getSession().then(({ data: { session: initialSession } }) => {
+        if (!isMounted) return;
         setSession(initialSession);
         setUser(initialSession?.user ?? null);
         if (initialSession?.user) {
@@ -121,10 +124,20 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
           );
         }
         setLoading(false);
+      }).catch(() => {
+        if (isMounted) setLoading(false);
       });
 
+      // 2. Real-time auth state subscription
       const { data: { subscription } } = supabase.auth.onAuthStateChange(
-        async (_event, newSession) => {
+        async (event, newSession) => {
+          if (!isMounted) return;
+          // Ignore TOKEN_REFRESHED if user didn't change to prevent flicker
+          if (event === 'TOKEN_REFRESHED' && newSession?.user?.id === user?.id) {
+            setSession(newSession);
+            return;
+          }
+
           setSession(newSession);
           setUser(newSession?.user ?? null);
           if (newSession?.user) {
@@ -141,6 +154,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
       );
 
       return () => {
+        isMounted = false;
         subscription.unsubscribe();
       };
     } else {

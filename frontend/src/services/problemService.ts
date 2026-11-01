@@ -22,6 +22,12 @@ export function getProblemUuid(slugOrId: string): string {
   return slugOrId;
 }
 
+export interface ProblemExample {
+  input: string;
+  output: string;
+  explanation?: string;
+}
+
 export interface Problem {
   id: string;
   problem_number?: number;
@@ -34,6 +40,8 @@ export interface Problem {
   theory_content?: string;
   topics?: string[];
   hints?: string[];
+  examples?: ProblemExample[];
+  constraints?: string[];
 }
 
 export interface UserWorkspaceData {
@@ -71,7 +79,28 @@ export const CURATED_PROBLEMS: Problem[] = [
     leetcode_url: 'https://leetcode.com/problems/two-sum/',
     topics: ['Arrays', 'Hash Maps'],
     description: 'Given an array of integers nums and an integer target, return indices of the two numbers such that they add up to target.',
-    theory_content: 'The naive brute force approach checks all pairs in O(N^2) time. By using a hash map to record the complement (target - num) and its index, we can resolve matches in a single linear pass with O(N) time and O(N) space.'
+    theory_content: 'The naive brute force approach checks all pairs in O(N^2) time. By using a hash map to record the complement (target - num) and its index, we can resolve matches in a single linear pass with O(N) time and O(N) space.',
+    examples: [
+      {
+        input: 'nums = [2,7,11,15], target = 9',
+        output: '[0,1]',
+        explanation: 'Because nums[0] + nums[1] == 9, we return [0, 1].'
+      },
+      {
+        input: 'nums = [3,2,4], target = 6',
+        output: '[1,2]'
+      },
+      {
+        input: 'nums = [3,3], target = 6',
+        output: '[0,1]'
+      }
+    ],
+    constraints: [
+      '2 <= nums.length <= 10^4',
+      '-10^9 <= nums[i] <= 10^9',
+      '-10^9 <= target <= 10^9',
+      'Only one valid answer exists.'
+    ]
   },
   {
     id: 'p3-longest-substring',

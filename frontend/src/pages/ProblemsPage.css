@@ -727,3 +727,261 @@
 .pagination-bottom-text strong {
   color: #0F172A;
 }
+
+/* ==========================================================================
+   8. LeetCode Topic Pill Navigation & Table Styles
+   ========================================================================== */
+
+.leetcode-topics-scroll-bar {
+  margin-bottom: 16px;
+  overflow-x: auto;
+  padding: 4px 0 8px 0;
+  scrollbar-width: thin;
+}
+
+.topics-scroll-inner {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  width: max-content;
+}
+
+.topic-pill-btn {
+  padding: 6px 14px;
+  font-size: 12.5px;
+  font-weight: 600;
+  color: #475569;
+  background-color: #FFFFFF;
+  border: 1px solid #E2E8F0;
+  border-radius: 999px;
+  cursor: pointer;
+  white-space: nowrap;
+  transition: all 0.15s ease;
+  box-shadow: 0 1px 2px rgba(15, 23, 42, 0.03);
+}
+
+.topic-pill-btn:hover {
+  background-color: #F1F5F9;
+  color: #0F172A;
+  border-color: #CBD5E1;
+}
+
+.topic-pill-btn.active {
+  background-color: #0F172A;
+  color: #FFFFFF;
+  border-color: #0F172A;
+}
+
+/* View Mode Switcher */
+.view-mode-toggle-group {
+  display: inline-flex;
+  align-items: center;
+  background-color: #F1F5F9;
+  border: 1px solid #E2E8F0;
+  border-radius: 8px;
+  padding: 2px;
+  margin-left: auto;
+}
+
+.view-mode-btn {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 32px;
+  height: 30px;
+  border: none;
+  background: transparent;
+  color: #64748B;
+  border-radius: 6px;
+  cursor: pointer;
+  transition: all 0.15s ease;
+}
+
+.view-mode-btn.active {
+  background-color: #FFFFFF;
+  color: #0284C7;
+  box-shadow: 0 1px 2px rgba(15, 23, 42, 0.06);
+}
+
+/* LeetCode Clean Table Layout */
+.leetcode-table-card {
+  background-color: #FFFFFF;
+  border: 1px solid #E2E8F0;
+  border-radius: 12px;
+  overflow: hidden;
+  box-shadow: 0 1px 3px rgba(15, 23, 42, 0.04);
+}
+
+.leetcode-table-wrap {
+  width: 100%;
+  overflow-x: auto;
+}
+
+.leetcode-problems-table {
+  width: 100%;
+  border-collapse: collapse;
+  text-align: left;
+  font-size: 13.5px;
+}
+
+.leetcode-problems-table th {
+  background-color: #F8FAFC;
+  color: #64748B;
+  font-weight: 700;
+  font-size: 12px;
+  text-transform: uppercase;
+  letter-spacing: 0.03em;
+  padding: 12px 18px;
+  border-bottom: 1px solid #E2E8F0;
+  white-space: nowrap;
+}
+
+.leetcode-row {
+  cursor: pointer;
+  border-bottom: 1px solid #F1F5F9;
+  transition: background-color 0.12s ease;
+}
+
+.leetcode-row:hover {
+  background-color: #F8FAFC;
+}
+
+.leetcode-row td {
+  padding: 14px 18px;
+  vertical-align: middle;
+}
+
+.col-status {
+  width: 50px;
+  text-align: center;
+}
+
+.lc-status-icon {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.lc-status-icon.solved {
+  color: #059669;
+}
+
+.lc-status-icon.attempted {
+  color: #D97706;
+}
+
+.lc-status-icon.todo {
+  color: #CBD5E1;
+}
+
+.col-title {
+  min-width: 280px;
+}
+
+.lc-title-cell {
+  display: flex;
+  align-items: baseline;
+  gap: 8px;
+}
+
+.lc-num {
+  font-weight: 600;
+  color: #64748B;
+  min-width: 28px;
+}
+
+.lc-title-text {
+  font-weight: 700;
+  color: #0F172A;
+  transition: color 0.15s ease;
+}
+
+.leetcode-row:hover .lc-title-text {
+  color: #0284C7;
+}
+
+.col-solution {
+  width: 130px;
+}
+
+.lc-solution-link {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  font-size: 12px;
+  font-weight: 600;
+  color: #0284C7;
+  background-color: #F0F9FF;
+  border: 1px solid #BAE6FD;
+  padding: 3px 8px;
+  border-radius: 6px;
+}
+
+.col-difficulty {
+  width: 100px;
+}
+
+.lc-diff-badge {
+  font-size: 11.5px;
+  font-weight: 700;
+  padding: 3px 9px;
+  border-radius: 999px;
+  display: inline-block;
+  text-align: center;
+}
+
+.lc-diff-badge.easy {
+  color: #059669;
+  background-color: #ECFDF5;
+  border: 1px solid #A7F3D0;
+}
+
+.lc-diff-badge.medium {
+  color: #D97706;
+  background-color: #FFFBEB;
+  border: 1px solid #FDE68A;
+}
+
+.lc-diff-badge.hard {
+  color: #DC2626;
+  background-color: #FEF2F2;
+  border: 1px solid #FECACA;
+}
+
+.col-category {
+  width: 180px;
+}
+
+.lc-topic-tag {
+  font-size: 11.5px;
+  color: #475569;
+  background-color: #F1F5F9;
+  border: 1px solid #E2E8F0;
+  padding: 2px 8px;
+  border-radius: 6px;
+  white-space: nowrap;
+}
+
+.col-action {
+  width: 100px;
+  text-align: right;
+}
+
+.lc-open-link {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  font-size: 12px;
+  font-weight: 600;
+  color: #C2410C;
+  background-color: #FFF7ED;
+  border: 1px solid #FED7AA;
+  padding: 3px 9px;
+  border-radius: 6px;
+  text-decoration: none;
+  transition: all 0.15s ease;
+}
+
+.lc-open-link:hover {
+  background-color: #FFEDD5;
+}
