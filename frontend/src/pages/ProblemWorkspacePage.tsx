@@ -18,7 +18,9 @@ import {
   Clock, 
   Sparkles, 
   Loader2,
-  Lock
+  Lock,
+  ChevronDown,
+  ChevronUp
 } from 'lucide-react';
 import { 
   fetchProblemBySlug, 
@@ -69,6 +71,24 @@ export const ProblemWorkspacePage: React.FC = () => {
   // Responsive / View modes
   const [mobileTab, setMobileTab] = useState<'learning' | 'workspace'>('learning');
   const [rightPanelTab, setRightPanelTab] = useState<'editor' | 'ai'>('editor');
+
+  // Expandable sections state
+  const [expandedSections, setExpandedSections] = useState<Record<string, boolean>>({
+    problemOverview: true,
+    concept: true,
+    approach: true,
+    complexity: true,
+    mistakes: true,
+    editor: true,
+    notes: true,
+  });
+
+  const toggleSection = (sectionKey: string) => {
+    setExpandedSections((prev) => ({
+      ...prev,
+      [sectionKey]: !prev[sectionKey]
+    }));
+  };
 
   const autosaveTimerRef = useRef<NodeJS.Timeout | null>(null);
   const initialLoadCompletedRef = useRef(false);
@@ -443,208 +463,319 @@ export const ProblemWorkspacePage: React.FC = () => {
             aria-label="Problem Description and Conceptual Learning"
           >
             {/* Card 1: Problem Overview & LeetCode Callout */}
-            <div className="ws-card">
-              <div className="ws-card-header-compact">
-                <span className="ws-pattern-label">
-                  {problem.pattern || 'Algorithmic Challenge'}
-                </span>
-              </div>
-
-              <h2 className="ws-problem-main-title">
-                {problem.problem_number ? `${problem.problem_number}. ` : ''}{problem.title}
-              </h2>
-
-              {/* Tags Row */}
-              <div className="ws-tags-row">
-                <span className={`ws-diff-tag ${problem.difficulty.toLowerCase()}`}>
-                  {problem.difficulty}
-                </span>
-
-                {problem.pattern && (
-                  <span className="ws-pattern-tag">
-                    <Sparkles size={11} color="#0284C7" />
-                    <span>{problem.pattern}</span>
+            <div className={`ws-card ${!expandedSections.problemOverview ? 'is-collapsed' : ''}`}>
+              <div 
+                className="ws-card-header-toggle"
+                onClick={() => toggleSection('problemOverview')}
+                role="button"
+                tabIndex={0}
+                aria-expanded={expandedSections.problemOverview}
+              >
+                <div className="ws-card-header-compact">
+                  <span className="ws-pattern-label">
+                    {problem.pattern || 'Algorithmic Challenge'}
                   </span>
-                )}
-
-                {problem.topics?.map((topic) => (
-                  <span key={topic} className="ws-topic-tag">
-                    {topic}
-                  </span>
-                ))}
-              </div>
-
-              {/* Problem Description */}
-              {problem.description && (
-                <div className="ws-description-body">
-                  <p className="ws-description-text">{problem.description}</p>
+                  <h2 className="ws-problem-main-title">
+                    {problem.problem_number ? `${problem.problem_number}. ` : ''}{problem.title}
+                  </h2>
                 </div>
-              )}
+                <button
+                  type="button"
+                  className="ws-section-collapse-btn"
+                  onClick={(e) => {
+                    e.stopPropagation();
+                    toggleSection('problemOverview');
+                  }}
+                  title={expandedSections.problemOverview ? "Collapse problem overview" : "Expand problem overview"}
+                >
+                  {expandedSections.problemOverview ? <ChevronUp size={16} /> : <ChevronDown size={16} />}
+                </button>
+              </div>
 
-              {/* LeetCode Official Link Callout */}
-              {problem.leetcode_url && (
-                <div className="ws-leetcode-callout">
-                  <div className="ws-leetcode-text">
-                    <span className="ws-leetcode-label">Official Challenge Runner</span>
-                    <p className="ws-leetcode-prompt">
-                      Test and submit against official test suites on LeetCode, then record your best solution here.
-                    </p>
+              {expandedSections.problemOverview && (
+                <div className="ws-card-content">
+                  {/* Tags Row */}
+                  <div className="ws-tags-row">
+                    <span className={`ws-diff-tag ${problem.difficulty.toLowerCase()}`}>
+                      {problem.difficulty}
+                    </span>
+
+                    {problem.pattern && (
+                      <span className="ws-pattern-tag">
+                        <Sparkles size={11} color="#0284C7" />
+                        <span>{problem.pattern}</span>
+                      </span>
+                    )}
+
+                    {problem.topics?.map((topic) => (
+                      <span key={topic} className="ws-topic-tag">
+                        {topic}
+                      </span>
+                    ))}
                   </div>
-                  <a
-                    href={problem.leetcode_url}
-                    target="_blank"
-                    rel="noopener noreferrer"
-                    className="ws-btn ws-btn-leetcode"
-                    title={`Open ${problem.title} on LeetCode`}
-                  >
-                    <span>Open in LeetCode</span>
-                    <ExternalLink size={13} />
-                  </a>
+
+                  {/* Problem Description */}
+                  {problem.description && (
+                    <div className="ws-description-body">
+                      <p className="ws-description-text">{problem.description}</p>
+                    </div>
+                  )}
+
+                  {/* LeetCode Official Link Callout */}
+                  {problem.leetcode_url && (
+                    <div className="ws-leetcode-callout">
+                      <div className="ws-leetcode-text">
+                        <span className="ws-leetcode-label">Official Challenge Runner</span>
+                        <p className="ws-leetcode-prompt">
+                          Test and submit against official test suites on LeetCode, then record your best solution here.
+                        </p>
+                      </div>
+                      <a
+                        href={problem.leetcode_url}
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        className="ws-btn ws-btn-leetcode"
+                        title={`Open ${problem.title} on LeetCode`}
+                      >
+                        <span>Open in LeetCode</span>
+                        <ExternalLink size={13} />
+                      </a>
+                    </div>
+                  )}
                 </div>
               )}
             </div>
 
             {/* Card 2: Understand the Concept */}
-            <div className="ws-card">
-              <div className="ws-section-header">
+            <div className={`ws-card ${!expandedSections.concept ? 'is-collapsed' : ''}`}>
+              <div 
+                className="ws-section-header ws-card-header-toggle"
+                onClick={() => toggleSection('concept')}
+                role="button"
+                tabIndex={0}
+                aria-expanded={expandedSections.concept}
+              >
                 <div className="ws-section-title-wrap">
                   <BookOpen size={17} color="#0284C7" />
                   <h3 className="ws-section-title">Understand the Concept</h3>
                 </div>
 
-                <button
-                  type="button"
-                  className="ws-btn-explain-ai"
-                  onClick={() => {
-                    setRightPanelTab('ai');
-                    setMobileTab('workspace');
-                  }}
-                  title="Ask AI to break down this problem"
-                >
-                  <Sparkles size={13} color="#0284C7" />
-                  <span>Explain with AI</span>
-                </button>
+                <div className="ws-header-actions-wrap" onClick={(e) => e.stopPropagation()}>
+                  <button
+                    type="button"
+                    className="ws-btn-explain-ai"
+                    onClick={() => {
+                      setRightPanelTab('ai');
+                      setMobileTab('workspace');
+                    }}
+                    title="Ask AI to break down this problem"
+                  >
+                    <Sparkles size={13} color="#0284C7" />
+                    <span>Explain with AI</span>
+                  </button>
+
+                  <button
+                    type="button"
+                    className="ws-section-collapse-btn"
+                    onClick={() => toggleSection('concept')}
+                    title={expandedSections.concept ? "Collapse concept section" : "Expand concept section"}
+                  >
+                    {expandedSections.concept ? <ChevronUp size={16} /> : <ChevronDown size={16} />}
+                  </button>
+                </div>
               </div>
 
-              {problem.theory_content ? (
-                <div className="ws-theory-content">
-                  <p className="ws-theory-text">{problem.theory_content}</p>
-                  <div className="ws-theory-keypoints">
-                    <div className="ws-keypoint-row">
-                      <span className="ws-keypoint-dot"></span>
-                      <span className="ws-keypoint-text">
-                        <strong>Core Pattern:</strong> {problem.pattern || 'Pattern Recognition'}
-                      </span>
+              {expandedSections.concept && (
+                <div className="ws-card-content">
+                  {problem.theory_content ? (
+                    <div className="ws-theory-content">
+                      <p className="ws-theory-text">{problem.theory_content}</p>
+                      <div className="ws-theory-keypoints">
+                        <div className="ws-keypoint-row">
+                          <span className="ws-keypoint-dot"></span>
+                          <span className="ws-keypoint-text">
+                            <strong>Core Pattern:</strong> {problem.pattern || 'Pattern Recognition'}
+                          </span>
+                        </div>
+                        <div className="ws-keypoint-row">
+                          <span className="ws-keypoint-dot"></span>
+                          <span className="ws-keypoint-text">
+                            <strong>Interview Strategy:</strong> Identify boundary invariants and analyze trade-offs before writing code.
+                          </span>
+                        </div>
+                      </div>
                     </div>
-                    <div className="ws-keypoint-row">
-                      <span className="ws-keypoint-dot"></span>
-                      <span className="ws-keypoint-text">
-                        <strong>Interview Strategy:</strong> Identify boundary invariants and analyze trade-offs before writing code.
-                      </span>
+                  ) : (
+                    <div className="ws-theory-placeholder">
+                      <p className="ws-theory-placeholder-text">
+                        Structured notes for this challenge are being prepared. Click <strong>"Explain with AI"</strong> above to generate an instant explanation!
+                      </p>
                     </div>
-                  </div>
-                </div>
-              ) : (
-                <div className="ws-theory-placeholder">
-                  <p className="ws-theory-placeholder-text">
-                    Structured notes for this challenge are being prepared. Click <strong>"Explain with AI"</strong> above to generate an instant explanation!
-                  </p>
+                  )}
                 </div>
               )}
             </div>
 
             {/* Card 3: Personal Approach */}
-            <div className="ws-card">
-              <div className="ws-section-header">
+            <div className={`ws-card ${!expandedSections.approach ? 'is-collapsed' : ''}`}>
+              <div 
+                className="ws-section-header ws-card-header-toggle"
+                onClick={() => toggleSection('approach')}
+                role="button"
+                tabIndex={0}
+                aria-expanded={expandedSections.approach}
+              >
                 <div className="ws-section-title-wrap">
                   <FileText size={17} color="#0284C7" />
                   <h3 className="ws-section-title">My Approach</h3>
                 </div>
+
+                <button
+                  type="button"
+                  className="ws-section-collapse-btn"
+                  onClick={(e) => {
+                    e.stopPropagation();
+                    toggleSection('approach');
+                  }}
+                  title={expandedSections.approach ? "Collapse approach section" : "Expand approach section"}
+                >
+                  {expandedSections.approach ? <ChevronUp size={16} /> : <ChevronDown size={16} />}
+                </button>
               </div>
-              <p className="ws-field-desc">
-                Describe your thought process, step-by-step logic, and why your selected algorithmic pattern works.
-              </p>
-              <textarea
-                className="ws-textarea"
-                rows={4}
-                value={personalApproach}
-                onChange={(e) => {
-                  setPersonalApproach(e.target.value);
-                  markDirtyAndDebounceSave();
-                }}
-                placeholder="e.g. 1. Initialize two pointers at start and end. 2. Compare sum against target. 3. Adjust pointers based on magnitude..."
-              />
+
+              {expandedSections.approach && (
+                <div className="ws-card-content">
+                  <p className="ws-field-desc">
+                    Describe your thought process, step-by-step logic, and why your selected algorithmic pattern works.
+                  </p>
+                  <textarea
+                    className="ws-textarea"
+                    rows={4}
+                    value={personalApproach}
+                    onChange={(e) => {
+                      setPersonalApproach(e.target.value);
+                      markDirtyAndDebounceSave();
+                    }}
+                    placeholder="e.g. 1. Initialize two pointers at start and end. 2. Compare sum against target. 3. Adjust pointers based on magnitude..."
+                  />
+                </div>
+              )}
             </div>
 
             {/* Card 4: Time & Space Complexity */}
-            <div className="ws-card">
-              <div className="ws-section-header">
+            <div className={`ws-card ${!expandedSections.complexity ? 'is-collapsed' : ''}`}>
+              <div 
+                className="ws-section-header ws-card-header-toggle"
+                onClick={() => toggleSection('complexity')}
+                role="button"
+                tabIndex={0}
+                aria-expanded={expandedSections.complexity}
+              >
                 <div className="ws-section-title-wrap">
                   <Clock size={17} color="#059669" />
                   <h3 className="ws-section-title">Time & Space Complexity</h3>
                 </div>
+
+                <button
+                  type="button"
+                  className="ws-section-collapse-btn"
+                  onClick={(e) => {
+                    e.stopPropagation();
+                    toggleSection('complexity');
+                  }}
+                  title={expandedSections.complexity ? "Collapse complexity section" : "Expand complexity section"}
+                >
+                  {expandedSections.complexity ? <ChevronUp size={16} /> : <ChevronDown size={16} />}
+                </button>
               </div>
 
-              <div className="ws-complexity-grid">
-                <div className="ws-complexity-box">
-                  <label htmlFor="time-complexity-input" className="ws-complexity-label">
-                    Time Complexity
-                  </label>
-                  <input
-                    id="time-complexity-input"
-                    type="text"
-                    className="ws-complexity-input"
-                    value={timeComplexity}
-                    onChange={(e) => {
-                      setTimeComplexity(e.target.value);
-                      markDirtyAndDebounceSave();
-                    }}
-                    placeholder="e.g. O(N) or O(N log N)"
-                  />
-                  <span className="ws-complexity-hint">Asymptotic runtime bound</span>
-                </div>
+              {expandedSections.complexity && (
+                <div className="ws-card-content">
+                  <div className="ws-complexity-grid">
+                    <div className="ws-complexity-box">
+                      <label htmlFor="time-complexity-input" className="ws-complexity-label">
+                        Time Complexity
+                      </label>
+                      <input
+                        id="time-complexity-input"
+                        type="text"
+                        className="ws-complexity-input"
+                        value={timeComplexity}
+                        onChange={(e) => {
+                          setTimeComplexity(e.target.value);
+                          markDirtyAndDebounceSave();
+                        }}
+                        placeholder="e.g. O(N) or O(N log N)"
+                      />
+                      <span className="ws-complexity-hint">Asymptotic runtime bound</span>
+                    </div>
 
-                <div className="ws-complexity-box">
-                  <label htmlFor="space-complexity-input" className="ws-complexity-label">
-                    Space Complexity
-                  </label>
-                  <input
-                    id="space-complexity-input"
-                    type="text"
-                    className="ws-complexity-input"
-                    value={spaceComplexity}
-                    onChange={(e) => {
-                      setSpaceComplexity(e.target.value);
-                      markDirtyAndDebounceSave();
-                    }}
-                    placeholder="e.g. O(1) or O(N)"
-                  />
-                  <span className="ws-complexity-hint">Auxiliary memory consumption</span>
+                    <div className="ws-complexity-box">
+                      <label htmlFor="space-complexity-input" className="ws-complexity-label">
+                        Space Complexity
+                      </label>
+                      <input
+                        id="space-complexity-input"
+                        type="text"
+                        className="ws-complexity-input"
+                        value={spaceComplexity}
+                        onChange={(e) => {
+                          setSpaceComplexity(e.target.value);
+                          markDirtyAndDebounceSave();
+                        }}
+                        placeholder="e.g. O(1) or O(N)"
+                      />
+                      <span className="ws-complexity-hint">Auxiliary memory consumption</span>
+                    </div>
+                  </div>
                 </div>
-              </div>
+              )}
             </div>
 
             {/* Card 5: Mistakes & Edge Cases */}
-            <div className="ws-card">
-              <div className="ws-section-header">
+            <div className={`ws-card ${!expandedSections.mistakes ? 'is-collapsed' : ''}`}>
+              <div 
+                className="ws-section-header ws-card-header-toggle"
+                onClick={() => toggleSection('mistakes')}
+                role="button"
+                tabIndex={0}
+                aria-expanded={expandedSections.mistakes}
+              >
                 <div className="ws-section-title-wrap">
                   <AlertCircle size={17} color="#D97706" />
                   <h3 className="ws-section-title">Mistakes & Edge Cases</h3>
                 </div>
+
+                <button
+                  type="button"
+                  className="ws-section-collapse-btn"
+                  onClick={(e) => {
+                    e.stopPropagation();
+                    toggleSection('mistakes');
+                  }}
+                  title={expandedSections.mistakes ? "Collapse mistakes section" : "Expand mistakes section"}
+                >
+                  {expandedSections.mistakes ? <ChevronUp size={16} /> : <ChevronDown size={16} />}
+                </button>
               </div>
-              <p className="ws-field-desc">
-                Log tricky test cases, unexpected bugs, off-by-one indices, or misconceptions to revisit during interview revision.
-              </p>
-              <textarea
-                className="ws-textarea"
-                rows={4}
-                value={mistakesEdgeCases}
-                onChange={(e) => {
-                  setMistakesEdgeCases(e.target.value);
-                  markDirtyAndDebounceSave();
-                }}
-                placeholder="e.g. 1. Handle empty input / null head. 2. Account for negative indices. 3. Watch for 32-bit integer overflow..."
-              />
+
+              {expandedSections.mistakes && (
+                <div className="ws-card-content">
+                  <p className="ws-field-desc">
+                    Log tricky test cases, unexpected bugs, off-by-one indices, or misconceptions to revisit during interview revision.
+                  </p>
+                  <textarea
+                    className="ws-textarea"
+                    rows={4}
+                    value={mistakesEdgeCases}
+                    onChange={(e) => {
+                      setMistakesEdgeCases(e.target.value);
+                      markDirtyAndDebounceSave();
+                    }}
+                    placeholder="e.g. 1. Handle empty input / null head. 2. Account for negative indices. 3. Watch for 32-bit integer overflow..."
+                  />
+                </div>
+              )}
             </div>
           </section>
 
@@ -710,33 +841,57 @@ export const ProblemWorkspacePage: React.FC = () => {
                   onChange={handleCodeChange}
                   onResetToTemplate={handleResetTemplate}
                   leetcodeUrl={problem.leetcode_url}
+                  isExpanded={expandedSections.editor}
+                  onToggleExpand={() => toggleSection('editor')}
                 />
 
                 {/* Personal Notes & Observations Card */}
-                <div className="ws-card">
-                  <div className="ws-section-header">
+                <div className={`ws-card ${!expandedSections.notes ? 'is-collapsed' : ''}`}>
+                  <div 
+                    className="ws-section-header ws-card-header-toggle"
+                    onClick={() => toggleSection('notes')}
+                    role="button"
+                    tabIndex={0}
+                    aria-expanded={expandedSections.notes}
+                  >
                     <div className="ws-section-title-wrap">
                       <FileText size={17} color="#0284C7" />
                       <h3 className="ws-section-title">Personal Notes & Observations</h3>
                     </div>
-                    <span className="ws-privacy-badge">
-                      <Lock size={11} />
-                      <span>Private to your account</span>
-                    </span>
+                    <div className="ws-header-actions-wrap" onClick={(e) => e.stopPropagation()}>
+                      <span className="ws-privacy-badge">
+                        <Lock size={11} />
+                        <span>Private to your account</span>
+                      </span>
+
+                      <button
+                        type="button"
+                        className="ws-section-collapse-btn"
+                        onClick={() => toggleSection('notes')}
+                        title={expandedSections.notes ? "Collapse notes section" : "Expand notes section"}
+                      >
+                        {expandedSections.notes ? <ChevronUp size={16} /> : <ChevronDown size={16} />}
+                      </button>
+                    </div>
                   </div>
-                  <p className="ws-field-desc">
-                    Record insights, alternative algorithmic designs, or personal test observations here.
-                  </p>
-                  <textarea
-                    className="ws-textarea ws-notes-textarea"
-                    rows={6}
-                    value={personalNotes}
-                    onChange={(e) => {
-                      setPersonalNotes(e.target.value);
-                      markDirtyAndDebounceSave();
-                    }}
-                    placeholder="Record key takeaways, alternative patterns, edge-case observations, or interview prep thoughts..."
-                  />
+
+                  {expandedSections.notes && (
+                    <div className="ws-card-content">
+                      <p className="ws-field-desc">
+                        Record insights, alternative algorithmic designs, or personal test observations here.
+                      </p>
+                      <textarea
+                        className="ws-textarea ws-notes-textarea"
+                        rows={6}
+                        value={personalNotes}
+                        onChange={(e) => {
+                          setPersonalNotes(e.target.value);
+                          markDirtyAndDebounceSave();
+                        }}
+                        placeholder="Record key takeaways, alternative patterns, edge-case observations, or interview prep thoughts..."
+                      />
+                    </div>
+                  )}
                 </div>
               </>
             )}
