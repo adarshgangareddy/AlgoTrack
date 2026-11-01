@@ -34,6 +34,7 @@ import {
 } from '../services/problemService';
 import { MonacoCodeEditor } from '../components/workspace/MonacoCodeEditor';
 import { AIAssistant } from '../components/workspace/AIAssistant';
+import { askGroqAI } from '../services/aiService';
 import './ProblemWorkspacePage.css';
 
 export const ProblemWorkspacePage: React.FC = () => {
@@ -71,6 +72,8 @@ export const ProblemWorkspacePage: React.FC = () => {
   // Responsive / View modes
   const [mobileTab, setMobileTab] = useState<'learning' | 'workspace'>('learning');
   const [rightPanelTab, setRightPanelTab] = useState<'editor' | 'ai'>('editor');
+  const [isAiExplaining, setIsAiExplaining] = useState(false);
+  const [aiExplanationText, setAiExplanationText] = useState<string | null>(null);
 
   // Expandable sections state
   const [expandedSections, setExpandedSections] = useState<Record<string, boolean>>({
@@ -88,6 +91,35 @@ export const ProblemWorkspacePage: React.FC = () => {
       ...prev,
       [sectionKey]: !prev[sectionKey]
     }));
+  };
+
+  // Trigger inline AI concept explanation with expanded view
+  const handleExplainWithAI = async () => {
+    if (!problem) return;
+    setIsAiExplaining(true);
+    setExpandedSections((prev) => ({ ...prev, concept: true }));
+
+    try {
+      const res = await askGroqAI({
+        problemTitle: problem.title,
+        problemDescription: problem.description,
+        language: activeLanguage,
+        code: solutionsByLang[activeLanguage] || '',
+        action: 'explain',
+        question: `Explain this algorithmic problem in depth: core intuition, step-by-step logic, pattern breakdown, and optimal Big-O bounds.`,
+        userId: user?.id,
+      });
+
+      if (res?.reply) {
+        setAiExplanationText(res.reply);
+      } else {
+        setAiExplanationText('Failed to generate explanation. Please try again.');
+      }
+    } catch {
+      setAiExplanationText('AI explainer encountered a network error. Please try again.');
+    } finally {
+      setIsAiExplaining(false);
+    }
   };
 
   const autosaveTimerRef = useRef<NodeJS.Timeout | null>(null);
@@ -547,7 +579,7 @@ export const ProblemWorkspacePage: React.FC = () => {
             </div>
 
             {/* Card 2: Understand the Concept */}
-            <div className={`ws-card ${!expandedSections.concept ? 'is-collapsed' : ''}`}>
+            <div className={`ws-card ws-card-concept ${!expandedSections.concept ? 'is-collapsed' : ''}`}>
               <div 
                 className="ws-section-header ws-card-header-toggle"
                 onClick={() => toggleSection('concept')}
@@ -564,14 +596,16 @@ export const ProblemWorkspacePage: React.FC = () => {
                   <button
                     type="button"
                     className="ws-btn-explain-ai"
-                    onClick={() => {
-                      setRightPanelTab('ai');
-                      setMobileTab('workspace');
-                    }}
-                    title="Ask AI to break down this problem"
+                    onClick={handleExplainWithAI}
+                    disabled={isAiExplaining}
+                    title="Ask AI to break down and explain this problem"
                   >
-                    <Sparkles size={13} color="#0284C7" />
-                    <span>Explain with AI</span>
+                    {isAiExplaining ? (
+                      <Loader2 size={13} className="spin-icon" />
+                    ) : (
+                      <Sparkles size={13} color="#0284C7" />
+                    )}
+                    <span>{isAiExplaining ? 'Generating Analysis...' : 'Explain with AI'}</span>
                   </button>
 
                   <button
@@ -587,29 +621,40 @@ export const ProblemWorkspacePage: React.FC = () => {
 
               {expandedSections.concept && (
                 <div className="ws-card-content">
-                  {problem.theory_content ? (
-                    <div className="ws-theory-content">
-                      <p className="ws-theory-text">{problem.theory_content}</p>
-                      <div className="ws-theory-keypoints">
-                        <div className="ws-keypoint-row">
-                          <span className="ws-keypoint-dot"></span>
-                          <span className="ws-keypoint-text">
-                            <strong>Core Pattern:</strong> {problem.pattern || 'Pattern Recognition'}
-                          </span>
-                        </div>
-                        <div className="ws-keypoint-row">
-                          <span className="ws-keypoint-dot"></span>
-                          <span className="ws-keypoint-text">
-                            <strong>Interview Strategy:</strong> Identify boundary invariants and analyze trade-offs before writing code.
-                          </span>
-                        </div>
+                  {aiExplanationText ? (
+                    <div className="ws-theory-content ws-ai-explanation-box">
+                      <div className="ws-ai-explaining-banner">
+                        <Sparkles size={14} color="#0284C7" />
+                        <span>AI Generated Comprehensive Problem Breakdown</span>
                       </div>
+                      <div className="ws-theory-text ws-markdown-content">
+                        {aiExplanationText.split('\n\n').map((paragraph, idx) => (
+                          <p key={idx}>{paragraph}</p>
+                        ))}
+                      </div>
+                    </div>
+                  ) : isAiExplaining ? (
+                    <div className="ws-ai-loading-container">
+                      <Loader2 size={24} className="spin-icon" />
+                      <p>Consulting Groq AI for in-depth conceptual breakdown and pattern analysis...</p>
                     </div>
                   ) : (
                     <div className="ws-theory-placeholder">
-                      <p className="ws-theory-placeholder-text">
-                        Structured notes for this challenge are being prepared. Click <strong>"Explain with AI"</strong> above to generate an instant explanation!
-                      </p>
+                      <div className="ws-concept-empty-state">
+                        <Sparkles size={28} color="#0284C7" />
+                        <h4 className="ws-concept-empty-title">Deep Conceptual Breakdown</h4>
+                        <p className="ws-theory-placeholder-text">
+                          Before asking AI, this space is kept clean and distraction-free. Click <strong>"Explain with AI"</strong> above to generate an in-depth breakdown covering algorithmic intuition, invariant patterns, and edge cases.
+                        </p>
+                        <button
+                          type="button"
+                          className="ws-btn-explain-ai-large"
+                          onClick={handleExplainWithAI}
+                        >
+                          <Sparkles size={14} />
+                          <span>Explain Problem with AI</span>
+                        </button>
+                      </div>
                     </div>
                   )}
                 </div>
