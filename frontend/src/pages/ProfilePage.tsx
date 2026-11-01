@@ -21,7 +21,8 @@ import {
   KeyRound,
   AlertCircle,
   Trash2,
-  Check
+  Check,
+  BookOpen
 } from 'lucide-react';
 import { 
   fetchUserProfileAnalytics, 
@@ -324,14 +325,38 @@ export const ProfilePage: React.FC = () => {
                 </span>
               </div>
 
+              {/* API Creation Documentation CTA Card */}
+              <div className="byok-docs-banner">
+                <button
+                  type="button"
+                  className="byok-docs-btn"
+                  onClick={() => window.open('/groq-api-setup', '_blank')}
+                  title="Open Step-by-Step API Creation Documentation & Setup Dashboard"
+                >
+                  <div className="byok-docs-btn-left">
+                    <BookOpen size={16} className="byok-docs-icon" />
+                    <div className="byok-docs-text">
+                      <span className="byok-docs-title">API Creation Documentation</span>
+                      <span className="byok-docs-sub">Open Step-by-Step Dashboard Guide</span>
+                    </div>
+                  </div>
+                  <ExternalLink size={14} className="byok-docs-arrow" />
+                </button>
+              </div>
+
               {/* Official Links */}
               <div className="byok-guide-box">
                 <span className="byok-guide-title">How to get your Groq API key:</span>
                 <ul className="byok-guide-steps">
                   <li>
+                    <Link to="/groq-api-setup" target="_blank" className="byok-link">
+                      <strong>Open API Setup Dashboard ↗</strong>
+                    </Link>
+                  </li>
+                  <li>
                     Visit{' '}
                     <a href="https://console.groq.com/keys" target="_blank" rel="noopener noreferrer" className="byok-link">
-                      Groq Console Keys <ExternalLink size={10} />
+                      Official Groq Console Keys <ExternalLink size={10} />
                     </a>
                   </li>
                   <li>Click "Create API Key" and copy the <code>gsk_...</code> key</li>

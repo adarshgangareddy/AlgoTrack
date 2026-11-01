@@ -16,7 +16,8 @@ import {
   ArrowDown,
   KeyRound,
   ShieldCheck,
-  Zap
+  Zap,
+  BookOpen
 } from 'lucide-react';
 import { 
   askGroqAI, 
@@ -103,6 +104,15 @@ export const AIAssistant: React.FC<AIAssistantProps> = ({
 
   useEffect(() => {
     refreshUsage();
+
+    // Auto-refresh quota state when user switches back to this tab (e.g. after setting key on setup dashboard)
+    const handleFocus = () => {
+      refreshUsage();
+    };
+    window.addEventListener('focus', handleFocus);
+    return () => {
+      window.removeEventListener('focus', handleFocus);
+    };
   }, [refreshUsage]);
 
   // Check backend configuration
@@ -409,9 +419,10 @@ export const AIAssistant: React.FC<AIAssistantProps> = ({
               <button
                 type="button"
                 className="notice-action-link"
-                onClick={() => setIsApiKeyModalOpen(true)}
+                onClick={() => window.open('/groq-api-setup', '_blank')}
+                title="Open Groq API Setup Documentation & Dashboard"
               >
-                Configure Key
+                Setup Guide ↗
               </button>
             </div>
           )}
@@ -426,14 +437,26 @@ export const AIAssistant: React.FC<AIAssistantProps> = ({
               <p className="limit-card-desc">
                 You've completed your 3 free application requests. Connect your own free Groq API key to continue uninterrupted DSA mentoring.
               </p>
-              <button
-                type="button"
-                className="limit-card-cta-btn"
-                onClick={() => setIsApiKeyModalOpen(true)}
-              >
-                <KeyRound size={13} />
-                <span>Configure My Groq API Key</span>
-              </button>
+              <div className="limit-card-buttons-row">
+                <button
+                  type="button"
+                  className="limit-card-cta-btn"
+                  onClick={() => window.open('/groq-api-setup', '_blank')}
+                  title="Open Step-by-Step API Documentation & Dashboard"
+                >
+                  <BookOpen size={13} />
+                  <span>API Creation Documentation &amp; Dashboard ↗</span>
+                </button>
+                <button
+                  type="button"
+                  className="limit-card-secondary-btn"
+                  onClick={() => setIsApiKeyModalOpen(true)}
+                  title="Quick Paste Key"
+                >
+                  <KeyRound size={13} />
+                  <span>Paste Key</span>
+                </button>
+              </div>
             </div>
           )}
 

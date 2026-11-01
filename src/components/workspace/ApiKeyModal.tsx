@@ -11,7 +11,8 @@ import {
   X, 
   Trash2, 
   ShieldCheck,
-  Check
+  Check,
+  BookOpen
 } from 'lucide-react';
 import { 
   verifyGroqApiKey, 
@@ -164,34 +165,49 @@ export const ApiKeyModal: React.FC<ApiKeyModalProps> = ({
             To continue using the AI Tutor after your 3 free requests, create your own Groq API key and securely connect it to AlgoTrack. Your key is encrypted with AES-256-GCM and never shared.
           </p>
 
+          {/* Quick Setup Dashboard Banner */}
+          <div className="byok-modal-guide-banner">
+            <button
+              type="button"
+              className="byok-modal-guide-btn"
+              onClick={() => window.open('/groq-api-setup', '_blank')}
+              title="Open Step-by-Step API Creation Dashboard"
+            >
+              <div className="byok-modal-guide-left">
+                <BookOpen size={15} color="#0284C7" />
+                <span>API Creation Documentation &amp; Setup Dashboard</span>
+              </div>
+              <ExternalLink size={13} color="#0284C7" />
+            </button>
+          </div>
+
           {/* Quick Steps & Links */}
           <div className="byok-links-card">
             <div className="byok-links-title">How to get a free Groq API Key:</div>
             <ol className="byok-steps-list">
               <li>
-                Sign in to the{' '}
                 <a
-                  href="https://console.groq.com/"
+                  href="/groq-api-setup"
                   target="_blank"
                   rel="noopener noreferrer"
                   className="byok-external-link"
                 >
-                  Groq Console <ExternalLink size={11} />
+                  <strong>Open Step-by-Step Walkthrough Dashboard ↗</strong>
                 </a>
               </li>
               <li>
-                Open{' '}
+                Sign in to the{' '}
                 <a
                   href="https://console.groq.com/keys"
                   target="_blank"
                   rel="noopener noreferrer"
                   className="byok-external-link"
                 >
-                  Create API Key <ExternalLink size={11} />
-                </a>{' '}
-                and generate a new key
+                  Official Groq Console Keys <ExternalLink size={11} />
+                </a>
               </li>
-              <li>Copy the key starting with <code>gsk_</code> and paste it below</li>
+              <li>Generate a new key and copy the key starting with <code>gsk_</code></li>
+              <li>Paste the key in the field below and click Save Key</li>
             </ol>
             <div className="byok-docs-row">
               <a

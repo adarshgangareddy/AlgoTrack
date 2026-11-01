@@ -11,6 +11,7 @@ import { DashboardPage } from './pages/DashboardPage';
 import { ProblemsPage } from './pages/ProblemsPage';
 import { ProblemWorkspacePage } from './pages/ProblemWorkspacePage';
 import { ProfilePage } from './pages/ProfilePage';
+import { GroqApiSetupPage } from './pages/GroqApiSetupPage';
 
 export function App() {
   return (
@@ -63,6 +64,24 @@ export function App() {
             element={
               <ProtectedRoute>
                 <ProfilePage />
+              </ProtectedRoute>
+            }
+          />
+
+          {/* Groq API Setup Documentation & Key Management Dashboard */}
+          <Route
+            path="/groq-api-setup"
+            element={
+              <ProtectedRoute>
+                <GroqApiSetupPage />
+              </ProtectedRoute>
+            }
+          />
+          <Route
+            path="/api-docs"
+            element={
+              <ProtectedRoute>
+                <GroqApiSetupPage />
               </ProtectedRoute>
             }
           />

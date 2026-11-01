@@ -188,6 +188,40 @@
   margin: 0;
 }
 
+.byok-modal-guide-banner {
+  margin: 2px 0;
+}
+
+.byok-modal-guide-btn {
+  width: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 10px 14px;
+  background: linear-gradient(135deg, #F0F9FF 0%, #E0F2FE 100%);
+  border: 1px solid #BAE6FD;
+  border-radius: 8px;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  text-align: left;
+}
+
+.byok-modal-guide-btn:hover {
+  background: linear-gradient(135deg, #E0F2FE 0%, #BAE6FD 100%);
+  border-color: #7DD3FC;
+  transform: translateY(-1px);
+  box-shadow: 0 2px 8px rgba(2, 132, 199, 0.12);
+}
+
+.byok-modal-guide-left {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 12.5px;
+  font-weight: 700;
+  color: #0369A1;
+}
+
 .byok-links-card {
   background-color: #F8FAFC;
   border: 1px solid #E2E8F0;
