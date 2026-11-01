@@ -326,7 +326,10 @@ export const AIAssistant: React.FC<AIAssistantProps> = ({
           <div className="ai-header-titles">
             <span className="ai-header-title">Groq AI Code Assistant</span>
             <div className="ai-header-meta">
-              <span className="ai-model-tag" title="Configured in backend/.env">
+              <span 
+                className={`ai-model-tag ${isConfigured ? 'is-active' : 'is-pending'}`} 
+                title={isConfigured ? `Connected to Groq (${modelName})` : 'Groq API Key pending in backend/.env'}
+              >
                 {modelName}
               </span>
               <span className="ai-context-pill">
