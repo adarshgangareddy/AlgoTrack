@@ -15,9 +15,9 @@ export const env = {
   SUPABASE_URL: process.env.SUPABASE_URL || '',
   SUPABASE_SERVICE_ROLE_KEY: process.env.SUPABASE_SERVICE_ROLE_KEY || '',
 
-  // Judge0 Configuration (Architected for upcoming Phase 6)
-  JUDGE0_API_URL: process.env.JUDGE0_API_URL || 'https://judge0-ce.p.rapidapi.com',
-  JUDGE0_API_KEY: process.env.JUDGE0_API_KEY || '',
+  // Groq AI Assistant Configuration (Phase 6)
+  GROQ_API_KEY: process.env.GROQ_API_KEY || '',
+  GROQ_MODEL: process.env.GROQ_MODEL || 'llama-3.3-70b-versatile',
 
   isProduction: process.env.NODE_ENV === 'production',
   isDevelopment: process.env.NODE_ENV !== 'production',
