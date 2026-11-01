@@ -25,8 +25,7 @@ import {
   Lightbulb,
   Compass,
   PanelLeftClose,
-  PanelLeftOpen,
-  Copy
+  PanelLeftOpen
 } from 'lucide-react';
 import { 
   fetchProblemBySlug, 
