@@ -678,7 +678,7 @@ export const ProblemWorkspacePage: React.FC = () => {
             </div>
 
             {rightPanelTab === 'ai' ? (
-              /* AI Explainer / Interactive Tutor Component */
+              /* Groq AI Code Assistant Component */
               <AIAssistant
                 problem={{
                   title: problem.title,
@@ -690,6 +690,9 @@ export const ProblemWorkspacePage: React.FC = () => {
                   theory_content: problem.theory_content,
                   hints: problem.hints,
                 }}
+                code={activeCode}
+                language={activeLanguage}
+                userId={user?.id}
               />
             ) : (
               /* Solution Code Editor & Personal Notes */
@@ -706,12 +709,7 @@ export const ProblemWorkspacePage: React.FC = () => {
                   code={activeCode}
                   onChange={handleCodeChange}
                   onResetToTemplate={handleResetTemplate}
-                  onSubmissionSuccess={() => {
-                    setProblemStatus('solved');
-                    setSaveSuccessMsg('Problem solved! Status updated to Solved.');
-                    setTimeout(() => setSaveSuccessMsg(null), 3500);
-                  }}
-                  userId={user?.id}
+                  leetcodeUrl={problem.leetcode_url}
                 />
 
                 {/* Personal Notes & Observations Card */}

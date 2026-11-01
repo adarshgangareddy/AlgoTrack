@@ -5,7 +5,6 @@ import React, { useState, useEffect, useRef, useCallback } from 'react';
 import { 
   Sparkles, 
   Send, 
-  Lightbulb, 
   ShieldAlert, 
   Clock, 
   HelpCircle, 
@@ -15,7 +14,6 @@ import {
   Copy,
   Check,
   Zap,
-  Code2,
   AlertTriangle,
   FileCode,
   ArrowUpRight
