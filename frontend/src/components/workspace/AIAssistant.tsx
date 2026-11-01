@@ -1,27 +1,33 @@
 // src/components/workspace/AIAssistant.tsx
-// AlgoTrack: ChatGPT-Inspired DSA Theory & Concepts Mentor
+// AlgoTrack: ChatGPT-Inspired DSA Theory & Concepts Mentor with BYOK & Usage Management
 
 import React, { useState, useEffect, useRef, useCallback } from 'react';
 import { 
   Sparkles, 
   Clock, 
   HelpCircle, 
-  Loader2,
-  Trash2,
-  RotateCcw,
-  AlertTriangle,
-  Lightbulb,
-  Compass,
-  ArrowUp,
-  ArrowDown
+  Loader2, 
+  Trash2, 
+  RotateCcw, 
+  AlertTriangle, 
+  Lightbulb, 
+  Compass, 
+  ArrowUp, 
+  ArrowDown,
+  KeyRound,
+  ShieldCheck,
+  Zap
 } from 'lucide-react';
 import { 
   askGroqAI, 
   checkAiStatus, 
+  fetchAiUsage,
   type ChatMessage, 
-  type ProblemContext 
+  type ProblemContext,
+  type UserAiUsageSummary
 } from '../../services/aiService';
 import { MarkdownRenderer } from '../common/MarkdownRenderer';
+import { ApiKeyModal } from './ApiKeyModal';
 import './AIAssistant.css';
 
 interface AIAssistantProps {
@@ -62,12 +68,42 @@ export const AIAssistant: React.FC<AIAssistantProps> = ({
   const [lastFailedPrompt, setLastFailedPrompt] = useState<{ action?: string; question?: string } | null>(null);
   const [modelName, setModelName] = useState('llama-3.3-70b-versatile');
 
+  // BYOK & Usage State
+  const [usageSummary, setUsageSummary] = useState<UserAiUsageSummary | null>(null);
+  const [isApiKeyModalOpen, setIsApiKeyModalOpen] = useState(false);
+  const [isLimitReached, setIsLimitReached] = useState(false);
+
+  // Scroll & Dynamic Header Visibility State
+  const [isHeaderVisible, setIsHeaderVisible] = useState(true);
+  const [showScrollBottom, setShowScrollBottom] = useState(false);
+
   const messagesEndRef = useRef<HTMLDivElement>(null);
   const viewportRef = useRef<HTMLDivElement>(null);
   const textareaRef = useRef<HTMLTextAreaElement>(null);
   const lastUserPromptIdRef = useRef<string | null>(null);
   const shouldScrollToPromptRef = useRef<boolean>(false);
-  const [showScrollBottom, setShowScrollBottom] = useState(false);
+  const lastScrollTopRef = useRef<number>(0);
+
+  // Fetch Usage Summary
+  const refreshUsage = useCallback(async () => {
+    if (userId) {
+      try {
+        const summary = await fetchAiUsage(userToken, userId);
+        setUsageSummary(summary);
+        if (!summary.hasCustomKey && summary.freeRequestsRemaining <= 0) {
+          setIsLimitReached(true);
+        } else {
+          setIsLimitReached(false);
+        }
+      } catch {
+        // ignore
+      }
+    }
+  }, [userId, userToken]);
+
+  useEffect(() => {
+    refreshUsage();
+  }, [refreshUsage]);
 
   // Check backend configuration
   useEffect(() => {
@@ -80,25 +116,51 @@ export const AIAssistant: React.FC<AIAssistantProps> = ({
     return () => { isMounted = false; };
   }, []);
 
+  // Handle Scroll: intelligent down-arrow + header auto-hide/reveal
   const handleScroll = () => {
     if (!viewportRef.current) return;
     const { scrollTop, scrollHeight, clientHeight } = viewportRef.current;
+
+    // 1. Floating scroll-to-bottom arrow visibility
     const isScrolledUp = scrollHeight - scrollTop - clientHeight > 100;
     setShowScrollBottom(isScrolledUp);
+
+    // 2. Hide header and quick actions on scroll down, reveal on scroll up
+    const currentScrollTop = scrollTop;
+    const scrollDelta = currentScrollTop - lastScrollTopRef.current;
+
+    if (scrollDelta > 10 && currentScrollTop > 50) {
+      // Scrolling down -> hide header & quick actions to maximize chat space
+      setIsHeaderVisible(false);
+    } else if (scrollDelta < -10 || currentScrollTop <= 20) {
+      // Scrolling up -> reveal header & quick actions smoothly
+      setIsHeaderVisible(true);
+    }
+
+    lastScrollTopRef.current = currentScrollTop;
   };
 
   const scrollToBottom = () => {
     messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' });
   };
 
-  // Scroll to the active user prompt so the user stays anchored at the start of the explanation,
-  // rather than jarringly jumping to the bottom sentence!
+  // Scroll anchoring: Keep view stable at the active prompt, do not force-scroll if reading older messages
   useEffect(() => {
     if (shouldScrollToPromptRef.current && lastUserPromptIdRef.current) {
       const el = document.getElementById(`chat-msg-${lastUserPromptIdRef.current}`);
       if (el) {
         el.scrollIntoView({ behavior: 'smooth', block: 'start' });
         shouldScrollToPromptRef.current = false;
+      }
+      return;
+    }
+
+    // Auto-scroll to latest response ONLY if user is already near bottom
+    if (viewportRef.current) {
+      const { scrollTop, scrollHeight, clientHeight } = viewportRef.current;
+      const isNearBottom = scrollHeight - scrollTop - clientHeight < 140;
+      if (isNearBottom) {
+        messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' });
       }
     }
   }, [messages, isLoading]);
@@ -108,6 +170,17 @@ export const AIAssistant: React.FC<AIAssistantProps> = ({
     async (params: { action?: string; question?: string }) => {
       const { action, question } = params;
       if (isLoading) return;
+
+      // Check client-side limit if known
+      if (
+        usageSummary &&
+        !usageSummary.hasCustomKey &&
+        usageSummary.freeRequestsRemaining <= 0
+      ) {
+        setIsLimitReached(true);
+        setIsApiKeyModalOpen(true);
+        return;
+      }
 
       const userDisplayText = question 
         ? question.trim() 
@@ -131,7 +204,7 @@ export const AIAssistant: React.FC<AIAssistantProps> = ({
       setIsLoading(true);
       setLastFailedPrompt(null);
 
-      // Prepare conversation history (exclude initial greeting)
+      // Prepare conversation history
       const chatHistory = messages
         .filter((m) => m.id !== 'greeting' && !m.isError)
         .map((m) => ({
@@ -160,6 +233,13 @@ export const AIAssistant: React.FC<AIAssistantProps> = ({
           setModelName(response.model);
         }
 
+        if (response.usage) {
+          setUsageSummary(response.usage);
+          if (!response.usage.hasCustomKey && response.usage.freeRequestsRemaining <= 0) {
+            setIsLimitReached(true);
+          }
+        }
+
         const aiMsg: ChatMessage = {
           id: `ai-${Date.now()}`,
           sender: 'ai',
@@ -170,6 +250,9 @@ export const AIAssistant: React.FC<AIAssistantProps> = ({
 
         setMessages((prev) => [...prev, aiMsg]);
       } catch (err: any) {
+        if (err.isLimitReached || err.status === 403) {
+          setIsLimitReached(true);
+        }
         setLastFailedPrompt({ action, question });
         const errorMsg: ChatMessage = {
           id: `err-${Date.now()}`,
@@ -183,7 +266,7 @@ export const AIAssistant: React.FC<AIAssistantProps> = ({
         setIsLoading(false);
       }
     },
-    [isLoading, messages, problem, language, code, userId, userToken]
+    [isLoading, messages, problem, language, code, userId, userToken, usageSummary]
   );
 
   const handleClearConversation = () => {
@@ -213,47 +296,147 @@ export const AIAssistant: React.FC<AIAssistantProps> = ({
 
   const handleInputChange = (e: React.ChangeEvent<HTMLTextAreaElement>) => {
     setInputText(e.target.value);
-    // Auto-adjust textarea height
     e.target.style.height = 'auto';
     e.target.style.height = `${Math.min(e.target.scrollHeight, 120)}px`;
   };
 
+  const isCustomKeyConnected = usageSummary?.hasCustomKey && usageSummary.customKeyStatus === 'connected';
+
   return (
     <div className="chatgpt-ai-tutor-container">
-      {/* 1. Compact Header */}
-      <div className="chatgpt-header">
+      {/* 1. Collapsible Header (Hides smoothly on downward scroll, reveals on upward scroll) */}
+      <div className={`chatgpt-header ${isHeaderVisible ? 'visible' : 'collapsed'}`}>
         <div className="chatgpt-header-left">
           <div className="chatgpt-avatar-badge">
             <Sparkles size={16} />
           </div>
           <div className="chatgpt-header-titles">
-            <h2 className="chatgpt-title">DSA Theory & Concepts Mentor</h2>
-            <div className="chatgpt-badges-row">
+            <div className="chatgpt-title-row">
+              <h2 className="chatgpt-title">DSA Theory & Concepts Mentor</h2>
               <span className="chatgpt-pill-theory">Theory Only</span>
-              <span className="chatgpt-model-name">{modelName.split('-')[0]}</span>
+            </div>
+            <div className="chatgpt-badges-row">
+              <span className="chatgpt-model-name">{modelName.split('/').pop()?.split('-')[0] || 'Groq'}</span>
+              <span className="chatgpt-meta-bullet">&bull;</span>
+              {/* Usage Indicator Badge */}
+              {isCustomKeyConnected ? (
+                <button
+                  type="button"
+                  className="chatgpt-usage-pill byok-pill"
+                  onClick={() => setIsApiKeyModalOpen(true)}
+                  title="Using your personal Groq API key (Click to manage)"
+                >
+                  <ShieldCheck size={11} color="#10B981" />
+                  <span>Personal Key</span>
+                </button>
+              ) : (
+                <button
+                  type="button"
+                  className={`chatgpt-usage-pill free-pill ${
+                    (usageSummary?.freeRequestsRemaining ?? 3) <= 1 ? 'warning' : ''
+                  }`}
+                  onClick={() => setIsApiKeyModalOpen(true)}
+                  title="Click to view usage and connect personal key"
+                >
+                  <Zap size={10} />
+                  <span>Free AI: {usageSummary?.freeRequestsRemaining ?? 3} / {usageSummary?.freeRequestsLimit ?? 3} left</span>
+                </button>
+              )}
             </div>
           </div>
         </div>
 
-        <button
-          type="button"
-          className="chatgpt-btn-reset"
-          onClick={handleClearConversation}
-          title="Reset conversation"
-          aria-label="Reset conversation"
-        >
-          <Trash2 size={14} />
-          <span className="btn-reset-label">Clear</span>
-        </button>
+        <div className="chatgpt-header-actions">
+          {/* Key Settings Button */}
+          <button
+            type="button"
+            className="chatgpt-btn-key"
+            onClick={() => setIsApiKeyModalOpen(true)}
+            title="Configure Personal Groq API Key"
+            aria-label="API Settings"
+          >
+            <KeyRound size={13} />
+            <span className="btn-key-label">Key</span>
+          </button>
+
+          {/* Reset Chat Button */}
+          <button
+            type="button"
+            className="chatgpt-btn-reset"
+            onClick={handleClearConversation}
+            title="Reset conversation"
+            aria-label="Reset conversation"
+          >
+            <Trash2 size={13} />
+            <span className="btn-reset-label">Clear</span>
+          </button>
+        </div>
       </div>
 
-      {/* 2. Scrollable Messages Area */}
+      {/* 2. Collapsible Quick Actions Strip (Hides smoothly on downward scroll) */}
+      <div className={`chatgpt-quick-strip-container ${isHeaderVisible ? 'visible' : 'collapsed'}`}>
+        <div className="chatgpt-quick-actions-strip">
+          {QUICK_ACTIONS.map((action) => {
+            const Icon = action.icon;
+            return (
+              <button
+                key={action.id}
+                type="button"
+                className="quick-action-pill"
+                onClick={() => handleSendPrompt({ action: action.id })}
+                disabled={isLoading}
+              >
+                <Icon size={12} />
+                <span>{action.label}</span>
+              </button>
+            );
+          })}
+        </div>
+      </div>
+
+      {/* 3. Scrollable Messages Area */}
       <div 
         className="chatgpt-messages-viewport" 
         ref={viewportRef}
         onScroll={handleScroll}
       >
         <div className="chatgpt-messages-thread">
+          {/* Free Request Notice when 1 Left */}
+          {!isCustomKeyConnected && usageSummary?.freeRequestsRemaining === 1 && (
+            <div className="chatgpt-notice-strip warning">
+              <AlertTriangle size={13} />
+              <span>You have 1 free AI request remaining. Add your personal Groq key for unlimited practice.</span>
+              <button
+                type="button"
+                className="notice-action-link"
+                onClick={() => setIsApiKeyModalOpen(true)}
+              >
+                Configure Key
+              </button>
+            </div>
+          )}
+
+          {/* Limit Reached Upgrade Banner */}
+          {isLimitReached && !isCustomKeyConnected && (
+            <div className="chatgpt-limit-reached-card">
+              <div className="limit-card-top">
+                <AlertTriangle size={16} color="#D97706" />
+                <span className="limit-card-title">Free AI Message Limit Reached (3/3)</span>
+              </div>
+              <p className="limit-card-desc">
+                You've completed your 3 free application requests. Connect your own free Groq API key to continue uninterrupted DSA mentoring.
+              </p>
+              <button
+                type="button"
+                className="limit-card-cta-btn"
+                onClick={() => setIsApiKeyModalOpen(true)}
+              >
+                <KeyRound size={13} />
+                <span>Configure My Groq API Key</span>
+              </button>
+            </div>
+          )}
+
           {messages.map((msg) => (
             <div 
               key={msg.id} 
@@ -271,7 +454,7 @@ export const AIAssistant: React.FC<AIAssistantProps> = ({
             </div>
           ))}
 
-          {/* AI Thinking Animation */}
+          {/* AI Thinking State */}
           {isLoading && (
             <div className="chatgpt-message-row assistant-row">
               <div className="chatgpt-thinking-state">
@@ -304,7 +487,7 @@ export const AIAssistant: React.FC<AIAssistantProps> = ({
         </div>
       </div>
 
-      {/* Floating Scroll-to-Bottom Button (ChatGPT Style) */}
+      {/* Floating Scroll-to-Bottom Button */}
       {showScrollBottom && (
         <button
           type="button"
@@ -317,37 +500,21 @@ export const AIAssistant: React.FC<AIAssistantProps> = ({
         </button>
       )}
 
-      {/* 3. Bottom Pinned Composer Area */}
+      {/* 4. Bottom Pinned Composer Area */}
       <div className="chatgpt-composer-pinned">
-        {/* Quick Actions Scroll Strip */}
-        <div className="chatgpt-quick-actions-strip">
-          {QUICK_ACTIONS.map((action) => {
-            const Icon = action.icon;
-            return (
-              <button
-                key={action.id}
-                type="button"
-                className="quick-action-pill"
-                onClick={() => handleSendPrompt({ action: action.id })}
-                disabled={isLoading}
-              >
-                <Icon size={13} />
-                <span>{action.label}</span>
-              </button>
-            );
-          })}
-        </div>
-
-        {/* ChatGPT Style Input Box */}
         <div className="chatgpt-composer-box">
           <textarea
             ref={textareaRef}
             className="chatgpt-textarea"
-            placeholder={`Ask about "${problem.title}" intuition, patterns, dry runs...`}
+            placeholder={
+              isLimitReached && !isCustomKeyConnected
+                ? 'Configure your Groq key to message DSA Mentor...'
+                : `Ask about "${problem.title}" intuition, patterns, dry runs...`
+            }
             value={inputText}
             onChange={handleInputChange}
             onKeyDown={handleKeyDown}
-            disabled={isLoading}
+            disabled={isLoading || (isLimitReached && !isCustomKeyConnected)}
             rows={1}
             aria-label="Message DSA Mentor"
           />
@@ -360,7 +527,7 @@ export const AIAssistant: React.FC<AIAssistantProps> = ({
                 handleSendPrompt({ question: inputText.trim() });
               }
             }}
-            disabled={!inputText.trim() || isLoading}
+            disabled={!inputText.trim() || isLoading || (isLimitReached && !isCustomKeyConnected)}
             aria-label="Send message"
             title="Send (Enter)"
           >
@@ -376,6 +543,16 @@ export const AIAssistant: React.FC<AIAssistantProps> = ({
           DSA Theory Mentor guides algorithmic intuition &bull; Complete solution code is restricted to promote mastery.
         </div>
       </div>
+
+      {/* BYOK Configuration Modal */}
+      <ApiKeyModal
+        isOpen={isApiKeyModalOpen}
+        onClose={() => setIsApiKeyModalOpen(false)}
+        usageSummary={usageSummary}
+        onKeyUpdated={refreshUsage}
+        token={userToken}
+        userId={userId}
+      />
     </div>
   );
 };

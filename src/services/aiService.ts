@@ -1,5 +1,5 @@
 // src/services/aiService.ts
-// AlgoTrack Phase 6: Groq AI Code Assistant Client Service
+// AlgoTrack: Groq AI Code Assistant Client Service with BYOK & Free Usage Tracking
 
 const API_BASE_URL = (import.meta.env?.VITE_API_BASE_URL || 'http://localhost:5000/api').replace(/\/$/, '');
 
@@ -25,6 +25,15 @@ export interface ProblemContext {
   constraints?: string[];
 }
 
+export interface UserAiUsageSummary {
+  freeRequestsLimit: number;
+  freeRequestsUsed: number;
+  freeRequestsRemaining: number;
+  hasCustomKey: boolean;
+  customKeyMasked: string | null;
+  customKeyStatus: 'connected' | 'invalid' | 'none';
+}
+
 export interface AskAiParams {
   problemTitle: string;
   problemDescription?: string;
@@ -45,22 +54,28 @@ export interface AiResponse {
   reply: string;
   model: string;
   action?: string;
+  providerType?: 'application' | 'user';
+  usage?: UserAiUsageSummary;
+}
+
+function buildAuthHeaders(token?: string | null, userId?: string | null): Record<string, string> {
+  const headers: Record<string, string> = {
+    'Content-Type': 'application/json',
+  };
+  if (token) {
+    headers['Authorization'] = `Bearer ${token}`;
+  }
+  if (userId) {
+    headers['x-user-id'] = userId;
+  }
+  return headers;
 }
 
 /**
  * Sends problem context and question to backend Groq AI Assistant
  */
 export async function askGroqAI(params: AskAiParams): Promise<AiResponse> {
-  const headers: Record<string, string> = {
-    'Content-Type': 'application/json',
-  };
-
-  if (params.token) {
-    headers['Authorization'] = `Bearer ${params.token}`;
-  }
-  if (params.userId) {
-    headers['x-user-id'] = params.userId;
-  }
+  const headers = buildAuthHeaders(params.token, params.userId);
 
   try {
     const response = await fetch(`${API_BASE_URL}/ai/chat`, {
@@ -83,9 +98,19 @@ export async function askGroqAI(params: AskAiParams): Promise<AiResponse> {
 
     if (!response.ok) {
       const errJson = await response.json().catch(() => null);
-      throw new Error(
-        errJson?.message || `AI service returned HTTP ${response.status}: ${response.statusText}`
-      );
+      const errorMsg =
+        errJson?.message || `AI service returned HTTP ${response.status}: ${response.statusText}`;
+
+      const err = new Error(errorMsg) as Error & { status?: number; isLimitReached?: boolean };
+      err.status = response.status;
+      if (
+        response.status === 403 ||
+        errorMsg.toLowerCase().includes('free ai tutor messages') ||
+        errorMsg.toLowerCase().includes('used all 3')
+      ) {
+        err.isLimitReached = true;
+      }
+      throw err;
     }
 
     const data = await response.json();
@@ -99,6 +124,104 @@ export async function askGroqAI(params: AskAiParams): Promise<AiResponse> {
     }
     throw err;
   }
+}
+
+/**
+ * Fetches user's AI free usage and personal key status
+ */
+export async function fetchAiUsage(
+  token?: string | null,
+  userId?: string | null
+): Promise<UserAiUsageSummary> {
+  const headers = buildAuthHeaders(token, userId);
+  try {
+    const res = await fetch(`${API_BASE_URL}/ai/usage`, { headers });
+    if (!res.ok) {
+      return {
+        freeRequestsLimit: 3,
+        freeRequestsUsed: 0,
+        freeRequestsRemaining: 3,
+        hasCustomKey: false,
+        customKeyMasked: null,
+        customKeyStatus: 'none',
+      };
+    }
+    const data = await res.json();
+    return data.data;
+  } catch {
+    return {
+      freeRequestsLimit: 3,
+      freeRequestsUsed: 0,
+      freeRequestsRemaining: 3,
+      hasCustomKey: false,
+      customKeyMasked: null,
+      customKeyStatus: 'none',
+    };
+  }
+}
+
+/**
+ * Verifies a submitted Groq API key with Groq without storing it
+ */
+export async function verifyGroqApiKey(
+  apiKey: string,
+  token?: string | null,
+  userId?: string | null
+): Promise<{ valid: boolean; model: string }> {
+  const headers = buildAuthHeaders(token, userId);
+  const res = await fetch(`${API_BASE_URL}/ai/key/verify`, {
+    method: 'POST',
+    headers,
+    body: JSON.stringify({ apiKey }),
+  });
+
+  const data = await res.json().catch(() => null);
+  if (!res.ok) {
+    throw new Error(data?.message || 'Failed to verify Groq API key.');
+  }
+  return data.data;
+}
+
+/**
+ * Verifies, encrypts, and securely saves the user's personal Groq API key
+ */
+export async function saveGroqApiKey(
+  apiKey: string,
+  token?: string | null,
+  userId?: string | null
+): Promise<{ status: string; maskedKey: string; model: string }> {
+  const headers = buildAuthHeaders(token, userId);
+  const res = await fetch(`${API_BASE_URL}/ai/key`, {
+    method: 'POST',
+    headers,
+    body: JSON.stringify({ apiKey }),
+  });
+
+  const data = await res.json().catch(() => null);
+  if (!res.ok) {
+    throw new Error(data?.message || 'Failed to save Groq API key.');
+  }
+  return data.data;
+}
+
+/**
+ * Removes the user's stored personal Groq key
+ */
+export async function deleteGroqApiKey(
+  token?: string | null,
+  userId?: string | null
+): Promise<{ status: string }> {
+  const headers = buildAuthHeaders(token, userId);
+  const res = await fetch(`${API_BASE_URL}/ai/key`, {
+    method: 'DELETE',
+    headers,
+  });
+
+  const data = await res.json().catch(() => null);
+  if (!res.ok) {
+    throw new Error(data?.message || 'Failed to remove Groq API key.');
+  }
+  return data.data;
 }
 
 /**

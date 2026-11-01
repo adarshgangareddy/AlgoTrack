@@ -13,7 +13,7 @@
 }
 
 /* ==========================================================================
-   1. Compact Header
+   1. Compact Collapsible Header (Auto-hides on scroll down, reveals on scroll up)
    ========================================================================== */
 
 .chatgpt-header {
@@ -25,6 +25,27 @@
   border-bottom: 1px solid #F1F5F9;
   flex-shrink: 0;
   z-index: 10;
+  transition: transform 0.25s cubic-bezier(0.16, 1, 0.3, 1),
+              opacity 0.2s ease,
+              max-height 0.25s cubic-bezier(0.16, 1, 0.3, 1),
+              padding 0.25s ease;
+  max-height: 54px;
+  overflow: hidden;
+}
+
+.chatgpt-header.collapsed {
+  transform: translateY(-100%);
+  opacity: 0;
+  max-height: 0;
+  padding-top: 0;
+  padding-bottom: 0;
+  border-bottom-color: transparent;
+  pointer-events: none;
+}
+
+.chatgpt-header.visible {
+  transform: translateY(0);
+  opacity: 1;
 }
 
 .chatgpt-header-left {
@@ -50,6 +71,12 @@
   display: flex;
   flex-direction: column;
   min-width: 0;
+}
+
+.chatgpt-title-row {
+  display: flex;
+  align-items: center;
+  gap: 6px;
 }
 
 .chatgpt-title {
@@ -86,6 +113,73 @@
   font-family: var(--font-mono, monospace);
 }
 
+.chatgpt-meta-bullet {
+  font-size: 10px;
+  color: #CBD5E1;
+}
+
+/* Usage Indicator Pills */
+.chatgpt-usage-pill {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  font-size: 10px;
+  font-weight: 600;
+  padding: 1px 6px;
+  border-radius: 4px;
+  border: none;
+  cursor: pointer;
+  transition: all 0.15s ease;
+}
+
+.chatgpt-usage-pill.free-pill {
+  background-color: #F1F5F9;
+  color: #475569;
+}
+
+.chatgpt-usage-pill.free-pill.warning {
+  background-color: #FEF3C7;
+  color: #B45309;
+  animation: pulseGentle 2s infinite ease-in-out;
+}
+
+.chatgpt-usage-pill.byok-pill {
+  background-color: #ECFDF5;
+  color: #047857;
+}
+
+.chatgpt-usage-pill:hover {
+  filter: brightness(0.95);
+  transform: translateY(-1px);
+}
+
+.chatgpt-header-actions {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  flex-shrink: 0;
+}
+
+.chatgpt-btn-key {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  padding: 4px 8px;
+  font-size: 11.5px;
+  font-weight: 600;
+  color: #0284C7;
+  background-color: #F0F9FF;
+  border: 1px solid #BAE6FD;
+  border-radius: 6px;
+  cursor: pointer;
+  transition: all 0.15s ease;
+}
+
+.chatgpt-btn-key:hover {
+  background-color: #E0F2FE;
+  border-color: #7DD3FC;
+}
+
 .chatgpt-btn-reset {
   display: inline-flex;
   align-items: center;
@@ -109,14 +203,88 @@
 }
 
 /* ==========================================================================
-   2. Scrollable Message Thread (Cardless, Spacious ChatGPT Reading Style)
+   2. Collapsible Quick Actions Strip
+   ========================================================================== */
+
+.chatgpt-quick-strip-container {
+  flex-shrink: 0;
+  background-color: #FFFFFF;
+  border-bottom: 1px solid #F1F5F9;
+  transition: transform 0.25s cubic-bezier(0.16, 1, 0.3, 1),
+              opacity 0.2s ease,
+              max-height 0.25s cubic-bezier(0.16, 1, 0.3, 1),
+              padding 0.25s ease;
+  max-height: 48px;
+  overflow: hidden;
+  padding: 6px 14px;
+}
+
+.chatgpt-quick-strip-container.collapsed {
+  transform: translateY(-100%);
+  opacity: 0;
+  max-height: 0;
+  padding-top: 0;
+  padding-bottom: 0;
+  border-bottom-color: transparent;
+  pointer-events: none;
+}
+
+.chatgpt-quick-strip-container.visible {
+  transform: translateY(0);
+  opacity: 1;
+}
+
+.chatgpt-quick-actions-strip {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  overflow-x: auto;
+  -webkit-overflow-scrolling: touch;
+  scrollbar-width: none;
+}
+
+.chatgpt-quick-actions-strip::-webkit-scrollbar {
+  display: none;
+}
+
+.quick-action-pill {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  padding: 4px 10px;
+  font-size: 11.5px;
+  font-weight: 500;
+  color: #475569;
+  background-color: #F8FAFC;
+  border: 1px solid #E2E8F0;
+  border-radius: 9999px;
+  cursor: pointer;
+  white-space: nowrap;
+  transition: all 0.15s ease;
+  flex-shrink: 0;
+}
+
+.quick-action-pill:hover:not(:disabled) {
+  background-color: #E0F2FE;
+  border-color: #BAE6FD;
+  color: #0284C7;
+  transform: translateY(-1px);
+}
+
+.quick-action-pill:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+/* ==========================================================================
+   3. Scrollable Message Thread
    ========================================================================== */
 
 .chatgpt-messages-viewport {
   flex: 1 1 auto;
   overflow-y: auto;
   -webkit-overflow-scrolling: touch;
-  padding: 20px 16px 28px 16px;
+  padding: 16px 16px 24px 16px;
   background-color: #FFFFFF;
 }
 
@@ -129,10 +297,95 @@
   width: 100%;
 }
 
+/* Notice Strip for 1 free request remaining */
+.chatgpt-notice-strip {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+  padding: 8px 12px;
+  border-radius: 8px;
+  font-size: 12px;
+  line-height: 1.4;
+}
+
+.chatgpt-notice-strip.warning {
+  background-color: #FFFBEB;
+  border: 1px solid #FDE68A;
+  color: #92400E;
+}
+
+.notice-action-link {
+  background: transparent;
+  border: none;
+  color: #B45309;
+  font-weight: 700;
+  text-decoration: underline;
+  cursor: pointer;
+  white-space: nowrap;
+  padding: 0;
+  font-size: 12px;
+}
+
+.notice-action-link:hover {
+  color: #78350F;
+}
+
+/* Limit Reached Upgrade Card */
+.chatgpt-limit-reached-card {
+  background: linear-gradient(135deg, #FFFBEB 0%, #FEF3C7 100%);
+  border: 1px solid #FCD34D;
+  border-radius: 12px;
+  padding: 14px 16px;
+  box-shadow: 0 4px 12px rgba(217, 119, 6, 0.08);
+}
+
+.limit-card-top {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin-bottom: 6px;
+}
+
+.limit-card-title {
+  font-size: 13.5px;
+  font-weight: 700;
+  color: #92400E;
+}
+
+.limit-card-desc {
+  font-size: 12.5px;
+  color: #78350F;
+  margin: 0 0 12px 0;
+  line-height: 1.5;
+}
+
+.limit-card-cta-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  height: 32px;
+  padding: 0 14px;
+  font-size: 12px;
+  font-weight: 700;
+  background-color: #D97706;
+  color: #FFFFFF;
+  border: none;
+  border-radius: 6px;
+  cursor: pointer;
+  transition: all 0.15s ease;
+  box-shadow: 0 2px 6px rgba(217, 119, 6, 0.25);
+}
+
+.limit-card-cta-btn:hover {
+  background-color: #B45309;
+  transform: translateY(-1px);
+}
+
 .chatgpt-message-row {
   display: flex;
   width: 100%;
-  scroll-margin-top: 140px;
+  scroll-margin-top: 10px;
 }
 
 .chatgpt-message-row.user-row {
@@ -143,13 +396,11 @@
   justify-content: flex-start;
 }
 
-/* Message Bubbles */
 .message-bubble {
   position: relative;
   box-sizing: border-box;
 }
 
-/* User Message: Sleek Pill aligned right, like ChatGPT */
 .user-bubble {
   max-width: 85%;
   background-color: #F4F4F5;
@@ -169,7 +420,6 @@
   color: #09090B;
 }
 
-/* Assistant Message: No Box, No Border, No Card Background, Spans Full Width */
 .assistant-bubble {
   max-width: 100%;
   width: 100%;
@@ -200,7 +450,7 @@
   text-align: right;
 }
 
-/* Thinking State (Simple, Clean, Minimalist) */
+/* Thinking State */
 .chatgpt-thinking-state {
   display: inline-flex;
   align-items: center;
@@ -265,8 +515,36 @@
   cursor: pointer;
 }
 
+/* Floating Scroll to Bottom Button */
+.chatgpt-scroll-bottom-btn {
+  position: absolute;
+  bottom: 82px;
+  right: 18px;
+  width: 34px;
+  height: 34px;
+  border-radius: 50%;
+  background-color: #FFFFFF;
+  border: 1px solid #CBD5E1;
+  box-shadow: 0 4px 14px rgba(15, 23, 42, 0.15);
+  color: #0F172A;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  z-index: 25;
+  transition: all 0.2s ease;
+}
+
+.chatgpt-scroll-bottom-btn:hover {
+  background-color: #F8FAFC;
+  transform: translateY(-2px);
+  box-shadow: 0 6px 18px rgba(15, 23, 42, 0.2);
+  color: #0284C7;
+  border-color: #BAE6FD;
+}
+
 /* ==========================================================================
-   3. Bottom Composer Area
+   4. Bottom Composer Area
    ========================================================================== */
 
 .chatgpt-composer-pinned {
@@ -280,51 +558,6 @@
   z-index: 10;
 }
 
-/* Quick Actions Pill Strip */
-.chatgpt-quick-actions-strip {
-  display: flex;
-  align-items: center;
-  gap: 6px;
-  overflow-x: auto;
-  -webkit-overflow-scrolling: touch;
-  scrollbar-width: none;
-  padding-bottom: 2px;
-}
-
-.chatgpt-quick-actions-strip::-webkit-scrollbar {
-  display: none;
-}
-
-.quick-action-pill {
-  display: inline-flex;
-  align-items: center;
-  gap: 5px;
-  padding: 4px 10px;
-  font-size: 11.5px;
-  font-weight: 500;
-  color: #475569;
-  background-color: #F8FAFC;
-  border: 1px solid #E2E8F0;
-  border-radius: 9999px;
-  cursor: pointer;
-  white-space: nowrap;
-  transition: all 0.15s ease;
-  flex-shrink: 0;
-}
-
-.quick-action-pill:hover:not(:disabled) {
-  background-color: #E0F2FE;
-  border-color: #BAE6FD;
-  color: #0284C7;
-  transform: translateY(-1px);
-}
-
-.quick-action-pill:disabled {
-  opacity: 0.5;
-  cursor: not-allowed;
-}
-
-/* ChatGPT Input Box */
 .chatgpt-composer-box {
   display: flex;
   align-items: flex-end;
@@ -393,32 +626,9 @@
   line-height: 1.3;
 }
 
-/* Floating Scroll to Bottom Button */
-.chatgpt-scroll-bottom-btn {
-  position: absolute;
-  bottom: 82px;
-  right: 18px;
-  width: 34px;
-  height: 34px;
-  border-radius: 50%;
-  background-color: #FFFFFF;
-  border: 1px solid #CBD5E1;
-  box-shadow: 0 4px 14px rgba(15, 23, 42, 0.15);
-  color: #0F172A;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  cursor: pointer;
-  z-index: 25;
-  transition: all 0.2s ease;
-}
-
-.chatgpt-scroll-bottom-btn:hover {
-  background-color: #F8FAFC;
-  transform: translateY(-2px);
-  box-shadow: 0 6px 18px rgba(15, 23, 42, 0.2);
-  color: #0284C7;
-  border-color: #BAE6FD;
+@keyframes pulseGentle {
+  0%, 100% { opacity: 1; }
+  50% { opacity: 0.7; }
 }
 
 /* ==========================================================================
@@ -442,7 +652,8 @@
     flex-shrink: 0 !important;
   }
 
-  .btn-reset-label {
+  .btn-reset-label,
+  .btn-key-label {
     display: none;
   }
 
@@ -454,11 +665,11 @@
     flex: 1 1 auto !important;
     overflow-y: auto !important;
     -webkit-overflow-scrolling: touch !important;
-    padding: 14px 12px 16px 12px !important;
+    padding: 12px 10px 14px 10px !important;
   }
 
   .chatgpt-messages-thread {
-    gap: 16px;
+    gap: 14px;
   }
 
   .user-bubble {

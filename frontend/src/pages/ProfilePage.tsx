@@ -17,21 +17,113 @@ import {
   Loader2, 
   Mail, 
   ShieldCheck, 
-  LogOut 
+  LogOut,
+  KeyRound,
+  AlertCircle,
+  Trash2,
+  Check
 } from 'lucide-react';
 import { 
   fetchUserProfileAnalytics, 
   type ProfileAnalyticsData 
 } from '../services/profileService';
+import {
+  fetchAiUsage,
+  verifyGroqApiKey,
+  saveGroqApiKey,
+  deleteGroqApiKey,
+  type UserAiUsageSummary
+} from '../services/aiService';
 import { AppNavbar } from '../components/layout/AppNavbar';
 import './ProfilePage.css';
 
 export const ProfilePage: React.FC = () => {
-  const { user, profile, signOut } = useAuth();
+  const { user, session, profile, signOut } = useAuth();
   const navigate = useNavigate();
 
   const [analytics, setAnalytics] = useState<ProfileAnalyticsData | null>(null);
   const [loading, setLoading] = useState(true);
+
+  // AI Provider Settings State
+  const [aiUsage, setAiUsage] = useState<UserAiUsageSummary | null>(null);
+  const [apiKeyInput, setApiKeyInput] = useState('');
+  const [isVerifying, setIsVerifying] = useState(false);
+  const [isSaving, setIsSaving] = useState(false);
+  const [isDeleting, setIsDeleting] = useState(false);
+  const [keyError, setKeyError] = useState<string | null>(null);
+  const [keySuccess, setKeySuccess] = useState<string | null>(null);
+
+  const loadAiUsage = async () => {
+    if (user?.id) {
+      try {
+        const usage = await fetchAiUsage(session?.access_token, user.id);
+        setAiUsage(usage);
+      } catch {
+        // ignore
+      }
+    }
+  };
+
+  useEffect(() => {
+    loadAiUsage();
+  }, [user?.id, session?.access_token]);
+
+  const handleVerifyKey = async () => {
+    if (!apiKeyInput.trim()) {
+      setKeyError('Please enter your Groq API key.');
+      return;
+    }
+    setKeyError(null);
+    setKeySuccess(null);
+    setIsVerifying(true);
+    try {
+      const res = await verifyGroqApiKey(apiKeyInput.trim(), session?.access_token, user?.id);
+      setKeySuccess(`Valid Groq key! Model verified: ${res.model}`);
+    } catch (err: any) {
+      setKeyError(err.message || 'Verification failed. Please check your key.');
+    } finally {
+      setIsVerifying(false);
+    }
+  };
+
+  const handleSaveKey = async (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!apiKeyInput.trim()) {
+      setKeyError('Please paste your Groq API key.');
+      return;
+    }
+    setKeyError(null);
+    setKeySuccess(null);
+    setIsSaving(true);
+    try {
+      await saveGroqApiKey(apiKeyInput.trim(), session?.access_token, user?.id);
+      setApiKeyInput('');
+      setKeySuccess('Personal Groq API key saved and connected securely!');
+      await loadAiUsage();
+    } catch (err: any) {
+      setKeyError(err.message || 'Failed to save Groq API key.');
+    } finally {
+      setIsSaving(false);
+    }
+  };
+
+  const handleDeleteKey = async () => {
+    if (!window.confirm('Are you sure you want to remove your personal Groq API key?')) {
+      return;
+    }
+    setKeyError(null);
+    setKeySuccess(null);
+    setIsDeleting(true);
+    try {
+      await deleteGroqApiKey(session?.access_token, user?.id);
+      setKeySuccess('Personal Groq key removed.');
+      await loadAiUsage();
+    } catch (err: any) {
+      setKeyError(err.message || 'Failed to delete key.');
+    } finally {
+      setIsDeleting(false);
+    }
+  };
 
   const handleLogout = async () => {
     await signOut();
@@ -204,6 +296,116 @@ export const ProfilePage: React.FC = () => {
                 <span className="insight-label">Consistency:</span>
                 <span className="insight-value">{analytics?.insights.practiceConsistency}</span>
               </div>
+            </div>
+
+            {/* 3. AI Provider Settings (BYOK) Card */}
+            <div className="profile-card profile-byok-card">
+              <div className="byok-card-header">
+                <div className="byok-card-title-group">
+                  <KeyRound size={16} color="#0284C7" />
+                  <h3 className="profile-card-title" style={{ margin: 0 }}>AI Provider Settings</h3>
+                </div>
+                <span className={`byok-badge ${aiUsage?.hasCustomKey && aiUsage.customKeyStatus === 'connected' ? 'connected' : 'free'}`}>
+                  {aiUsage?.hasCustomKey && aiUsage.customKeyStatus === 'connected' ? 'BYOK Connected' : 'Free Tier'}
+                </span>
+              </div>
+
+              <p className="byok-card-explanation">
+                To continue using the AI Tutor after your 3 free requests, create your own Groq API key and securely connect it to AlgoTrack.
+              </p>
+
+              {/* Usage & Status Row */}
+              <div className="byok-usage-stat-box">
+                <span className="byok-stat-label">AI Tutor Access:</span>
+                <span className="byok-stat-value">
+                  {aiUsage?.hasCustomKey && aiUsage.customKeyStatus === 'connected'
+                    ? `Personal Key (${aiUsage.customKeyMasked || 'gsk_••••••••••••••••'})`
+                    : `Free requests: ${aiUsage?.freeRequestsRemaining ?? 3} / ${aiUsage?.freeRequestsLimit ?? 3} remaining`}
+                </span>
+              </div>
+
+              {/* Official Links */}
+              <div className="byok-guide-box">
+                <span className="byok-guide-title">How to get your Groq API key:</span>
+                <ul className="byok-guide-steps">
+                  <li>
+                    Visit{' '}
+                    <a href="https://console.groq.com/keys" target="_blank" rel="noopener noreferrer" className="byok-link">
+                      Groq Console Keys <ExternalLink size={10} />
+                    </a>
+                  </li>
+                  <li>Click "Create API Key" and copy the <code>gsk_...</code> key</li>
+                  <li>
+                    <a href="https://console.groq.com/docs/quickstart" target="_blank" rel="noopener noreferrer" className="byok-link">
+                      Groq Documentation <ExternalLink size={10} />
+                    </a>
+                  </li>
+                </ul>
+              </div>
+
+              {/* Key Form */}
+              <form onSubmit={handleSaveKey} className="byok-profile-form">
+                <label htmlFor="profile-groq-key" className="byok-input-label">
+                  {aiUsage?.hasCustomKey ? 'Update Groq API Key' : 'Connect Groq API Key'}
+                </label>
+                <input
+                  id="profile-groq-key"
+                  type="password"
+                  className="byok-input-field"
+                  placeholder="gsk_..."
+                  value={apiKeyInput}
+                  onChange={(e) => setApiKeyInput(e.target.value)}
+                  autoComplete="off"
+                />
+
+                {keyError && (
+                  <div className="byok-alert error">
+                    <AlertCircle size={13} />
+                    <span>{keyError}</span>
+                  </div>
+                )}
+
+                {keySuccess && (
+                  <div className="byok-alert success">
+                    <CheckCircle2 size={13} />
+                    <span>{keySuccess}</span>
+                  </div>
+                )}
+
+                <div className="byok-btn-row">
+                  {aiUsage?.hasCustomKey && (
+                    <button
+                      type="button"
+                      className="byok-action-btn delete"
+                      onClick={handleDeleteKey}
+                      disabled={isDeleting}
+                      title="Remove stored key"
+                    >
+                      {isDeleting ? <Loader2 size={13} className="spin-icon" /> : <Trash2 size={13} />}
+                      <span>Remove</span>
+                    </button>
+                  )}
+
+                  <button
+                    type="button"
+                    className="byok-action-btn verify"
+                    onClick={handleVerifyKey}
+                    disabled={!apiKeyInput.trim() || isVerifying || isSaving}
+                  >
+                    {isVerifying ? <Loader2 size={13} className="spin-icon" /> : null}
+                    <span>Verify</span>
+                  </button>
+
+                  <button
+                    type="submit"
+                    className="byok-action-btn save"
+                    disabled={!apiKeyInput.trim() || isSaving || isVerifying}
+                  >
+                    {isSaving ? <Loader2 size={13} className="spin-icon" /> : <Check size={13} />}
+                    <span>Save Key</span>
+                  </button>
+                </div>
+              </form>
             </div>
           </aside>
 

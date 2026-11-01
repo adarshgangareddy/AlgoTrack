@@ -62,7 +62,7 @@ const STORAGE_KEYS = {
 
 export const ProblemWorkspacePage: React.FC = () => {
   const { slug } = useParams<{ slug: string }>();
-  const { user, profile, signOut } = useAuth();
+  const { user, session, profile, signOut } = useAuth();
   const navigate = useNavigate();
 
   // Profile dropdown in header
@@ -1014,6 +1014,7 @@ export const ProblemWorkspacePage: React.FC = () => {
                   code={activeCode}
                   language={activeLanguage}
                   userId={user?.id}
+                  userToken={session?.access_token}
                 />
               </div>
 

@@ -2,17 +2,28 @@
 
 import { Router } from 'express';
 import { AiController } from '../controllers/ai.controller.js';
-import { optionalAuth } from '../middleware/auth.middleware.js';
+import { requireAuth, optionalAuth } from '../middleware/auth.middleware.js';
 import { validateBody } from '../middleware/validate.middleware.js';
-import { aiChatSchema } from '../validators/ai.validator.js';
+import { aiChatSchema, apiKeySchema } from '../validators/ai.validator.js';
 
 const router = Router();
 
-// POST /api/ai/chat (AI code analysis and interactive mentoring)
+// POST /api/ai/chat (Interactive AI mentoring with BYOK & usage limits)
 router.post('/chat', optionalAuth, validateBody(aiChatSchema), AiController.chat);
 
-// GET /api/ai/status (Check if Groq API is active)
+// GET /api/ai/usage (Retrieve user free request count & BYOK status)
+router.get('/usage', requireAuth, AiController.getUsage);
+
+// POST /api/ai/key/verify (Verify personal Groq key without saving)
+router.post('/key/verify', requireAuth, validateBody(apiKeySchema), AiController.verifyKey);
+
+// POST /api/ai/key (Verify and securely encrypt & save personal Groq key)
+router.post('/key', requireAuth, validateBody(apiKeySchema), AiController.saveKey);
+
+// DELETE /api/ai/key (Remove personal Groq key)
+router.delete('/key', requireAuth, AiController.deleteKey);
+
+// GET /api/ai/status (System AI status and default model)
 router.get('/status', AiController.status);
 
 export default router;
-

@@ -24,3 +24,10 @@ export const aiChatSchema = z.object({
     .optional(),
 });
 
+export const apiKeySchema = z.object({
+  apiKey: z
+    .string()
+    .min(10, 'API key must be at least 10 characters')
+    .max(200, 'API key is too long')
+    .regex(/^gsk_[a-zA-Z0-9_-]+$/, 'Groq API keys must begin with "gsk_" followed by valid key characters'),
+});
