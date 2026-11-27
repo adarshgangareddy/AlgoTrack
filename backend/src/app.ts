@@ -3,6 +3,7 @@
 import express, { Request, Response, NextFunction } from 'express';
 import cors from 'cors';
 import { env } from './config/env.js';
+import { getSupabaseClient } from './config/supabase.js';
 import { rateLimit } from './middleware/rateLimit.middleware.js';
 import { errorHandler } from './middleware/error.middleware.js';
 import { ApiError } from './utils/ApiError.js';
@@ -47,8 +48,22 @@ export function createApp() {
   app.use(express.urlencoded({ extended: true, limit: '1mb' }));
   app.use(rateLimit({ windowMs: 60 * 1000, max: 200 }));
 
-  // 2. Health Check Endpoint
-  app.get('/api/health', (_req: Request, res: Response) => {
+  // 2. Health Check Endpoint (also pings Supabase with a lightweight HEAD query to prevent free-tier pausing)
+  app.get('/api/health', async (_req: Request, res: Response) => {
+    let database: 'connected' | 'error' | 'not_configured' = 'not_configured';
+    const supabase = getSupabaseClient();
+
+    if (supabase) {
+      try {
+        const { error } = await supabase
+          .from('topics')
+          .select('id', { count: 'exact', head: true });
+        database = error ? 'error' : 'connected';
+      } catch {
+        database = 'error';
+      }
+    }
+
     res.status(200).json(
       ApiResponse.success(
         {
@@ -57,6 +72,7 @@ export function createApp() {
           timestamp: new Date().toISOString(),
           service: 'AlgoTrack Backend API',
           version: '1.0.0',
+          database,
         },
         'AlgoTrack API server is healthy and running'
       )

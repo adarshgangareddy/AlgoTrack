@@ -104,11 +104,11 @@ To enable **Continue with Google** in production and local development:
 ## 5. Keeping the Application Online 24/7
 
 - **Frontend (Vercel)**: Static SPA served from Vercel's global edge CDN — always online with zero cold starts.
-- **Backend (Render Free Tier)**: Render's free web services spin down after 15 minutes of inactivity, causing a 30–60 second cold start on the next request. To keep it warm 24/7 for free:
-  1. Sign up for a free uptime monitor such as [UptimeRobot](https://uptimerobot.com) or [cron-job.org](https://cron-job.org).
-  2. Create an **HTTP(S) monitor** targeting your backend health endpoint:
-     `https://<your-render-service>.onrender.com/api/health`
-  3. Set the check interval to **every 10 minutes** (anything under 14 minutes prevents Render from sleeping).
-- **Database (Supabase Free Tier)**: Supabase pauses free-tier projects after 7 days of zero database activity. Occasional traffic or a scheduled ping keeps it active.
+- **Backend (Render Free Tier) & Database (Supabase Free Tier)**: Render sleeps after 15 minutes of inactivity, and Supabase pauses free projects after 7 days of zero DB activity. `/api/health` includes a lightweight `HEAD` query to Supabase, so a single free uptime monitor keeps **both** Render and Supabase awake 24/7:
+  1. Sign up for a free account at [UptimeRobot](https://uptimerobot.com) (or [cron-job.org](https://cron-job.org)).
+  2. Click **Add New Monitor** → **HTTP(s)**.
+  3. Set **URL** to `https://<your-render-service>.onrender.com/api/health`.
+  4. Set **Monitoring Interval** to **5 minutes** (UptimeRobot free plan) or **10 minutes** (anything under 14 minutes prevents Render from sleeping).
+  5. Save — your backend and Supabase database will now stay active 24/7.
 
 
