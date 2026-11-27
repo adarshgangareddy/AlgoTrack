@@ -75,3 +75,40 @@ This guide outlines the production deployment for AlgoTrack.
 2. In **Render**, update `FRONTEND_URL` to match your Vercel domain.
 3. In **Vercel**, ensure `VITE_API_BASE_URL` matches your Render URL + `/api`.
 
+---
+
+## 4. Google OAuth Sign-In Setup
+
+To enable **Continue with Google** in production and local development:
+
+1. **Database Trigger**: Ensure [`supabase/migrations/20261127_fix_oauth_profile_trigger.sql`](supabase/migrations/20261127_fix_oauth_profile_trigger.sql) (or the latest `supabase/full_schema.sql`) has been executed in **Supabase → SQL Editor** so OAuth signups never fail on username collisions.
+2. **Google Cloud Console**:
+   - Go to **APIs & Services → Credentials → Create Credentials → OAuth client ID** (Web application).
+   - **Authorized JavaScript origins**:
+     - `https://algotrack.vercel.app` (your live Vercel URL)
+     - `http://localhost:5173` (local dev)
+   - **Authorized redirect URIs**:
+     - `https://<your-supabase-project-ref>.supabase.co/auth/v1/callback`
+3. **Supabase Dashboard → Authentication → Providers → Google**:
+   - Enable **Google** and paste your **Client ID** and **Client Secret**.
+4. **Supabase Dashboard → Authentication → URL Configuration**:
+   - **Site URL**: `https://algotrack.vercel.app`
+   - **Redirect URLs**:
+     - `https://algotrack.vercel.app/auth/callback`
+     - `https://algotrack.vercel.app/**`
+     - `http://localhost:5173/auth/callback`
+     - `http://localhost:5173/**`
+
+---
+
+## 5. Keeping the Application Online 24/7
+
+- **Frontend (Vercel)**: Static SPA served from Vercel's global edge CDN — always online with zero cold starts.
+- **Backend (Render Free Tier)**: Render's free web services spin down after 15 minutes of inactivity, causing a 30–60 second cold start on the next request. To keep it warm 24/7 for free:
+  1. Sign up for a free uptime monitor such as [UptimeRobot](https://uptimerobot.com) or [cron-job.org](https://cron-job.org).
+  2. Create an **HTTP(S) monitor** targeting your backend health endpoint:
+     `https://<your-render-service>.onrender.com/api/health`
+  3. Set the check interval to **every 10 minutes** (anything under 14 minutes prevents Render from sleeping).
+- **Database (Supabase Free Tier)**: Supabase pauses free-tier projects after 7 days of zero database activity. Occasional traffic or a scheduled ping keeps it active.
+
+

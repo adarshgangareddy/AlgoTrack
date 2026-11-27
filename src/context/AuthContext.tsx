@@ -1,4 +1,4 @@
-import React, { createContext, useContext, useEffect, useState } from 'react';
+import React, { createContext, useContext, useEffect, useRef, useState } from 'react';
 import type { User, Session } from '@supabase/supabase-js';
 import { supabase, isSupabaseConfigured } from '../lib/supabase';
 
@@ -44,15 +44,24 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
   const [session, setSession] = useState<Session | null>(null);
   const [profile, setProfile] = useState<UserProfile | null>(null);
   const [loading, setLoading] = useState<boolean>(true);
+  const userIdRef = useRef<string | null>(null);
   const configured = isSupabaseConfigured();
+
+  useEffect(() => {
+    userIdRef.current = user?.id ?? null;
+  }, [user]);
 
   // Fetch user profile from Supabase profiles table
   const fetchProfile = async (
     userId: string,
     userEmail: string,
     userFullName?: string,
-    userUsername?: string
+    userUsername?: string,
+    userAvatarUrl?: string
   ) => {
+    const baseName = userEmail.split('@')[0].toLowerCase().replace(/[^a-z0-9_]/g, '') || 'user';
+    const safeFallbackUsername = userUsername || `${baseName}_${userId.slice(0, 6)}`;
+
     if (!configured) {
       const stored = localStorage.getItem(LOCAL_STORAGE_KEY_PROFILE);
       if (stored) {
@@ -60,9 +69,10 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
       } else {
         const demoProf: UserProfile = {
           id: userId,
-          full_name: userFullName || 'AlgoTrack Engineer',
-          username: userUsername || userEmail.split('@')[0],
+          full_name: userFullName || userEmail.split('@')[0],
+          username: safeFallbackUsername,
           email: userEmail,
+          avatar_url: userAvatarUrl,
           target_role: 'Software Engineer',
           bio: '',
         };
@@ -84,8 +94,9 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
         const fallbackProfile: UserProfile = {
           id: userId,
           full_name: userFullName || userEmail.split('@')[0],
-          username: userUsername || userEmail.split('@')[0],
+          username: safeFallbackUsername,
           email: userEmail,
+          avatar_url: userAvatarUrl,
           target_role: 'Software Engineer',
           bio: '',
         };
@@ -99,8 +110,9 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
       setProfile({
         id: userId,
         full_name: userFullName || userEmail.split('@')[0],
-        username: userUsername || userEmail.split('@')[0],
+        username: safeFallbackUsername,
         email: userEmail,
+        avatar_url: userAvatarUrl,
         target_role: 'Software Engineer',
         bio: '',
       });
@@ -117,10 +129,13 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
         setSession(initialSession);
         setUser(initialSession?.user ?? null);
         if (initialSession?.user) {
+          const meta = initialSession.user.user_metadata;
           fetchProfile(
             initialSession.user.id,
             initialSession.user.email || '',
-            initialSession.user.user_metadata?.full_name
+            meta?.full_name || meta?.name,
+            meta?.username,
+            meta?.avatar_url || meta?.picture
           );
         }
         setLoading(false);
@@ -133,7 +148,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
         async (event, newSession) => {
           if (!isMounted) return;
           // Ignore TOKEN_REFRESHED if user didn't change to prevent flicker
-          if (event === 'TOKEN_REFRESHED' && newSession?.user?.id === user?.id) {
+          if (event === 'TOKEN_REFRESHED' && newSession?.user?.id === userIdRef.current) {
             setSession(newSession);
             return;
           }
@@ -141,10 +156,13 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
           setSession(newSession);
           setUser(newSession?.user ?? null);
           if (newSession?.user) {
+            const meta = newSession.user.user_metadata;
             await fetchProfile(
               newSession.user.id,
               newSession.user.email || '',
-              newSession.user.user_metadata?.full_name
+              meta?.full_name || meta?.name,
+              meta?.username,
+              meta?.avatar_url || meta?.picture
             );
           } else {
             setProfile(null);
@@ -338,6 +356,9 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
         provider: 'google',
         options: {
           redirectTo: typeof window !== 'undefined' ? `${window.location.origin}/auth/callback` : undefined,
+          queryParams: {
+            prompt: 'select_account',
+          },
         },
       });
       return { error };
